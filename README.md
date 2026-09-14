@@ -18,18 +18,39 @@ de construir nada encima.
 
 | Fase | Contenido | Estado |
 |---|---|---|
-| 0 | Banco de pruebas y línea base de medidas | en curso |
-| 1 | MVP: audio de la pestaña → japonés en pantalla | pendiente |
+| 0 | Banco de pruebas y línea base de medidas | **cerrada** |
+| 1 | MVP: audio de la pestaña → japonés en pantalla | siguiente |
 | 2 | Sudachi + JMdict + tokens clicables | pendiente |
 | 3 | Traducción al español | pendiente |
 | 4 | Gramática por reglas | pendiente |
 | 5 | LLM local y explicaciones contextuales | pendiente |
 | 6 | Vocabulario, estadísticas y repaso espaciado | pendiente |
 
-## Hallazgos de la Fase 0
+## Resultados de la Fase 0
 
 Medido el 14-09-2026 en la máquina objetivo (RTX 2060 6 GB, faster-whisper 1.2.1,
-CTranslate2 4.8.2). Detalle en [`docs/adr/`](docs/adr/).
+CTranslate2 4.8.2) con la GPU en reposo. Detalle en [`docs/adr/`](docs/adr/).
+
+| Muestra | Latencia p50 | p95 | Whisper p50 | Frases | Descartes |
+|---|---|---|---|---|---|
+| Silencio digital, 45 s | — | — | — | **0** | 0 pasadas |
+| Ruido rosa, 45 s | — | — | — | **0** | 0 pasadas |
+| Narración de estudio | 1 440 ms | 3 951 ms | 362 ms | 11 | 5 / 94 |
+| Entrevistas en la calle | 1 666 ms | 2 673 ms | 440 ms | 14 | 3 / 94 |
+| Reportaje, tramo final | 1 421 ms | 2 065 ms | 382 ms | 11 | 5 / 92 |
+| Anime, escena de acción | 1 365 ms | 3 534 ms | 380 ms | 6 | 11 / 67 |
+
+VRAM: base del escritorio 1 181 MiB, pico total 2 496, atribuible al modelo
+**1 315 MiB** de 6 144. Los tres presupuestos de latencia del documento de
+arquitectura se cumplen. Sobre silencio y ruido, Whisper no llega a ejecutarse
+ni una vez.
+
+**El anime es otro régimen.** Produce 87 caracteres en 62 s frente a los ~290 del
+reportaje, y rechaza el 16 % de las pasadas frente al 3–5 % de las noticias. La
+transcripción es utilizable para subtitular, pero pierde detalle
+(お娘 por あの娘, フリーレ por フリーレン). A partir de la fase 2 habrá que
+marcar la confianza por token: una lectura mal segmentada enseña japonés
+incorrecto a quien todavía no puede detectarlo.
 
 **Modelo elegido: `large-v3-turbo`.** Medido sobre tres tramos de 70 s de un
 reportaje de televisión japonesa (narración de estudio, entrevistas en la calle,
@@ -68,15 +89,18 @@ escribió 大人の**自首**室 («sala de entrega a la policía») donde turbo
   latencia p95 de 6,3 s. Con `no_repeat_ngram_size`, `repetition_penalty` y una
   cota de `max_new_tokens`, el p95 de inferencia bajó de 1 688 a 571 ms.
 
-### Pendiente de medir con la GPU en reposo
+- **El umbral de confianza sirve, pero no para lo que parecía.** `avg_logprob < −1,0`
+  rechaza 3–5 pasadas legítimas por muestra y no atrapa ni una alucinación, así que
+  parecía coste puro. Al aflojarlo a −2,5 los descartes bajan de 5 a 2 pero el p95
+  **empeora** de 3 951 a 7 811 ms: aceptar una pasada mala le da a LocalAgreement
+  una hipótesis con la que la siguiente no coincide, y la confirmación se retrasa
+  una ronda entera. Rechazar basura sale más barato que reconciliarla. Se queda
+  en −1,0.
 
-Varias ejecuciones salieron contaminadas porque había un juego y Steam abiertos
-(3 623 MiB de VRAM ocupados antes de arrancar). El banco ahora lo detecta y avisa,
-pero quedan dos cosas por decidir con la máquina tranquila:
-
-- si conviene aflojar `min_avg_logprob` de −1,0 a −2,5 (baja los descartes de 5 a
-  2 por muestra, pero no se vio mejora clara de latencia);
-- los valores absolutos de VRAM y latencia de la comparativa.
+> **Al reproducir estas cifras, cierra juegos y navegadores con aceleración.**
+> Con un juego abierto el pico de VRAM pasó de 2 496 a 5 392 MiB y la latencia p50
+> casi se duplicó. El banco detecta la contención y lo avisa, pero no puede
+> corregirla.
 
 ## Requisitos
 

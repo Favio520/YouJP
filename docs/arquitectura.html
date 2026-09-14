@@ -494,38 +494,38 @@ svg .axt{fill:var(--ink-3);font-family:var(--font-mono);font-size:10px}
 
     <text x="14" y="70" class="t">Modo directo</text>
     <text x="14" y="84" class="ts">recomendado</text>
-    <rect x="140" y="56" width="104" height="30" style="fill:var(--ink-3)"/>
-    <rect x="244" y="56" width="185" height="30" style="fill:var(--ai)"/>
-    <rect x="429" y="56" width="70" height="30" style="fill:var(--ai-line)"/>
-    <rect x="499" y="56" width="255" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
-    <text x="626" y="75" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">2 559 MiB libres</text>
+    <rect x="140" y="56" width="118" height="30" style="fill:var(--ink-3)"/>
+    <rect x="258" y="56" width="132" height="30" style="fill:var(--ai)"/>
+    <rect x="390" y="56" width="70" height="30" style="fill:var(--ai-line)"/>
+    <rect x="460" y="56" width="294" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
+    <text x="607" y="75" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">2 948 MiB libres</text>
 
     <text x="14" y="126" class="t">Modo estudio</text>
     <text x="14" y="140" class="ts">vídeo pausado</text>
-    <rect x="140" y="112" width="104" height="30" style="fill:var(--ink-3)"/>
-    <rect x="244" y="112" width="320" height="30" style="fill:var(--matcha)"/>
-    <rect x="564" y="112" width="190" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
-    <text x="404" y="131" style="fill:var(--ground);font-family:var(--font-mono);font-size:10px" text-anchor="middle">Qwen3-4B Q4_K_M + KV 8k · 3 200 MiB</text>
-    <text x="659" y="131" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">1 904 libres</text>
+    <rect x="140" y="112" width="118" height="30" style="fill:var(--ink-3)"/>
+    <rect x="258" y="112" width="320" height="30" style="fill:var(--matcha)"/>
+    <rect x="578" y="112" width="176" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
+    <text x="418" y="131" style="fill:var(--ground);font-family:var(--font-mono);font-size:10px" text-anchor="middle">Qwen3-4B Q4_K_M + KV 8k · 3 200 MiB</text>
+    <text x="666" y="131" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">1 763 libres</text>
 
     <text x="14" y="182" class="t">Todo a la vez</text>
     <text x="14" y="196" class="ts">lo que no hay que hacer</text>
-    <rect x="140" y="168" width="104" height="30" style="fill:var(--ink-3)"/>
-    <rect x="244" y="168" width="185" height="30" style="fill:var(--ai)"/>
-    <rect x="429" y="168" width="70" height="30" style="fill:var(--ai-line)"/>
-    <rect x="499" y="168" width="255" height="30" style="fill:var(--matcha)"/>
-    <rect x="754" y="168" width="64" height="30" style="fill:var(--shu)"/>
-    <text x="824" y="187" style="fill:var(--shu);font-family:var(--font-mono);font-size:10px">+641</text>
+    <rect x="140" y="168" width="118" height="30" style="fill:var(--ink-3)"/>
+    <rect x="258" y="168" width="132" height="30" style="fill:var(--ai)"/>
+    <rect x="390" y="168" width="70" height="30" style="fill:var(--ai-line)"/>
+    <rect x="460" y="168" width="294" height="30" style="fill:var(--matcha)"/>
+    <rect x="754" y="168" width="26" height="30" style="fill:var(--shu)"/>
+    <text x="786" y="187" style="fill:var(--shu);font-family:var(--font-mono);font-size:10px">+252</text>
 
     <g class="ts">
-      <rect x="140" y="242" width="10" height="10" style="fill:var(--ink-3)"/><text x="156" y="251">Windows + Chrome (1 040 medido)</text>
-      <rect x="310" y="242" width="10" height="10" style="fill:var(--ai)"/><text x="326" y="251">Whisper turbo int8_float16 (1 845 medido)</text>
+      <rect x="140" y="242" width="10" height="10" style="fill:var(--ink-3)"/><text x="156" y="251">Windows + Chrome (1 181 medido)</text>
+      <rect x="310" y="242" width="10" height="10" style="fill:var(--ai)"/><text x="326" y="251">Whisper turbo int8_float16 (1 315 medido)</text>
       <rect x="546" y="242" width="10" height="10" style="fill:var(--ai-line)"/><text x="562" y="251">NLLB-600M int8 (700 est.)</text>
       <rect x="700" y="242" width="10" height="10" style="fill:var(--matcha)"/><text x="716" y="251">Qwen3-4B (3 200 est.)</text>
     </g>
   </svg>
   </div>
-  <figcaption>Actualizado con medidas de la Fase 0 (14-09-2026, RTX 2060, faster-whisper 1.2.1 / CTranslate2 4.8.2). Turbo en <code>int8_float16</code> ocupa 1 845 MiB, un 15 % más que la estimación inicial de 1 600. NLLB y Qwen siguen siendo estimaciones.</figcaption>
+  <figcaption>Medido en la Fase 0 con la GPU en reposo (14-09-2026, RTX 2060, faster-whisper 1.2.1 / CTranslate2 4.8.2). Turbo en <code>int8_float16</code> ocupa <strong>1 315 MiB</strong>, por debajo de la estimación inicial de 1 600. NLLB y Qwen siguen sin medir. Cuidado al reproducir estas cifras: con un juego abierto, el pico total subió de 2 496 a 5 392 MiB y la latencia p50 casi se duplicó.</figcaption>
   </figure>
 
   <h3>Ajustes concretos</h3>
@@ -803,23 +803,44 @@ svg .axt{fill:var(--ink-3);font-family:var(--font-mono);font-size:10px}
   </figure>
 
   <div class="note ok">
-    <div class="nt">Medido sobre audio real · 14-09-2026</div>
-    <p>Tres tramos de 70 s de un reportaje de televisión japonesa (ABC News Kansai): narración de estudio, entrevistas en la calle y voz sobre música de fondo.</p>
+    <div class="nt">Medido sobre audio real · 14-09-2026 · GPU en reposo</div>
+    <p>Cuatro muestras: tres tramos de 70 s de un reportaje de televisión japonesa (ABC News Kansai) — narración de estudio, entrevistas en la calle y voz sobre música — más 62 s de una escena de acción de anime, con diálogo escaso sobre efectos y banda sonora.</p>
   </div>
+  <div class="tw"><table>
+    <thead><tr><th>Muestra</th><th class="num">Latencia p50</th><th class="num">p95</th><th class="num">Whisper p50</th><th class="num">Frases</th><th class="num">Descartes</th></tr></thead>
+    <tbody>
+      <tr><td>Silencio digital, 45 s</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">0</td><td class="num">0 pasadas</td></tr>
+      <tr><td>Ruido rosa, 45 s</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">0</td><td class="num">0 pasadas</td></tr>
+      <tr><td>Narración de estudio</td><td class="num">1 440 ms</td><td class="num">3 951 ms</td><td class="num">362 ms</td><td class="num">11</td><td class="num">5 / 94</td></tr>
+      <tr><td>Entrevistas en la calle</td><td class="num">1 666 ms</td><td class="num">2 673 ms</td><td class="num">440 ms</td><td class="num">14</td><td class="num">3 / 94</td></tr>
+      <tr><td>Reportaje, tramo final</td><td class="num">1 421 ms</td><td class="num">2 065 ms</td><td class="num">382 ms</td><td class="num">11</td><td class="num">5 / 92</td></tr>
+      <tr><td>Anime, escena de acción</td><td class="num">1 365 ms</td><td class="num">3 534 ms</td><td class="num">380 ms</td><td class="num">6</td><td class="num">11 / 67</td></tr>
+    </tbody>
+  </table></div>
+  <p>Los tres presupuestos de §08 se cumplen: latencia p50 entre 1,4 y 1,7 s frente a los 1,9 s estimados, y p95 por debajo de los 4 s en las cuatro muestras. Sobre silencio y ruido, <strong>Whisper no llega a ejecutarse ni una vez</strong>: el VAD detiene el audio antes.</p>
+  <p><strong>El anime es otro régimen.</strong> Produce 87 caracteres en 62 s frente a los ~290 del reportaje, y rechaza el 16 % de las pasadas frente al 3–5 % de las noticias. La transcripción es utilizable pero pierde detalle: escribió <span class="jp">お娘と私の間には</span> por <span class="jp">あの娘と私の間には</span>, y <span class="jp">フリーレこの娘に…</span> comiéndose la <span class="jp">ン</span> del nombre. Para subtitular es suficiente; para enseñar vocabulario a partir de la fase 2 habrá que marcar la confianza de cada token, porque una lectura mal segmentada enseña japonés incorrecto a quien todavía no puede detectarlo.</p>
+
+  <h3>Comparativa de modelos</h3>
   <div class="tw"><table>
     <thead><tr><th>Métrica</th><th class="num">large-v3-turbo</th><th class="num">kotoba-whisper-v2.0</th></tr></thead>
     <tbody>
-      <tr><td>Latencia p50</td><td class="num">1 477 – 1 826 ms</td><td class="num">1 514 – 3 276 ms</td></tr>
-      <tr><td>Latencia p95</td><td class="num">2 096 – 4 307 ms</td><td class="num">4 359 – 7 301 ms</td></tr>
-      <tr><td>Inferencia por pasada, p50</td><td class="num">408 – 482 ms</td><td class="num">317 – 338 ms</td></tr>
+      <tr><td>Latencia p50</td><td class="num">1 421 – 1 666 ms</td><td class="num">1 514 – 3 276 ms</td></tr>
+      <tr><td>Latencia p95</td><td class="num">2 065 – 3 951 ms</td><td class="num">4 359 – 7 301 ms</td></tr>
+      <tr><td>Inferencia por pasada, p50</td><td class="num">362 – 440 ms</td><td class="num">317 – 338 ms</td></tr>
       <tr><td>Parciales emitidos (70 s)</td><td class="num">73 – 77</td><td class="num">36 – 41</td></tr>
       <tr><td>Pasadas sin emitir nada</td><td class="num">0</td><td class="num">12 – 27</td></tr>
-      <tr><td>VRAM atribuible</td><td class="num">~1 600 MiB</td><td class="num">~1 400 MiB</td></tr>
+      <tr><td>VRAM atribuible</td><td class="num">1 315 MiB</td><td class="num">1 413 MiB</td></tr>
       <tr><td>Marcas por palabra</td><td class="num">sí</td><td class="num">no</td></tr>
     </tbody>
   </table></div>
   <p><strong>Decisión: large-v3-turbo.</strong> El resultado es contraintuitivo y merece explicarse. Kotoba infiere ~100 ms más rápido por pasada y ocupa 200 MiB menos, pero en streaming pierde: su decodificador destilado de dos capas se niega a emitir sobre ventanas parciales y devuelve texto vacío en una de cada tres pasadas. Como LocalAgreement necesita dos pasadas coincidentes para confirmar, cada ventana vacía retrasa toda la frase. En calidad tampoco compensa — sobre el mismo audio escribió <span class="jp">大人の自首室</span> («sala de entrega a la policía») donde turbo escribió <span class="jp">大人の自習室</span> («sala de estudio para adultos»).</p>
   <p>La lección general, aplicable al resto del proyecto: <strong>un modelo mejor en pruebas por lotes puede ser peor en streaming</strong>, porque la carga de trabajo es distinta. Hay que medir en el régimen en el que se va a usar.</p>
+
+  <div class="note">
+    <div class="nt">Un filtro que sirve, pero no para lo que parecía</div>
+    <p>El umbral de confianza (<code>avg_logprob &lt; −1,0</code>) rechaza entre 3 y 5 pasadas legítimas por muestra y, como quedó claro en §10, no atrapa ni una alucinación. Parecía coste puro, así que se probó a aflojarlo a −2,5: los descartes bajan de 5 a 2, pero el <strong>p95 empeora mucho</strong> — de 3 951 a 7 811 ms en la peor muestra, y de 2 065 a 2 766 ms en la mejor.</p>
+    <p>El motivo es de LocalAgreement, no del filtro: aceptar una pasada mala le da a la política una hipótesis con la que la siguiente no coincide, así que la confirmación se retrasa una ronda entera. <strong>Rechazar la basura sale más barato que reconciliarla.</strong> Se mantiene en −1,0.</p>
+  </div>
 
   <figure>
   </figure>
