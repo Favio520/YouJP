@@ -249,6 +249,48 @@ def test_seek_reancla_el_tiempo_de_medio():
     assert not session.segmenter.has_pending
 
 
+def test_el_flush_y_la_bandera_no_se_pisan():
+    """El bug del 14-09-2026, encontrado con el cliente de repeticion.
+
+    Hay dos formas de enterarse de un seek: el mensaje ``control.flush`` del
+    content script y la bandera de discontinuidad en la primera trama posterior.
+    Llegaban por caminos distintos y cada una reanclaba con su propio tiempo: el
+    flush ponia 80 000 ms y 92 ms despues la trama lo pisaba con 20 000 ms,
+    dejando los subtitulos desplazados un minuto sin que nada fallara a la vista.
+
+    Ahora las tramas son la unica fuente de verdad, asi que el orden de llegada
+    no importa. Aqui se comprueban los dos ordenes posibles.
+    """
+    nueva_pos = 600_000
+
+    def salto(seq: int) -> AudioFrame:
+        return AudioFrame(
+            seq=seq, media_time_ms=nueva_pos, capture_ms=0,
+            pcm=np.zeros(1600, dtype=np.float32), discontinuity=True,
+        )
+
+    # Orden A: primero el mensaje de control, luego la trama marcada.
+    s = settings_for_test()
+    a = StreamingSession(s, FakeEngine([[]]), FakeGate())
+    for f in frames(4):
+        a.push(f)
+    a.reset()
+    a.push(salto(99))
+    assert a.media_ms(a.ring.end_time) == pytest.approx(nueva_pos, abs=200)
+
+    # Orden B: primero la trama marcada, luego el mensaje de control con retraso.
+    b = StreamingSession(s, FakeEngine([[]]), FakeGate())
+    for f in frames(4):
+        b.push(f)
+    b.push(salto(99))
+    b.reset()
+    b.push(AudioFrame(
+        seq=100, media_time_ms=nueva_pos + 100, capture_ms=0,
+        pcm=np.zeros(1600, dtype=np.float32),
+    ))
+    assert b.media_ms(b.ring.end_time) == pytest.approx(nueva_pos + 100, abs=200)
+
+
 def test_descarta_texto_de_la_lista_negra():
     gracias = "ご視聴ありがとうございました"
     s = settings_for_test(hallucination_blacklist=(gracias,))

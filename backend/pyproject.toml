@@ -5,6 +5,10 @@ description = "Subtitulos japoneses en tiempo real con analisis linguistico loca
 requires-python = ">=3.12,<3.13"
 
 dependencies = [
+    # Servidor HTTP y WebSocket. uvicorn[standard] trae el backend de
+    # websockets y httptools.
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
     # ASR. Arrastra ctranslate2, tokenizers, huggingface-hub y av.
     "faster-whisper>=1.1.0",
     # VAD Silero en ONNX, para no arrastrar PyTorch (~2.5 GB) al proyecto.

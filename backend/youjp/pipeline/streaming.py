@@ -98,6 +98,9 @@ class StreamingSession:
         self._last_speech_at = -1.0
         self._anchor_session_s = 0.0
         self._anchor_media_ms = start_media_ms
+        # La primera trama fija el ancla de verdad; start_media_ms solo sirve
+        # mientras no haya llegado ninguna.
+        self._needs_anchor = True
         self._t0 = time.perf_counter()
 
     # -- relojes -----------------------------------------------------------
@@ -115,7 +118,19 @@ class StreamingSession:
     def push(self, frame: AudioFrame) -> None:
         """Consume una trama de audio y ejecuta una pasada si toca."""
         if frame.discontinuity:
-            self.reset(frame.media_time_ms)
+            self.reset()
+
+        if self._needs_anchor:
+            # El ancla se toma de la trama, nunca del mensaje de control. Ver
+            # reset() para el porque.
+            self._anchor_session_s = self.ring.end_time
+            self._anchor_media_ms = frame.media_time_ms
+            self._needs_anchor = False
+            log.debug(
+                "anclado: media_time=%d ms en t=%.2f s",
+                frame.media_time_ms,
+                self._anchor_session_s,
+            )
 
         self.ring.write(frame.pcm)
         events = self.gate.push(frame.pcm)
@@ -139,9 +154,24 @@ class StreamingSession:
         self._run_pass(force=True)
         self._close_on_silence(reason="end_of_stream")
 
-    def reset(self, media_time_ms: int) -> None:
-        """Reancla todo tras un seek o un cambio de velocidad."""
-        log.info("flush del pipeline, reanclando en media_time=%d ms", media_time_ms)
+    def reset(self) -> None:
+        """Descarta todo el estado tras un seek, una pausa o un cambio de velocidad.
+
+        **No** recibe el nuevo tiempo de medio a proposito. Hay dos formas de
+        enterarse de un salto -- el mensaje ``control.flush`` del content script y
+        la bandera de discontinuidad en la primera trama posterior -- y llegan por
+        caminos distintos, con latencias distintas y con tiempos que no coinciden.
+        Medido el 14-09-2026: el flush reanclo en 80 000 ms y 92 ms despues la
+        trama marcada lo piso con 20 000 ms, dejando los subtitulos desplazados un
+        minuto sin que nada fallara visiblemente.
+
+        La regla es que **las tramas son la unica fuente de verdad del tiempo de
+        medio**. Un reset solo marca que hace falta reanclar; el ancla la pone la
+        siguiente trama que llegue, con el valor que traiga. Asi el orden de
+        llegada deja de importar y un flush sin bandera, o una bandera sin flush,
+        funcionan igual de bien.
+        """
+        log.info("flush del pipeline; se reanclara con la siguiente trama")
         now = self.ring.end_time
         self.ring.clear(at_time=now)
         self.gate.reset(at_time=now)
@@ -149,8 +179,7 @@ class StreamingSession:
         self.segmenter.reset()
         self._window_start = now
         self._last_pass_sample = self.ring.end_sample
-        self._anchor_session_s = now
-        self._anchor_media_ms = media_time_ms
+        self._needs_anchor = True
         self._last_emitted = ("", "")
         self._last_final_text = ""
         self._last_speech_at = -1.0
