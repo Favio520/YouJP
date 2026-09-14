@@ -23,7 +23,10 @@ import {
 
 interface Capture {
   stream: MediaStream;
-  ctx: AudioContext;
+  /** Contexto a 16 kHz que alimenta al worklet. */
+  asrCtx: AudioContext;
+  /** Contexto a la frecuencia nativa que devuelve el sonido al usuario. */
+  playbackCtx: AudioContext;
   node: AudioWorkletNode;
   ws: WebSocket;
   startedAt: number;
@@ -60,32 +63,46 @@ async function openStream(streamId: string): Promise<MediaStream> {
   } as unknown as MediaStreamConstraints);
 }
 
+/**
+ * Dos contextos de audio, uno por cada trabajo, y no uno compartido.
+ *
+ * Whisper quiere 16 kHz, y pedir el `AudioContext` a esa frecuencia hace que
+ * Chrome remuestree por nosotros — pero la reinyección del sonido tiene que
+ * salir por otro sitio. Con un solo contexto a 16 kHz, lo que oye el usuario
+ * queda limitado a 8 kHz de ancho de banda: suena apagado, como un teléfono.
+ * Es audible y fue lo primero que se notó al probarlo en serio.
+ *
+ * El mismo `MediaStream` puede alimentar a los dos contextos a la vez, así que
+ * cada camino trabaja a la frecuencia que le conviene:
+ *
+ *   stream ──> playbackCtx (nativa, 48 kHz) ──> altavoces
+ *          └─> asrCtx (16 kHz) ──> worklet ──> WebSocket
+ */
 async function buildGraph(stream: MediaStream, onFrame: (pcm: ArrayBuffer) => void) {
-  // Pidiendo el contexto a 16 kHz, Chrome remuestrea la captura por nosotros.
-  // Escribir un resampler a mano aquí sería trabajo para nada.
-  const ctx = new AudioContext({ sampleRate: SAMPLE_RATE });
-  await ctx.audioWorklet.addModule(chrome.runtime.getURL('pcm-worklet.js'));
+  // --- reproducción: calidad intacta -------------------------------------
+  // Sin esto la pestaña se queda muda. La documentación de tabCapture lo dice
+  // explícitamente: mientras capturas, el audio deja de reproducirse para el
+  // usuario. Es el fallo más fácil de cometer y el que más asusta.
+  const playbackCtx = new AudioContext();
+  playbackCtx.createMediaStreamSource(stream).connect(playbackCtx.destination);
 
-  const source = ctx.createMediaStreamSource(stream);
-  const node = new AudioWorkletNode(ctx, 'pcm-collector', {
+  // --- análisis: 16 kHz, que es lo que quiere el modelo -------------------
+  const asrCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
+  await asrCtx.audioWorklet.addModule(chrome.runtime.getURL('pcm-worklet.js'));
+
+  const node = new AudioWorkletNode(asrCtx, 'pcm-collector', {
     processorOptions: { frameSamples: FRAME_SAMPLES },
     numberOfOutputs: 1,
   });
-
-  source.connect(node);
-
-  // Sin esta línea la pestaña se queda muda. La documentación de tabCapture lo
-  // dice explícitamente: mientras capturas, el audio deja de reproducirse para
-  // el usuario. Es el fallo más fácil de cometer y el que más asusta.
-  source.connect(ctx.destination);
+  asrCtx.createMediaStreamSource(stream).connect(node);
 
   // El worklet no escribe en su salida, así que esto no suena. Se conecta
   // igualmente porque Chrome solo procesa los nodos que llegan al destino: sin
-  // esta arista, `process()` dejaría de llamarse.
-  node.connect(ctx.destination);
+  // esta arista, `process()` dejaría de llamarse y no llegaría ni una trama.
+  node.connect(asrCtx.destination);
 
   node.port.onmessage = (event: MessageEvent<ArrayBuffer>) => onFrame(event.data);
-  return { ctx, node };
+  return { asrCtx, playbackCtx, node };
 }
 
 // ---------------------------------------------------------------------------
@@ -194,12 +211,13 @@ async function start(params: StartCapture): Promise<void> {
     capture.mediaTimeMs += FRAME_MS;
   };
 
-  const { ctx, node } = await buildGraph(stream, onFrame);
+  const { asrCtx, playbackCtx, node } = await buildGraph(stream, onFrame);
   const ws = await openSocket(params.serverUrl || DEFAULT_SERVER_URL, params);
 
   capture = {
     stream,
-    ctx,
+    asrCtx,
+    playbackCtx,
     node,
     ws,
     startedAt: performance.now(),
@@ -232,7 +250,10 @@ async function stop(): Promise<void> {
   capture.node.port.onmessage = null;
   capture.node.disconnect();
   capture.stream.getTracks().forEach((track) => track.stop());
-  await capture.ctx.close().catch(() => {});
+  await Promise.all([
+    capture.asrCtx.close().catch(() => {}),
+    capture.playbackCtx.close().catch(() => {}),
+  ]);
   report({ type: 'status', status: 'idle' });
 }
 

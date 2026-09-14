@@ -171,6 +171,7 @@ caliente.
 |---|---|
 | «conectando con el backend…» y no avanza | El backend no está arrancado, o está en otro puerto. |
 | La pestaña se queda muda | No debería ocurrir: el audio se reinyecta en `offscreen/main.ts`. Si pasa, mira ahí. |
+| El audio suena apagado, como un teléfono | Alguien ha vuelto a juntar los dos contextos de audio en uno. El de reproducción tiene que ir a la frecuencia nativa; solo el del ASR va a 16 kHz. |
 | No aparece nada y el vídeo no es japonés | Normal: el VAD y los filtros descartan lo que no es habla japonesa. |
 | Nada tras un `seek` | Mira el log del backend, debe aparecer `flush del pipeline`. |
 
