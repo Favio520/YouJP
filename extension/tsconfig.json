@@ -1,0 +1,10 @@
+{
+  // Ojo: no redefinir "include" aquí. El tsconfig generado por WXT incluye
+  // ../**/* y ./wxt.d.ts, y este último es el que trae los tipos de las
+  // utilidades (defineBackground, createShadowRootUi...). Sobreescribirlo deja
+  // esos tipos fuera y tsc se queja de nombres que no encuentra.
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
+}

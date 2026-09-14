@@ -19,7 +19,7 @@ de construir nada encima.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Banco de pruebas y línea base de medidas | **cerrada** |
-| 1 | MVP: audio de la pestaña → japonés en pantalla | siguiente |
+| 1 | MVP: audio de la pestaña → japonés en pantalla | **en pruebas** |
 | 2 | Sudachi + JMdict + tokens clicables | pendiente |
 | 3 | Traducción al español | pendiente |
 | 4 | Gramática por reglas | pendiente |
@@ -135,6 +135,70 @@ diferente: informativo (habla clara y pausada), conversación o charla, anime o
 drama (habla rápida y coloquial), un tramo con música de fondo, y un tramo de
 **silencio puro** — este último es la prueba que de verdad importa, porque es
 donde Whisper en japonés inventa frases.
+
+## Usar la extensión
+
+```powershell
+# 1. Arranca el backend y déjalo corriendo
+cd backend
+uv run uvicorn youjp.main:app --host 127.0.0.1 --port 8770
+
+# 2. En otra consola, construye la extensión
+cd extension
+npm install
+npm run build          # deja el resultado en extension/.output/chrome-mv3
+```
+
+En Chrome o Edge: `chrome://extensions` → activa **Modo de desarrollador** →
+**Cargar descomprimida** → elige `extension/.output/chrome-mv3`.
+
+Abre un vídeo japonés de YouTube y **haz clic en el icono de la extensión**. Ese
+clic es obligatorio: `tabCapture` solo concede el permiso tras un gesto del
+usuario, y por eso la extensión no tiene popup — con popup, `action.onClicked`
+no se dispararía.
+
+- El icono muestra `ON` mientras captura. Otro clic la detiene.
+- **Alt+M** abre el panel de métricas sobre el vídeo.
+- El texto blanco está confirmado y ya no cambiará; el gris en cursiva todavía
+  puede reescribirse.
+
+Durante el desarrollo, `npm run dev` levanta un Chrome aparte con recarga en
+caliente.
+
+### Si algo no funciona
+
+| Síntoma | Causa probable |
+|---|---|
+| «conectando con el backend…» y no avanza | El backend no está arrancado, o está en otro puerto. |
+| La pestaña se queda muda | No debería ocurrir: el audio se reinyecta en `offscreen/main.ts`. Si pasa, mira ahí. |
+| No aparece nada y el vídeo no es japonés | Normal: el VAD y los filtros descartan lo que no es habla japonesa. |
+| Nada tras un `seek` | Mira el log del backend, debe aparecer `flush del pipeline`. |
+
+Los tres contextos depuran por separado: el service worker y el offscreen en
+`chrome://extensions` → *service worker* / *offscreen*, y el content script en la
+consola de la propia pestaña de YouTube.
+
+## Probar sin navegador
+
+El backend se puede ejercitar entero sin extensión, que es como se desarrolló:
+
+```powershell
+cd backend
+uv run python ../scripts/replay_client.py ../bench/samples/11-noticias-entrevista.wav
+uv run python ../scripts/replay_client.py <wav> --seek-at 20    # simula un salto
+```
+
+Hace exactamente lo que hace la extensión —abrir el WebSocket, anunciar la
+sesión y enviar PCM de 16 kHz en tramas de 100 ms al ritmo del reloj— pero
+leyendo de un fichero. Cuando algo falle, es la forma rápida de saber de qué
+lado está.
+
+Y para comprobar que los dos codecs siguen de acuerdo:
+
+```powershell
+cd backend
+uv run python ../scripts/check_frame_conformance.py
+```
 
 ## Los dos modos del banco
 

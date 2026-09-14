@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>youjp — captura de audio</title>
+  </head>
+  <body>
+    <!--
+      Documento offscreen. No lo ve nadie: existe porque en Manifest V3 el
+      service worker no puede usar getUserMedia ni sostener un WebSocket, y
+      porque su origen chrome-extension:// evita cualquier duda sobre contenido
+      mixto al abrir ws://127.0.0.1 desde una página https.
+    -->
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
