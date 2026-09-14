@@ -1,0 +1,31 @@
+# Modelos y datos pesados: se descargan con scripts, no se versionan
+/models/*
+!/models/.gitkeep
+/data/raw/*
+!/data/raw/.gitkeep
+/data/*.sqlite3
+/data/*.sqlite3-wal
+/data/*.sqlite3-shm
+
+# Muestras de audio y resultados del banco de pruebas
+/bench/samples/*
+!/bench/samples/.gitkeep
+/bench/results/*
+!/bench/results/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / extensión
+node_modules/
+/extension/.output/
+/extension/.wxt/
+dist/
+
+# Entorno local
+.env

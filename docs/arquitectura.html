@@ -1,0 +1,1191 @@
+<title>Subtítulos Vivos JA→ES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F7F7F4; --surface:#FFFFFF; --surface-2:#F0F1EC; --sunk:#EBECE6;
+  --ink:#161A1D; --ink-2:#3D4750; --ink-3:#6B7681; --rule:#D9DBD3; --rule-2:#C4C7BD;
+  --ai:#24427C; --ai-soft:#E4EAF5; --ai-line:#9FB4D8;
+  --shu:#B8422B; --shu-soft:#F6E3DE;
+  --matcha:#4F6E40; --matcha-soft:#E4EBDD;
+  --amber:#8A6011; --amber-soft:#F5EAD4;
+  --font-display:"Zen Old Mincho","Yu Mincho","Hiragino Mincho ProN",Georgia,serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono","Cascadia Mono",Consolas,monospace;
+  --font-jp:"Yu Gothic UI","Yu Gothic",Meiryo,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101315; --surface:#171B1E; --surface-2:#1E2327; --sunk:#0B0E10;
+    --ink:#E7E9E5; --ink-2:#B9C0C4; --ink-3:#8B959C; --rule:#2B3136; --rule-2:#3A4248;
+    --ai:#84A9E8; --ai-soft:#1A2436; --ai-line:#3E5A86;
+    --shu:#E58067; --shu-soft:#2E1C18;
+    --matcha:#97B67F; --matcha-soft:#1D2419;
+    --amber:#CFA34C; --amber-soft:#2B2313;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101315; --surface:#171B1E; --surface-2:#1E2327; --sunk:#0B0E10;
+  --ink:#E7E9E5; --ink-2:#B9C0C4; --ink-3:#8B959C; --rule:#2B3136; --rule-2:#3A4248;
+  --ai:#84A9E8; --ai-soft:#1A2436; --ai-line:#3E5A86;
+  --shu:#E58067; --shu-soft:#2E1C18;
+  --matcha:#97B67F; --matcha-soft:#1D2419;
+  --amber:#CFA34C; --amber-soft:#2B2313;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--font-body);
+  font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.page{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:0 96px;
+  display:grid;grid-template-columns:212px minmax(0,1fr);gap:56px;align-items:start}
+nav.toc{position:sticky;top:0;padding-block:40px 24px;font-size:12.5px;max-height:100vh;overflow-y:auto}
+nav.toc .tocLabel{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:14px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+nav.toc a{display:grid;grid-template-columns:22px 1fr;gap:6px;color:var(--ink-2);
+  text-decoration:none;padding:4px 6px 4px 0;border-radius:4px;line-height:1.35}
+nav.toc a span{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);padding-top:1px}
+nav.toc a:hover{color:var(--ai);background:var(--ai-soft)}
+main{min-width:0;padding-block:40px 0}
+header.mast{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:14px}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ai);font-weight:500}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(30px,5vw,46px);
+  line-height:1.1;margin:10px 0 12px;text-wrap:balance;letter-spacing:-.01em}
+.dek{font-size:17px;color:var(--ink-2);max-width:62ch;margin:0}
+.masthead-meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--font-mono);
+  font-size:11.5px;color:var(--ink-3);margin-top:18px}
+.masthead-meta b{color:var(--ink-2);font-weight:500}
+section{padding-top:52px;scroll-margin-top:24px}
+h2{font-family:var(--font-display);font-size:26px;font-weight:600;line-height:1.2;
+  margin:0 0 6px;text-wrap:balance;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:baseline}
+h2 .num{font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--ai);
+  border:1px solid var(--ai-line);border-radius:3px;padding:1px 6px;line-height:1.5}
+h3{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-2);margin:34px 0 10px}
+h4{font-size:14.5px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+p{margin:0 0 14px;max-width:70ch}
+ul,ol.body{margin:0 0 14px;padding-left:20px;max-width:70ch}
+li{margin-bottom:6px}
+a{color:var(--ai)}
+code{font-family:var(--font-mono);font-size:.875em;background:var(--sunk);
+  padding:1px 5px;border-radius:3px;border:1px solid var(--rule)}
+.jp{font-family:var(--font-jp)}
+.spec{font-family:var(--font-display);font-size:1.12em}
+strong{font-weight:600}
+hr.rule{border:0;border-top:1px solid var(--rule);margin:36px 0}
+.lede{font-size:16.5px;color:var(--ink-2);border-left:3px solid var(--ai);
+  padding-left:18px;margin:0 0 22px;max-width:66ch}
+.pill{display:inline-block;font-family:var(--font-mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.p-keep{background:var(--matcha-soft);color:var(--matcha);border:1px solid var(--matcha)}
+.p-change{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber)}
+.p-drop{background:var(--shu-soft);color:var(--shu);border:1px solid var(--shu)}
+.p-new{background:var(--ai-soft);color:var(--ai);border:1px solid var(--ai-line)}
+.tw{overflow-x:auto;margin:0 0 18px;border:1px solid var(--rule);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--rule-2);
+  background:var(--surface-2);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tech{font-family:var(--font-mono);font-size:12.5px;white-space:nowrap}
+.note{border:1px solid var(--rule);border-left:3px solid var(--ai);background:var(--surface);
+  padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 18px}
+.note.warn{border-left-color:var(--shu)}
+.note.ok{border-left-color:var(--matcha)}
+.note .nt{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin-bottom:5px}
+.note p:last-child{margin-bottom:0}
+pre{font-family:var(--font-mono);font-size:12.5px;line-height:1.62;background:var(--sunk);
+  border:1px solid var(--rule);border-radius:6px;padding:16px 18px;overflow-x:auto;margin:0 0 18px}
+pre .c{color:var(--ink-3)}
+pre .k{color:var(--ai)}
+pre .s{color:var(--matcha)}
+figure{margin:0 0 22px}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font-size:12px;color:var(--ink-3);margin-top:8px;font-family:var(--font-mono);line-height:1.5}
+.figbox{border:1px solid var(--rule);border-radius:6px;background:var(--surface);padding:18px;overflow-x:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:0 0 18px}
+.card{border:1px solid var(--rule);border-radius:6px;padding:14px 16px;background:var(--surface)}
+.card .ct{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.card .cv{font-family:var(--font-mono);font-size:21px;font-variant-numeric:tabular-nums;
+  margin:5px 0 3px;color:var(--ink)}
+.card .cd{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.risks{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:var(--surface)}
+.risk{display:grid;grid-template-columns:4px 1fr;border-bottom:1px solid var(--rule)}
+.risk:last-child{border-bottom:0}
+.risk .sev{background:var(--ink-3)}
+.risk.high .sev{background:var(--shu)}
+.risk.med .sev{background:var(--amber)}
+.risk.low .sev{background:var(--matcha)}
+.risk .rb{padding:13px 16px}
+.risk .rh{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:4px}
+.risk .rn{font-weight:600;font-size:14px}
+.risk .rt{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.risk p{font-size:13.5px;color:var(--ink-2);margin:0;max-width:78ch}
+.risk .mit{font-size:13px;margin-top:6px}
+.risk .mit b{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--matcha)}
+.phase{display:grid;grid-template-columns:64px 1fr;gap:18px;border-top:1px solid var(--rule);padding:16px 0}
+.phase:last-of-type{border-bottom:1px solid var(--rule)}
+.phase .pid{font-family:var(--font-mono);font-size:15px;font-weight:500;color:var(--ai);padding-top:1px}
+.phase .pid small{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;margin-top:2px}
+.phase h4{margin:0 0 5px}
+.phase p{font-size:13.5px;margin:0 0 6px;color:var(--ink-2)}
+.exit{font-size:12.5px;background:var(--surface-2);border-radius:4px;padding:8px 11px;
+  border:1px solid var(--rule);max-width:78ch}
+.exit b{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.mock{border:1px solid var(--rule-2);border-radius:8px;overflow:hidden;background:var(--surface);max-width:340px;font-size:13px}
+.mock .mh{background:var(--surface-2);padding:12px 16px;border-bottom:1px solid var(--rule)}
+.mock .mw{font-family:var(--font-display);font-size:28px;line-height:1.15}
+.mock .mr{font-family:var(--font-jp);font-size:13px;color:var(--ink-2)}
+.mock .mrom{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.03em}
+.mock .mb{padding:12px 16px;display:flex;flex-direction:column;gap:9px}
+.mock .row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.mock .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.mock .src{font-family:var(--font-mono);font-size:9.5px;color:var(--ink-3);border:1px solid var(--rule);
+  border-radius:2px;padding:0 4px}
+.mock .btn{font-size:12px;border:1px solid var(--ai-line);color:var(--ai);background:var(--ai-soft);
+  border-radius:4px;padding:6px 10px;text-align:center}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;align-items:start;margin-bottom:18px}
+@media (max-width:980px){
+  .page{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{position:static;max-height:none;padding-block:24px 0;border-bottom:1px solid var(--rule)}
+  nav.toc ol{flex-direction:row;flex-wrap:wrap;gap:4px 10px}
+  nav.toc a{grid-template-columns:auto auto}
+  main{padding-block:16px 0}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+a:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+</style>
+
+<style>
+svg .bx{fill:var(--surface);stroke:var(--ai-line);stroke-width:1}
+svg .band{fill:var(--sunk);stroke:var(--rule);stroke-width:1}
+svg .t{fill:var(--ink);font-family:var(--font-body);font-size:11.5px}
+svg .tb{fill:var(--ink);font-family:var(--font-body);font-size:12px;font-weight:600}
+svg .ts{fill:var(--ink-3);font-family:var(--font-mono);font-size:9.5px}
+svg .lbl{fill:var(--ink-3);font-family:var(--font-mono);font-size:10px;letter-spacing:.12em}
+svg .ar{stroke:var(--ink-3);stroke-width:1.3;fill:none}
+svg .gpubx{fill:var(--ai-soft);stroke:var(--ai-line);stroke-width:1}
+svg .cpubx{fill:var(--matcha-soft);stroke:var(--matcha);stroke-width:1}
+svg .tag{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.08em}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .axt{fill:var(--ink-3);font-family:var(--font-mono);font-size:10px}
+</style>
+<div class="page">
+<nav class="toc">
+  <div class="tocLabel">Contenido</div>
+  <ol>
+    <li><a href="#s1"><span>01</span>Viabilidad</a></li>
+    <li><a href="#s2"><span>02</span>Crítica y veredictos</a></li>
+    <li><a href="#s3"><span>03</span>Arquitectura final</a></li>
+    <li><a href="#s4"><span>04</span>Stack definitivo</a></li>
+    <li><a href="#s5"><span>05</span>Estrategia RTX 2060</a></li>
+    <li><a href="#s6"><span>06</span>Pipeline concurrente</a></li>
+    <li><a href="#s7"><span>07</span>Protocolo WebSocket</a></li>
+    <li><a href="#s8"><span>08</span>Presupuesto de latencia</a></li>
+    <li><a href="#s9"><span>09</span>Japonés sin LLM</a></li>
+    <li><a href="#s10"><span>10</span>Riesgos</a></li>
+    <li><a href="#s11"><span>11</span>Repositorio</a></li>
+    <li><a href="#s12"><span>12</span>Roadmap y MVP</a></li>
+  </ol>
+</nav>
+<main>
+<header class="mast">
+  <div class="eyebrow">Fase 1 · Revisión de arquitectura</div>
+  <h1>Subtítulos vivos <span class="jp">日本語</span> → español</h1>
+  <p class="dek">Documento técnico previo a la implementación: qué funciona de la propuesta original, qué se rompe en contacto con Manifest V3 y con 6 GB de VRAM, y cuál es el plan que sí sostiene un directo de YouTube.</p>
+  <div class="masthead-meta">
+    <span><b>Objetivo</b> latencia extremo a extremo &lt; 3 s</span>
+    <span><b>Hardware</b> Ryzen 7 · 42 GB · RTX 2060 6 GB</span>
+    <span><b>Nivel</b> JLPT N4 → N3</span>
+    <span><b>Estado</b> pre-código</span>
+  </div>
+</header>
+
+<section id="s1">
+  <h2><span class="num">01</span>Evaluación de viabilidad</h2>
+  <p class="lede">El proyecto es viable y la mayor parte de tus decisiones son correctas. Pero tal como está descrito, hay cinco puntos que lo bloquearían, y dos de ellos no se descubren hasta que ya has escrito mucho código.</p>
+
+  <p>Resumen del veredicto: <strong>sí, se puede conseguir subtítulo japonés estable en 1,5–2,5 s y japonés + español en 2,5–3,5 s</strong> en esa máquina. Lo que no se puede es conseguirlo con el diseño ingenuo de «esperar a que Whisper termine la frase», y no se puede con Whisper y un LLM de 4B compartiendo la GPU.</p>
+
+  <h3>Los cinco bloqueos reales</h3>
+  <div class="risks">
+    <div class="risk high"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn"><code>chrome.tabCapture.capture()</code> no existe en el service worker</span><span class="rt">Bloqueante</span></div>
+      <p>En Manifest V3 no hay ventana de fondo. La ruta válida es <code>chrome.tabCapture.getMediaStreamId()</code> desde el service worker (tras un gesto del usuario) y consumir ese ID con <code>getUserMedia()</code> dentro de un <strong>offscreen document</strong>. Requiere Chrome 116+, donde el ID pasó a poder usarse en cualquier frame del mismo origen y proceso.</p>
+      <div class="mit"><b>Consecuencia de diseño</b> · el audio, el <code>AudioWorklet</code> y el WebSocket viven todos en el offscreen document, no en el service worker.</div>
+    </div></div>
+    <div class="risk high"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Capturar la pestaña la deja muda</span><span class="rt">Bloqueante · trivial</span></div>
+      <p>La documentación lo dice explícitamente: mientras capturas, «el audio de esa pestaña deja de reproducirse para el usuario». Hay que reinyectarlo conectando el <code>MediaStreamAudioSourceNode</code> a <code>ctx.destination</code>. Si se olvida, la primera impresión es que la extensión ha roto YouTube.</p>
+    </div></div>
+    <div class="risk high"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Whisper no es un modelo de streaming</span><span class="rt">Bloqueante</span></div>
+      <p>Whisper es codificador-decodificador sobre ventanas de 30 s. Si esperas a que el VAD cierre cada intervención, tu latencia es <em>duración de la frase + inferencia</em>: 4–10 s en habla continua. No hay parciales.</p>
+      <div class="mit"><b>Solución</b> · política <strong>LocalAgreement-2</strong>: reejecutar sobre un buffer creciente cada ~0,8 s y confirmar solo el prefijo común entre dos pasadas consecutivas. Es el método del paper <em>Turning Whisper into Real-Time Transcription System</em>, que reporta 3,3 s de latencia sobre habla larga sin segmentar — y eso con modelos y hardware peores que reejecutar turbo en una 2060.</div>
+    </div></div>
+    <div class="risk high"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">6 GB de VRAM no son 6 GB</span><span class="rt">Bloqueante</span></div>
+      <p>Windows más Chrome con aceleración por GPU ya ocupan entre 0,8 y 1,5 GB de forma permanente. El presupuesto real para tus modelos es de <strong>~4,6–5,2 GB</strong>. Whisper turbo (~1,6 GB) más Qwen3-4B en Q4 (~3,1 GB) más el escritorio se sale. Y en Windows no obtienes un OOM limpio: el controlador desborda a RAM del sistema y la inferencia se vuelve 5–10× más lenta sin dar un solo error.</p>
+    </div></div>
+    <div class="risk med"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Un LLM de 4B en CPU no sigue el ritmo de un directo</span><span class="rt">Alto</span></div>
+      <p>Qwen3-4B en Q4_K_M sobre un Ryzen 7 da del orden de 8–14 tokens/s. Una frase traducida al español son 25–50 tokens: 2–6 s por frase, y un directo produce una frase cada 2,5–4 s. La cola crece sin límite. El LLM sirve perfectamente <em>bajo demanda</em>; no sirve como traductor del camino caliente.</p>
+    </div></div>
+  </div>
+
+  <h3>Lo que está bien planteado y no hay que tocar</h3>
+  <p>La intuición central del proyecto — <strong>no preguntar al LLM lo que un analizador morfológico y un diccionario ya responden mejor, más rápido y de forma determinista</strong> — es correcta y es lo que hace que esto sea construible en hardware modesto. Sudachi + JMdict + reglas cubren lectura, forma de diccionario, POS, conjugación y detección gramatical con coste de microsegundos y cero alucinación. También son acertados: FastAPI + WebSocket, faster-whisper sobre CTranslate2, SQLite, la separación parcial/final, el popup instantáneo desde diccionario con la IA detrás de un botón, y el orden de las fases.</p>
+</section>
+
+<section id="s2">
+  <h2><span class="num">02</span>Crítica técnica y veredictos</h2>
+  <p>Cada decisión de tu propuesta, con veredicto y motivo. <span class="pill p-keep">Mantener</span> <span class="pill p-change">Cambiar</span> <span class="pill p-drop">Eliminar</span> <span class="pill p-new">Añadir</span></p>
+
+  <h3>Extensión</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Decisión</th><th>Veredicto</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td class="tech">MV3 + TypeScript + React</td><td><span class="pill p-keep">Mantener</span></td><td>Correcto. React se justifica por el overlay con tarjetas, popovers y estado; no es overengineering aquí.</td></tr>
+      <tr><td class="tech">Vite + CRXJS</td><td><span class="pill p-change">Cambiar → WXT</span></td><td>CRXJS es un plugin de Vite, no un framework, y se actualiza más despacio bajo mantenimiento comunitario. WXT usa Vite por debajo, aporta entrypoints por convención, HMR real en content scripts y soporte directo para offscreen documents. Para un proyecto nuevo en 2026 es el punto por defecto.</td></tr>
+      <tr><td class="tech">chrome.tabCapture</td><td><span class="pill p-change">Cambiar de ruta</span></td><td><code>getMediaStreamId()</code> en el service worker → offscreen document. No <code>capture()</code>. Requiere gesto del usuario (clic en el icono) y el ID caduca en segundos si no se usa.</td></tr>
+      <tr><td class="tech">Web Audio + AudioWorklet</td><td><span class="pill p-keep">Mantener</span></td><td>Con un matiz que ahorra trabajo: crea el <code>AudioContext</code> con <code>{ sampleRate: 16000 }</code> y Chrome remuestrea por ti. No escribas un resampler de 48 k a 16 k.</td></tr>
+      <tr><td class="tech">WebSocket en el service worker</td><td><span class="pill p-change">Mover al offscreen</span></td><td>El service worker se termina por inactividad. El offscreen document vive mientras la captura esté activa. Además su origen es <code>chrome-extension://</code>, lo que elimina cualquier duda sobre contenido mixto al abrir <code>ws://127.0.0.1</code> desde una página HTTPS.</td></tr>
+      <tr><td class="tech"><code>video.captureStream()</code> en el content script</td><td><span class="pill p-new">Añadir como plan B</span></td><td>Alternativa sin offscreen ni permiso de captura, con menos latencia y sin el problema del silenciado. Más frágil ante cambios del DOM de YouTube. Merece existir detrás de la misma interfaz <code>AudioSource</code> para poder comparar.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Backend y modelos</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Decisión</th><th>Veredicto</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td class="tech">Python + FastAPI + WebSocket</td><td><span class="pill p-keep">Mantener</span></td><td>Es donde vive todo el ecosistema que necesitas (CTranslate2, SudachiPy, herramientas de JMdict). Rust con whisper.cpp sería más rápido y te costaría reescribir el análisis japonés entero.</td></tr>
+      <tr><td class="tech">Whisper small / medium</td><td><span class="pill p-change">Cambiar → large-v3-turbo</span></td><td>Elegir modelo pequeño «para ahorrar VRAM» es falsa economía. Turbo en <code>int8_float16</code> mide ~1 545 MB de pico y es varias veces más rápido que large-v3. El japonés de <code>small</code> es notablemente peor y te obliga a compensar con el LLM.</td></tr>
+      <tr><td class="tech">kotoba-whisper-v2.0</td><td><span class="pill p-drop">Descartado tras medir</span></td><td>Parecía el candidato natural: destilado de large-v3 sobre 7,2 M de clips japoneses de ReazonSpeech, con mejor CER que large-v3 en dominio. Medido sobre audio real <strong>pierde contra turbo en streaming</strong>: deja 12–27 ventanas sin emitir nada por muestra de 70 s, produce la mitad de parciales y entrega el texto más tarde pese a inferir 100 ms más rápido. Además no admite <code>word_timestamps</code>. Ver §08.</td></tr>
+      <tr><td class="tech">VAD interno de faster-whisper</td><td><span class="pill p-change">Cambiar → Silero VAD v5</span></td><td>Necesitas el VAD <em>antes</em> del ASR para decidir cuándo reejecutar y para cortar silencios, no dentro de la llamada. Silero v5 procesa ventanas de 512 muestras (32 ms a 16 kHz) en menos de 1 ms de CPU vía ONNX.</td></tr>
+      <tr><td class="tech">LLM como traductor continuo</td><td><span class="pill p-drop">Eliminar del camino caliente</span></td><td>Ver §01. Traducción continua con NMT dedicado; el LLM re-traduce bajo demanda con contexto.</td></tr>
+      <tr><td class="tech">Qwen 3.5 2B / 4B</td><td><span class="pill p-change">Precisar → Qwen3-4B-Instruct-2507</span></td><td>La familia que existe y está verificada es Qwen3 (0,6B / 1,7B / 4B / 8B / 14B / 32B), con la actualización <em>2507</em> disponible en 4B. Si cuando implementemos hay una revisión más nueva con el mismo tamaño, entra como reemplazo directo — el diseño no depende del modelo concreto.</td></tr>
+      <tr><td class="tech">Ollama</td><td><span class="pill p-keep">Mantener</span></td><td>Proceso separado, API HTTP, streaming de tokens, descarga de modelos resuelta. Importante: forzar <code>options.num_gpu = 0</code> en modo directo, o competirá con Whisper por la VRAM sin avisar.</td></tr>
+      <tr><td class="tech">SudachiPy</td><td><span class="pill p-keep">Mantener</span></td><td>Desde 0.6 es un binding de sudachi.rs (Rust), hasta 4,5× más rápido que la implementación Python antigua. Los modos A/B/C y la forma normalizada son exactamente lo que necesitas para buscar en el diccionario.</td></tr>
+      <tr><td class="tech">JMdict en XML</td><td><span class="pill p-change">Cambiar → jmdict-simplified</span></td><td>El proyecto <code>scriptin/jmdict-simplified</code> publica JMdict, JMnedict, KANJIDIC2 y KRADFILE en JSON regularizado, con releases semanales. Te ahorra escribir un parser de entidades XML y casos irregulares.</td></tr>
+      <tr><td class="tech">SQLite</td><td><span class="pill p-keep">Mantener</span></td><td>Con <code>journal_mode=WAL</code> y FTS5 para la búsqueda del diccionario. No hace falta nada más para un solo usuario.</td></tr>
+      <tr><td class="tech">multiprocessing</td><td><span class="pill p-drop">No en el MVP</span></td><td>CTranslate2 libera el GIL durante la inferencia. Hilos bastan y evitas duplicar modelos en memoria y pagar IPC.</td></tr>
+      <tr><td class="tech">Fuente de audio desde fichero</td><td><span class="pill p-new">Añadir en Fase 0</span></td><td>Sin esto no puedes medir latencia de forma reproducible ni depurar sin un directo delante. Es la pieza que más tiempo ahorra en todo el proyecto.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="num">03</span>Arquitectura recomendada</h2>
+  <p>Tres fronteras de proceso: la pestaña (content script), el offscreen document de la extensión y el backend Python. El audio solo cruza una vez; los resultados vuelven por el mismo canal.</p>
+  <figure>
+  <div class="figbox">
+  <svg viewBox="0 0 920 672" role="img" aria-label="Diagrama de arquitectura en tres bandas: navegador, canal WebSocket y backend Python">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-3)"/>
+      </marker>
+    </defs>
+
+    <text x="12" y="16" class="lbl">NAVEGADOR · CHROME / EDGE · MANIFEST V3</text>
+    <rect x="10" y="26" width="900" height="214" rx="7" class="band"/>
+
+    <rect x="28" y="46" width="262" height="176" rx="5" class="bx"/>
+    <text x="42" y="66" class="tb">Pestaña de YouTube</text>
+    <text x="42" y="81" class="ts">content script</text>
+    <text x="42" y="104" class="t">· Overlay React sobre el reproductor</text>
+    <text x="42" y="122" class="t">· Tokens japoneses clicables</text>
+    <text x="42" y="140" class="t">· Tarjeta de palabra y de gramática</text>
+    <text x="42" y="158" class="t">· Lee player.currentTime</text>
+    <text x="42" y="176" class="t">· Escucha seek / pause / ratechange</text>
+    <text x="42" y="200" class="ts">no abre sockets · no toca audio</text>
+
+    <rect x="318" y="46" width="256" height="72" rx="5" class="bx"/>
+    <text x="332" y="66" class="tb">Service Worker</text>
+    <text x="332" y="85" class="ts">tabCapture.getMediaStreamId()</text>
+    <text x="332" y="101" class="ts">offscreen.createDocument()</text>
+
+    <rect x="318" y="140" width="256" height="82" rx="5" class="bx"/>
+    <text x="332" y="160" class="tb">Offscreen Document</text>
+    <text x="332" y="179" class="ts">getUserMedia(chromeMediaSource)</text>
+    <text x="332" y="195" class="ts">AudioContext(sampleRate: 16000)</text>
+    <text x="332" y="211" class="ts">AudioWorklet → Int16 · WebSocket</text>
+
+    <rect x="602" y="140" width="290" height="82" rx="5" class="bx"/>
+    <text x="616" y="160" class="tb">Reinyección de audio</text>
+    <text x="616" y="179" class="ts">source.connect(ctx.destination)</text>
+    <text x="616" y="200" class="t">Sin esta línea la pestaña enmudece.</text>
+
+    <path d="M446,118 L446,140" class="ar" marker-end="url(#ah)"/>
+    <text x="454" y="134" class="ts">streamId</text>
+    <path d="M574,181 L602,181" class="ar" marker-end="url(#ah)"/>
+    <path d="M318,181 L296,181 L296,120" class="ar" marker-end="url(#ah)"/>
+    <text x="168" y="240" class="ts">chrome.runtime · subtítulos y controles</text>
+    <path d="M318,170 L300,170" class="ar"/>
+
+    <line x1="10" y1="262" x2="910" y2="262" style="stroke:var(--ai-line);stroke-width:1.5;stroke-dasharray:5 4"/>
+    <text x="12" y="256" class="lbl">WEBSOCKET · ws://127.0.0.1:8770</text>
+    <text x="430" y="278" class="ts">binario = PCM 16 kHz mono con cabecera de 16 B   ·   texto = JSON de control y resultados</text>
+
+    <text x="12" y="306" class="lbl">BACKEND LOCAL · PYTHON + FASTAPI</text>
+    <rect x="10" y="316" width="900" height="344" rx="7" class="band"/>
+
+    <rect x="28" y="336" width="176" height="58" rx="5" class="bx"/>
+    <text x="42" y="358" class="tb">Receptor WS</text>
+    <text x="42" y="375" class="ts">asyncio · nunca bloquea</text>
+
+    <rect x="224" y="336" width="186" height="58" rx="5" class="bx"/>
+    <text x="238" y="358" class="tb">Anillo PCM</text>
+    <text x="238" y="375" class="ts">30 s · seq + media_time_ms</text>
+
+    <rect x="430" y="336" width="200" height="58" rx="5" class="cpubx"/>
+    <text x="444" y="358" class="tb">VAD Silero v5</text>
+    <text x="444" y="375" class="ts">ONNX · 32 ms · &lt;1 ms CPU</text>
+    <rect x="590" y="344" width="30" height="14" rx="3" style="fill:var(--matcha);stroke:none"/>
+    <text x="596" y="354" class="tag" style="fill:var(--ground)">CPU</text>
+
+    <rect x="650" y="336" width="242" height="58" rx="5" class="bx"/>
+    <text x="664" y="358" class="tb">Métricas + registro</text>
+    <text x="664" y="375" class="ts">pynvml · psutil · anillo de eventos</text>
+
+    <rect x="28" y="424" width="382" height="76" rx="5" class="gpubx"/>
+    <text x="42" y="447" class="tb">ASR · faster-whisper large-v3-turbo</text>
+    <text x="42" y="465" class="ts">int8_float16 · beam 1 · LocalAgreement-2</text>
+    <text x="42" y="482" class="ts">reejecuta cada ~0,8 s sobre buffer creciente</text>
+    <rect x="370" y="432" width="30" height="14" rx="3" style="fill:var(--ai);stroke:none"/>
+    <text x="376" y="442" class="tag" style="fill:var(--surface)">GPU</text>
+
+    <rect x="430" y="424" width="200" height="76" rx="5" class="bx"/>
+    <text x="444" y="447" class="tb">Segmentador</text>
+    <text x="444" y="465" class="ts">。！？ + pausa VAD &gt;500 ms</text>
+    <text x="444" y="482" class="ts">+ tope de longitud</text>
+
+    <rect x="650" y="424" width="242" height="76" rx="5" class="bx"/>
+    <text x="664" y="447" class="tb">Emisor WS</text>
+    <text x="664" y="465" class="ts">asr.partial → sin esperar a nadie</text>
+    <text x="664" y="482" class="ts">asr.final → dispara NLP y MT</text>
+
+    <rect x="28" y="530" width="270" height="76" rx="5" class="cpubx"/>
+    <text x="42" y="553" class="tb">NLP japonés</text>
+    <text x="42" y="571" class="ts">Sudachi A+C · JMdict · KANJIDIC2</text>
+    <text x="42" y="588" class="ts">chunker de bunsetsu · reglas gramática</text>
+    <rect x="258" y="538" width="30" height="14" rx="3" style="fill:var(--matcha);stroke:none"/>
+    <text x="264" y="548" class="tag" style="fill:var(--ground)">CPU</text>
+
+    <rect x="318" y="530" width="220" height="76" rx="5" class="gpubx"/>
+    <text x="332" y="553" class="tb">MT · NLLB-200 600M</text>
+    <text x="332" y="571" class="ts">CTranslate2 int8 · jpn_Jpan→spa_Latn</text>
+    <text x="332" y="588" class="ts">solo sobre frases finales</text>
+    <rect x="498" y="538" width="30" height="14" rx="3" style="fill:var(--ai);stroke:none"/>
+    <text x="504" y="548" class="tag" style="fill:var(--surface)">GPU</text>
+
+    <rect x="558" y="530" width="230" height="76" rx="5" class="cpubx"/>
+    <text x="572" y="553" class="tb">LLM · Qwen3-4B</text>
+    <text x="572" y="571" class="ts">Ollama · num_gpu 0 · bajo demanda</text>
+    <text x="572" y="588" class="ts">streaming de tokens + caché</text>
+    <rect x="748" y="538" width="30" height="14" rx="3" style="fill:var(--matcha);stroke:none"/>
+    <text x="754" y="548" class="tag" style="fill:var(--ground)">CPU</text>
+
+    <rect x="808" y="530" width="84" height="76" rx="5" class="bx"/>
+    <text x="822" y="553" class="tb">SQLite</text>
+    <text x="822" y="571" class="ts">WAL</text>
+    <text x="822" y="588" class="ts">FTS5</text>
+
+    <text x="28" y="634" class="ts">Camino caliente (cada frase, siempre)</text>
+    <rect x="252" y="624" width="26" height="9" rx="2" style="fill:var(--ai);stroke:none"/>
+    <text x="288" y="634" class="ts">GPU</text>
+    <rect x="330" y="624" width="26" height="9" rx="2" style="fill:var(--matcha);stroke:none"/>
+    <text x="366" y="634" class="ts">CPU</text>
+    <text x="418" y="634" class="ts">El LLM nunca está en el camino caliente: solo responde a clics del estudiante.</text>
+
+    <path d="M204,365 L224,365" class="ar" marker-end="url(#ah)"/>
+    <path d="M410,365 L430,365" class="ar" marker-end="url(#ah)"/>
+    <path d="M219,394 L219,462 L28,462" class="ar" marker-end="url(#ah)"/>
+    <path d="M410,462 L430,462" class="ar" marker-end="url(#ah)"/>
+    <path d="M630,462 L650,462" class="ar" marker-end="url(#ah)"/>
+    <path d="M530,500 L530,516 L163,516 L163,530" class="ar" marker-end="url(#ah)"/>
+    <path d="M298,568 L318,568" class="ar" marker-end="url(#ah)"/>
+    <path d="M538,568 L558,568" class="ar" marker-end="url(#ah)" style="stroke-dasharray:4 3"/>
+    <path d="M788,568 L808,568" class="ar" marker-end="url(#ah)"/>
+    <path d="M428,530 L428,512 L771,512 L771,500" class="ar" marker-end="url(#ah)"/>
+  </svg>
+  </div>
+  <figcaption>Líneas continuas: flujo que ocurre en cada frase. Línea discontinua: invocación del LLM, siempre disparada por el estudiante.</figcaption>
+  </figure>
+
+  <div class="note ok">
+    <div class="nt">La decisión que más importa</div>
+    <p>Whisper y el LLM <strong>nunca se usan a la vez</strong>, porque sirven a dos modos distintos. En <strong>modo directo</strong> la GPU lleva ASR y traducción automática, y el LLM está en CPU, inactivo salvo que hagas clic. En <strong>modo estudio</strong> (vídeo pausado o repasando una sesión guardada) no entra audio: el ASR se descarga de la GPU y el LLM sube a ella. El conflicto por los 6 GB deja de existir por diseño, no por ajuste fino.</p>
+  </div>
+</section>
+
+
+<section id="s4">
+  <h2><span class="num">04</span>Stack definitivo</h2>
+  <p>Cada dependencia, para qué sirve exactamente y qué se descartó en su lugar.</p>
+
+  <h3>Extensión</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Paquete</th><th>Para qué</th><th>Alternativa descartada</th></tr></thead>
+    <tbody>
+      <tr><td class="tech">wxt</td><td>Estructura de la extensión, build, HMR, generación del manifest, soporte de offscreen.</td><td>CRXJS (más lento en actualizarse), Plasmo (abstrae de más).</td></tr>
+      <tr><td class="tech">react + react-dom</td><td>Overlay, tarjetas de palabra y de gramática, panel de métricas.</td><td>Preact ahorraría ~30 kB; no compensa la fricción de tipos.</td></tr>
+      <tr><td class="tech">zustand</td><td>Estado del overlay (segmentos, tokens, modo, conexión). Pequeño y sin boilerplate.</td><td>Redux (desproporcionado), context (re-renders de todo el overlay).</td></tr>
+      <tr><td class="tech">typescript</td><td>Tipado, incluidos los tipos del protocolo WS generados desde el backend.</td><td>—</td></tr>
+      <tr><td class="tech">vitest</td><td>Tests del códec PCM, del reensamblado de parciales y del cliente WS.</td><td>Jest (más lento con Vite).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Backend</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Paquete</th><th>Para qué</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td class="tech">fastapi + uvicorn</td><td>Servidor HTTP y WebSocket, endpoints de diccionario, vocabulario y métricas.</td><td>Sin <code>--reload</code> en uso normal: recargaría los modelos.</td></tr>
+      <tr><td class="tech">faster-whisper</td><td>ASR. Envoltorio sobre CTranslate2, 4× más rápido que el Whisper de referencia con la misma precisión.</td><td>Requiere cuBLAS y cuDNN para CUDA.</td></tr>
+      <tr><td class="tech">ctranslate2</td><td>Motor de inferencia compartido por Whisper y por NLLB. Cuantización <code>int8_float16</code> en GPU.</td><td>Una sola dependencia nativa para los dos modelos.</td></tr>
+      <tr><td class="tech">onnxruntime</td><td>Ejecuta Silero VAD en CPU sin arrastrar PyTorch al proyecto.</td><td>Evita ~2,5 GB de dependencias.</td></tr>
+      <tr><td class="tech">numpy</td><td>Buffer de audio, conversión Int16 ↔ float32, ventanas.</td><td>—</td></tr>
+      <tr><td class="tech">sudachipy + sudachidict-core</td><td>Análisis morfológico: superficie, forma de diccionario, lectura, POS, tipo y forma de conjugación.</td><td><code>sudachidict-full</code> si faltan términos; ocupa más.</td></tr>
+      <tr><td class="tech">pykakasi</td><td>Kana → rōmaji. Determinista, sin modelo.</td><td>La lectura viene de Sudachi; pykakasi solo romaniza.</td></tr>
+      <tr><td class="tech">httpx</td><td>Cliente asíncrono hacia Ollama, con streaming de tokens.</td><td>requests bloquearía el event loop.</td></tr>
+      <tr><td class="tech">pydantic + pydantic-settings</td><td>Esquemas de los mensajes WS (validación y generación de tipos TS) y configuración por <code>.env</code>.</td><td>—</td></tr>
+      <tr><td class="tech">sqlite3 (stdlib)</td><td>Persistencia. WAL, FTS5, sin ORM.</td><td>SQLAlchemy añadiría capas sin beneficio aquí.</td></tr>
+      <tr><td class="tech">nvidia-ml-py + psutil</td><td>Métricas de VRAM, GPU, CPU y RAM para el panel de diagnóstico.</td><td>—</td></tr>
+      <tr><td class="tech">fsrs</td><td>Algoritmo de repetición espaciada (Fase 8). Más preciso que SM-2 y es lo que usa Anki moderno.</td><td>SM-2 propio: más simple, peor programación.</td></tr>
+      <tr><td class="tech">pytest + pytest-asyncio</td><td>Tests de LocalAgreement, segmentación, reglas gramaticales y protocolo.</td><td>—</td></tr>
+      <tr><td class="tech">uv</td><td>Gestor de entorno y dependencias. Instalación de un entorno con CUDA en segundos en vez de minutos.</td><td>pip + venv funcionan igual, más lentos.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <div class="nt">Licencias — importa si algún día lo publicas</div>
+    <p>JMdict y KANJIDIC2 son del EDRDG bajo <strong>CC BY-SA 4.0</strong>: hay que atribuir y, al redistribuir, mantener la licencia. Sudachi y Qwen3 son Apache-2.0. Whisper es MIT. <strong>NLLB-200 es CC-BY-NC 4.0</strong>: no comercial. Para uso personal es irrelevante, pero si esto llegara a la Chrome Web Store como producto, NLLB tendría que salir y el traductor pasaría a ser el LLM. Por eso la traducción vive detrás de una interfaz <code>TranslationProvider</code> desde el primer día.</p>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="num">05</span>Estrategia para la RTX 2060 de 6 GB</h2>
+  <p class="lede">Tu propuesta era «Whisper a GPU, Qwen a CPU». Es casi la correcta. La corrección consiste en añadir un tercer modelo pequeño a la GPU y en separar el trabajo en dos modos que nunca coinciden.</p>
+
+  <figure>
+  <div class="figbox">
+  <svg viewBox="0 0 880 262" role="img" aria-label="Presupuesto de VRAM en tres escenarios, sobre una escala de 0 a 7 GB con el límite de 6144 MiB marcado">
+    <line x1="140" y1="42" x2="840" y2="42" class="grid"/>
+    <g class="axt">
+      <text x="140" y="34" text-anchor="middle">0</text>
+      <text x="240" y="34" text-anchor="middle">1 GB</text>
+      <text x="340" y="34" text-anchor="middle">2</text>
+      <text x="440" y="34" text-anchor="middle">3</text>
+      <text x="540" y="34" text-anchor="middle">4</text>
+      <text x="640" y="34" text-anchor="middle">5</text>
+      <text x="740" y="34" text-anchor="middle">6</text>
+      <text x="840" y="34" text-anchor="middle">7</text>
+    </g>
+    <g class="grid">
+      <line x1="140" y1="42" x2="140" y2="212"/><line x1="240" y1="42" x2="240" y2="212"/>
+      <line x1="340" y1="42" x2="340" y2="212"/><line x1="440" y1="42" x2="440" y2="212"/>
+      <line x1="540" y1="42" x2="540" y2="212"/><line x1="640" y1="42" x2="640" y2="212"/>
+      <line x1="840" y1="42" x2="840" y2="212"/>
+    </g>
+    <line x1="754" y1="42" x2="754" y2="220" style="stroke:var(--shu);stroke-width:1.5;stroke-dasharray:4 3"/>
+    <text x="758" y="234" style="fill:var(--shu);font-family:var(--font-mono);font-size:10px">6144 MiB</text>
+
+    <text x="14" y="70" class="t">Modo directo</text>
+    <text x="14" y="84" class="ts">recomendado</text>
+    <rect x="140" y="56" width="104" height="30" style="fill:var(--ink-3)"/>
+    <rect x="244" y="56" width="185" height="30" style="fill:var(--ai)"/>
+    <rect x="429" y="56" width="70" height="30" style="fill:var(--ai-line)"/>
+    <rect x="499" y="56" width="255" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
+    <text x="626" y="75" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">2 559 MiB libres</text>
+
+    <text x="14" y="126" class="t">Modo estudio</text>
+    <text x="14" y="140" class="ts">vídeo pausado</text>
+    <rect x="140" y="112" width="104" height="30" style="fill:var(--ink-3)"/>
+    <rect x="244" y="112" width="320" height="30" style="fill:var(--matcha)"/>
+    <rect x="564" y="112" width="190" height="30" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/>
+    <text x="404" y="131" style="fill:var(--ground);font-family:var(--font-mono);font-size:10px" text-anchor="middle">Qwen3-4B Q4_K_M + KV 8k · 3 200 MiB</text>
+    <text x="659" y="131" style="fill:var(--ink-3);font-family:var(--font-mono);font-size:10px" text-anchor="middle">1 904 libres</text>
+
+    <text x="14" y="182" class="t">Todo a la vez</text>
+    <text x="14" y="196" class="ts">lo que no hay que hacer</text>
+    <rect x="140" y="168" width="104" height="30" style="fill:var(--ink-3)"/>
+    <rect x="244" y="168" width="185" height="30" style="fill:var(--ai)"/>
+    <rect x="429" y="168" width="70" height="30" style="fill:var(--ai-line)"/>
+    <rect x="499" y="168" width="255" height="30" style="fill:var(--matcha)"/>
+    <rect x="754" y="168" width="64" height="30" style="fill:var(--shu)"/>
+    <text x="824" y="187" style="fill:var(--shu);font-family:var(--font-mono);font-size:10px">+641</text>
+
+    <g class="ts">
+      <rect x="140" y="242" width="10" height="10" style="fill:var(--ink-3)"/><text x="156" y="251">Windows + Chrome (1 040 medido)</text>
+      <rect x="310" y="242" width="10" height="10" style="fill:var(--ai)"/><text x="326" y="251">Whisper turbo int8_float16 (1 845 medido)</text>
+      <rect x="546" y="242" width="10" height="10" style="fill:var(--ai-line)"/><text x="562" y="251">NLLB-600M int8 (700 est.)</text>
+      <rect x="700" y="242" width="10" height="10" style="fill:var(--matcha)"/><text x="716" y="251">Qwen3-4B (3 200 est.)</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption>Actualizado con medidas de la Fase 0 (14-09-2026, RTX 2060, faster-whisper 1.2.1 / CTranslate2 4.8.2). Turbo en <code>int8_float16</code> ocupa 1 845 MiB, un 15 % más que la estimación inicial de 1 600. NLLB y Qwen siguen siendo estimaciones.</figcaption>
+  </figure>
+
+  <h3>Ajustes concretos</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Dónde</th><th>Ajuste</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Panel de NVIDIA</td><td class="tech">CUDA · Sysmem Fallback Policy → Prefer No Sysmem Fallback (para python.exe)</td><td><strong>El ajuste más importante de esta lista.</strong> Por defecto, al agotar VRAM el controlador WDDM desborda silenciosamente a RAM del sistema. No hay OOM: solo la inferencia pasa de 300 ms a 3 s y pierdes días buscando la causa. Con este ajuste falla ruidosamente, que es lo que quieres.</td></tr>
+      <tr><td>faster-whisper</td><td class="tech">compute_type="int8_float16", beam_size=1, num_workers=1</td><td>int8 reduce el pico ~40 % y mejora el RTF un 30 % con impacto despreciable en precisión. Beam 5 multiplica por 2–3 el tiempo de decodificación para una ganancia que no notarás en subtítulos.</td></tr>
+      <tr><td>faster-whisper</td><td class="tech">condition_on_previous_text=False</td><td>En streaming, realimentar el texto anterior dispara bucles de alucinación. El contexto se pasa por <code>initial_prompt</code> acotado a las últimas 2–3 frases confirmadas.</td></tr>
+      <tr><td>Ollama</td><td class="tech">options.num_gpu = 0 en modo directo</td><td>Ollama sube capas a la GPU por su cuenta. Si no lo fuerzas a CPU mientras hay captura activa, competirá con Whisper.</td></tr>
+      <tr><td>Ollama</td><td class="tech">OLLAMA_MAX_LOADED_MODELS=1 · OLLAMA_NUM_PARALLEL=1 · OLLAMA_KEEP_ALIVE=10m</td><td>Evita que cargue dos modelos o atienda dos peticiones a la vez; mantiene el modelo caliente entre clics para no pagar la carga cada vez.</td></tr>
+      <tr><td>Backend</td><td class="tech">Carga perezosa + descarga por modo</td><td>Al entrar en modo estudio: liberar el modelo ASR, <code>torch.cuda.empty_cache()</code> equivalente en CT2 (destruir el objeto), y recargar Qwen con <code>num_gpu</code> alto. Al volver a directo, lo contrario.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note ok">
+    <div class="nt">Medido en la Fase 0 · 14-09-2026</div>
+    <p><strong>Línea base del escritorio: 825–1 060 MiB</strong> según lo que haya abierto (VS Code, Discord, Teams, Spotify, Docker), y todavía sin Chrome reproduciendo vídeo. La estimación de 1 200 MiB era razonable.</p>
+    <p><strong>Whisper large-v3-turbo en <code>int8_float16</code>: 1 845 MiB atribuibles</strong>, pico total de 2 885 MiB sobre 6 144. Un 15 % por encima de lo estimado, pero deja ~3,2 GB libres: el modo directo sigue holgado y la conclusión de la sección no cambia.</p>
+    <p>Carga del modelo 5,1 s, calentamiento 0,5 s. Las cifras de NLLB y Qwen siguen sin medir; se confirmarán en las fases 3 y 5.</p>
+  </div>
+
+  <div class="note warn">
+    <div class="nt">Lo que todavía no está medido</div>
+    <p>Los tiempos de inferencia de la sección 8 siguen siendo estimaciones: las primeras pasadas del banco se hicieron sobre silencio y ruido sintético, donde el modelo no hace trabajo representativo. Hacen falta clips de japonés real para cerrar ese número.</p>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="num">06</span>Pipeline concurrente</h2>
+  <p>Tu intuición del solapamiento es exactamente la correcta. Así se implementa: un event loop de asyncio para todo lo que es E/S, hilos dedicados para lo que es cómputo (CTranslate2 libera el GIL durante la inferencia), y colas acotadas entre medias.</p>
+
+  <figure>
+  <div class="figbox">
+  <svg viewBox="0 0 880 322" role="img" aria-label="Cronograma de 9 segundos mostrando el solapamiento entre captura, VAD, ASR, NLP, traducción y actualizaciones de la interfaz">
+    <g class="grid">
+      <line x1="130" y1="40" x2="130" y2="248"/><line x1="210" y1="40" x2="210" y2="248"/>
+      <line x1="290" y1="40" x2="290" y2="248"/><line x1="370" y1="40" x2="370" y2="248"/>
+      <line x1="450" y1="40" x2="450" y2="248"/><line x1="530" y1="40" x2="530" y2="248"/>
+      <line x1="610" y1="40" x2="610" y2="248"/><line x1="690" y1="40" x2="690" y2="248"/>
+      <line x1="770" y1="40" x2="770" y2="248"/><line x1="850" y1="40" x2="850" y2="248"/>
+    </g>
+    <g class="axt">
+      <text x="130" y="30" text-anchor="middle">0 s</text><text x="210" y="30" text-anchor="middle">1</text>
+      <text x="290" y="30" text-anchor="middle">2</text><text x="370" y="30" text-anchor="middle">3</text>
+      <text x="450" y="30" text-anchor="middle">4</text><text x="530" y="30" text-anchor="middle">5</text>
+      <text x="610" y="30" text-anchor="middle">6</text><text x="690" y="30" text-anchor="middle">7</text>
+      <text x="770" y="30" text-anchor="middle">8</text><text x="850" y="30" text-anchor="middle">9 s</text>
+    </g>
+
+    <text x="14" y="60" class="t">Habla</text>
+    <rect x="130" y="46" width="208" height="20" rx="3" style="fill:var(--surface-2);stroke:var(--rule-2)"/>
+    <text x="234" y="60" class="ts" text-anchor="middle">frase A</text>
+    <rect x="362" y="46" width="184" height="20" rx="3" style="fill:var(--surface-2);stroke:var(--rule-2)"/>
+    <text x="454" y="60" class="ts" text-anchor="middle">frase B</text>
+    <rect x="578" y="46" width="160" height="20" rx="3" style="fill:var(--surface-2);stroke:var(--rule-2)"/>
+    <text x="658" y="60" class="ts" text-anchor="middle">frase C</text>
+
+    <text x="14" y="88" class="t">Captura</text>
+    <text x="14" y="100" class="ts">worklet</text>
+    <rect x="130" y="78" width="720" height="14" rx="3" style="fill:var(--ai-line)"/>
+    <text x="490" y="89" class="ts" text-anchor="middle" style="fill:var(--ink)">100 ms de PCM por trama, sin interrupción</text>
+
+    <text x="14" y="120" class="t">VAD</text>
+    <rect x="130" y="110" width="720" height="14" rx="3" style="fill:var(--matcha-soft);stroke:var(--matcha)"/>
+    <text x="490" y="121" class="ts" text-anchor="middle">ventanas de 32 ms · &lt;1 ms cada una</text>
+
+    <text x="14" y="150" class="t">ASR · GPU</text>
+    <g style="fill:var(--ai)">
+      <rect x="194" y="138" width="24" height="20" rx="2"/><rect x="258" y="138" width="24" height="20" rx="2"/>
+      <rect x="322" y="138" width="24" height="20" rx="2"/><rect x="386" y="138" width="24" height="20" rx="2"/>
+      <rect x="450" y="138" width="24" height="20" rx="2"/><rect x="514" y="138" width="24" height="20" rx="2"/>
+      <rect x="578" y="138" width="24" height="20" rx="2"/><rect x="642" y="138" width="24" height="20" rx="2"/>
+      <rect x="706" y="138" width="24" height="20" rx="2"/><rect x="770" y="138" width="24" height="20" rx="2"/>
+    </g>
+    <text x="756" y="171" class="ts" text-anchor="end">pasada cada 0,8 s sobre el buffer creciente · LocalAgreement-2 confirma el prefijo común</text>
+
+    <text x="14" y="190" class="t">NLP · CPU</text>
+    <g style="fill:var(--matcha)">
+      <rect x="410" y="180" width="8" height="16" rx="2"/><rect x="610" y="180" width="8" height="16" rx="2"/>
+      <rect x="778" y="180" width="8" height="16" rx="2"/>
+    </g>
+    <text x="424" y="192" class="ts">Sudachi + JMdict ≈ 10 ms</text>
+
+    <text x="14" y="216" class="t">MT · GPU</text>
+    <g style="fill:var(--ai-line)">
+      <rect x="418" y="206" width="22" height="16" rx="2"/><rect x="618" y="206" width="22" height="16" rx="2"/>
+      <rect x="786" y="206" width="22" height="16" rx="2"/>
+    </g>
+
+    <text x="14" y="242" class="t">Overlay</text>
+    <g style="fill:var(--ink-3)">
+      <rect x="264" y="232" width="3" height="14"/><rect x="330" y="232" width="3" height="14"/>
+      <rect x="498" y="232" width="3" height="14"/><rect x="560" y="232" width="3" height="14"/>
+      <rect x="690" y="232" width="3" height="14"/>
+    </g>
+    <g style="fill:var(--shu)">
+      <rect x="444" y="228" width="4" height="22"/><rect x="644" y="228" width="4" height="22"/>
+      <rect x="812" y="228" width="4" height="22"/>
+    </g>
+    <text x="452" y="270" class="ts" style="fill:var(--shu)">A ja+es</text>
+    <text x="652" y="270" class="ts" style="fill:var(--shu)">B ja+es</text>
+    <text x="808" y="270" class="ts" style="fill:var(--shu)">C ja+es</text>
+    <text x="264" y="286" class="ts">parciales grises, mutables</text>
+
+    <line x1="444" y1="228" x2="444" y2="136" style="stroke:var(--shu);stroke-width:1;stroke-dasharray:3 3"/>
+    <text x="130" y="308" class="ts">t ≈ 3,9 s — el overlay muestra la frase A ya traducida mientras el ASR va por la B y el VAD sigue alimentando el anillo. Nada espera a nada.</text>
+  </svg>
+  </div>
+  <figcaption>Barras azules: trabajo en GPU. Barras verdes: trabajo en CPU. Marcas rojas: frase confirmada y traducida llegando a pantalla.</figcaption>
+  </figure>
+
+  <h3>Workers y colas</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Worker</th><th>Ejecución</th><th>Entrada → salida</th><th>Cola</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b> Receptor</td><td class="tech">coroutine</td><td>trama WS binaria → anillo PCM</td><td class="tech">—</td></tr>
+      <tr><td><b>B</b> VAD + reloj</td><td class="tech">hilo</td><td>anillo → eventos de voz/silencio</td><td class="tech">Queue(64)</td></tr>
+      <tr><td><b>C</b> ASR</td><td class="tech">hilo dedicado</td><td>ventana de audio → prefijo confirmado + cola tentativa</td><td class="tech">Queue(2) · descarta viejo</td></tr>
+      <tr><td><b>D</b> NLP</td><td class="tech">hilo</td><td>frase final → tokens, lecturas, gramática</td><td class="tech">Queue(32)</td></tr>
+      <tr><td><b>E</b> MT</td><td class="tech">hilo</td><td>frase final + contexto → español</td><td class="tech">Queue(32)</td></tr>
+      <tr><td><b>F</b> LLM</td><td class="tech">coroutine → Ollama</td><td>petición del usuario → tokens en streaming</td><td class="tech">semáforo(1)</td></tr>
+      <tr><td><b>G</b> Emisor</td><td class="tech">coroutine</td><td>eventos → JSON al cliente</td><td class="tech">asyncio.Queue(256)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Reglas que hacen que esto no se atasque</h4>
+  <ul>
+    <li><strong>El receptor nunca bloquea.</strong> Escribe en el anillo y vuelve. Si el anillo está lleno, sobrescribe lo más antiguo e incrementa <code>dropped_audio_chunks</code>. Perder audio viejo es preferible a acumular retraso.</li>
+    <li><strong>La cola del ASR tiene tamaño 2.</strong> Si Whisper va más lento que el ritmo de reejecución, se descarta la petición intermedia y se procesa la más reciente. Así el retraso no crece de forma acumulativa; simplemente bajan los fotogramas de refresco del parcial.</li>
+    <li><strong>Puente hilo → loop</strong> con <code>loop.call_soon_threadsafe(queue.put_nowait, evt)</code>. Nada de <code>asyncio.run_coroutine_threadsafe</code> en el camino caliente.</li>
+    <li><strong>NLP y MT corren en paralelo</strong> sobre la misma frase final: el overlay puede pintar los tokens clicables antes de que llegue el español.</li>
+    <li><strong>El LLM tiene concurrencia 1</strong> y cancela la petición anterior si haces clic en otra palabra. Nunca encola explicaciones que ya no miras.</li>
+  </ul>
+</section>
+
+
+<section id="s7">
+  <h2><span class="num">07</span>Protocolo WebSocket</h2>
+  <p>Un solo socket por sesión, en <code>ws://127.0.0.1:8770/stream</code>. Las tramas <strong>binarias</strong> llevan audio; las tramas de <strong>texto</strong> llevan control y resultados. Los esquemas viven en Pydantic y de ahí se generan los tipos de TypeScript, para que el protocolo no pueda desincronizarse entre los dos lados.</p>
+
+  <h3>Trama de audio (binaria)</h3>
+<pre><span class="c">offset  tamaño  campo</span>
+  0      1 B    magic          0xA5
+  1      1 B    version        1
+  2      1 B    flags          bit0 = directo · bit1 = discontinuidad (tras seek)
+  3      1 B    reservado      0
+  4      4 B    seq            uint32 LE · tramas desde session.start
+  8      4 B    media_time_ms  uint32 LE · player.currentTime al capturar
+ 12      4 B    capture_ms     uint32 LE · reloj monótono del offscreen
+ 16   3200 B    pcm            Int16 LE · 16 kHz · mono · 1600 muestras
+
+<span class="c">16 B de cabecera + 100 ms de audio = 3 216 B por trama ≈ 32 KB/s</span></pre>
+  <p>El doble sello de tiempo es deliberado: <code>capture_ms</code> mide la latencia real del pipeline; <code>media_time_ms</code> ancla el subtítulo a la posición del vídeo, que es lo que permite pausar, retroceder cinco segundos y guardar la frase con su marca temporal.</p>
+
+  <h3>Mensajes de control · cliente → servidor</h3>
+<pre>{ <span class="k">"type"</span>: <span class="s">"session.start"</span>, <span class="k">"video_id"</span>: <span class="s">"dQw4w9WgXcQ"</span>, <span class="k">"is_live"</span>: true,
+  <span class="k">"media_time_ms"</span>: 1117000, <span class="k">"source"</span>: <span class="s">"ja"</span>, <span class="k">"target"</span>: <span class="s">"es"</span>, <span class="k">"profile"</span>: <span class="s">"n4"</span> }
+
+{ <span class="k">"type"</span>: <span class="s">"control.flush"</span>, <span class="k">"reason"</span>: <span class="s">"seek"</span>, <span class="k">"media_time_ms"</span>: 1080000 }
+{ <span class="k">"type"</span>: <span class="s">"control.mode"</span>,  <span class="k">"mode"</span>: <span class="s">"study"</span> }        <span class="c">// descarga ASR, sube el LLM a GPU</span>
+{ <span class="k">"type"</span>: <span class="s">"lookup.token"</span>,  <span class="k">"segment_id"</span>: 412, <span class="k">"token_index"</span>: 7 }
+{ <span class="k">"type"</span>: <span class="s">"explain.request"</span>, <span class="k">"request_id"</span>: <span class="s">"r91"</span>, <span class="k">"kind"</span>: <span class="s">"word"</span>,
+  <span class="k">"segment_id"</span>: 412, <span class="k">"token_index"</span>: 7 }
+{ <span class="k">"type"</span>: <span class="s">"explain.cancel"</span>, <span class="k">"request_id"</span>: <span class="s">"r91"</span> }
+{ <span class="k">"type"</span>: <span class="s">"vocab.mark"</span>, <span class="k">"jmdict_id"</span>: 1174760, <span class="k">"status"</span>: <span class="s">"learning"</span> }</pre>
+
+  <h3>Resultados · servidor → cliente</h3>
+<pre><span class="c">// Llega cada ~0,8 s. "committed" ya no cambiará nunca; "tentative" puede reescribirse.</span>
+{ <span class="k">"type"</span>: <span class="s">"asr.partial"</span>, <span class="k">"segment_id"</span>: 412,
+  <span class="k">"committed"</span>: <span class="s">"今日は経済への"</span>, <span class="k">"tentative"</span>: <span class="s">"影響につ"</span>,
+  <span class="k">"media_start_ms"</span>: 1117420 }
+
+<span class="c">// Frase cerrada. Dispara NLP y MT en paralelo.</span>
+{ <span class="k">"type"</span>: <span class="s">"asr.final"</span>, <span class="k">"segment_id"</span>: 412,
+  <span class="k">"text"</span>: <span class="s">"今日は経済への影響について話します。"</span>,
+  <span class="k">"media_start_ms"</span>: 1117420, <span class="k">"media_end_ms"</span>: 1121180,
+  <span class="k">"avg_logprob"</span>: -0.31, <span class="k">"no_speech_prob"</span>: 0.02 }
+
+<span class="c">// Tokens clicables. Todo esto sale de Sudachi + JMdict: 0 llamadas al LLM.</span>
+{ <span class="k">"type"</span>: <span class="s">"nlp.tokens"</span>, <span class="k">"segment_id"</span>: 412,
+  <span class="k">"tokens"</span>: [
+    { <span class="k">"i"</span>: 5, <span class="k">"span"</span>: [7,9], <span class="k">"surface"</span>: <span class="s">"影響"</span>, <span class="k">"dict"</span>: <span class="s">"影響"</span>,
+      <span class="k">"reading"</span>: <span class="s">"エイキョウ"</span>, <span class="k">"kana"</span>: <span class="s">"えいきょう"</span>, <span class="k">"romaji"</span>: <span class="s">"eikyō"</span>,
+      <span class="k">"pos"</span>: [<span class="s">"名詞"</span>,<span class="s">"普通名詞"</span>,<span class="s">"サ変可能"</span>], <span class="k">"infl"</span>: null,
+      <span class="k">"jmdict_id"</span>: 1174760, <span class="k">"jlpt"</span>: <span class="s">"N3"</span>, <span class="k">"freq_rank"</span>: 1820,
+      <span class="k">"familiarity"</span>: 0.0, <span class="k">"unknown_score"</span>: 0.86 }
+  ],
+  <span class="k">"grammar"</span>: [
+    { <span class="k">"pattern_id"</span>: <span class="s">"ni_tsuite"</span>, <span class="k">"name"</span>: <span class="s">"～について"</span>,
+      <span class="k">"jlpt"</span>: <span class="s">"N4"</span>, <span class="k">"span"</span>: [9,12], <span class="k">"head_token"</span>: 5 } ] }
+
+{ <span class="k">"type"</span>: <span class="s">"mt.final"</span>, <span class="k">"segment_id"</span>: 412, <span class="k">"provider"</span>: <span class="s">"nllb600m"</span>,
+  <span class="k">"text_es"</span>: <span class="s">"Hoy hablaré sobre el impacto en la economía."</span> }
+
+<span class="c">// Solo tras un clic. Streaming token a token para que el primer texto aparezca pronto.</span>
+{ <span class="k">"type"</span>: <span class="s">"llm.delta"</span>, <span class="k">"request_id"</span>: <span class="s">"r91"</span>, <span class="k">"delta"</span>: <span class="s">"Aquí 影響 funciona como"</span> }
+{ <span class="k">"type"</span>: <span class="s">"llm.done"</span>,  <span class="k">"request_id"</span>: <span class="s">"r91"</span>, <span class="k">"cached"</span>: false, <span class="k">"ms"</span>: 11840 }
+
+{ <span class="k">"type"</span>: <span class="s">"metrics.tick"</span>, <span class="k">"speech_latency_ms"</span>: 1874, <span class="k">"whisper_ms"</span>: 268,
+  <span class="k">"translation_latency_ms"</span>: 244, <span class="k">"end_to_end_ms"</span>: 2491, <span class="k">"audio_buffer_ms"</span>: 640,
+  <span class="k">"dropped_audio_chunks"</span>: 0, <span class="k">"partials"</span>: 1204, <span class="k">"finals"</span>: 318,
+  <span class="k">"vram_used_mb"</span>: 3390, <span class="k">"cpu_pct"</span>: 34.2, <span class="k">"ram_mb"</span>: 5120 }</pre>
+
+  <h3>Estrategia de parciales y finales</h3>
+  <p>Esta es la regla que evita el problema de las «traducciones parciales» que mencionabas, y hay que respetarla en los dos lados:</p>
+  <ul>
+    <li><strong>Los parciales nunca se traducen ni se tokenizan.</strong> Se pintan en gris, sin interacción. Traducir una frase incompleta produce español que cambia bruscamente y desorienta más que ayudar.</li>
+    <li><strong>El overlay trata cada segmento como <code>committed + tentative</code>.</strong> La parte confirmada por LocalAgreement es inmutable: puedes renderizarla sin miedo. La cola tentativa se reemplaza entera en cada actualización. Nunca montes tokens clicables sobre la cola.</li>
+    <li><strong>El cierre de frase no depende solo de la puntuación.</strong> Whisper devuelve japonés con <span class="jp">。！？</span> de forma irregular. El segmentador cierra por puntuación <em>o</em> por silencio del VAD superior a 500 ms <em>o</em> por longitud máxima (unos 60 caracteres), lo que ocurra antes.</li>
+    <li><strong>Tras un <code>control.flush</code></strong> (seek, pausa, cambio de velocidad) se descarta el anillo, se aborta el segmento en curso y se reinicia <code>seq</code>. Los segmentos huérfanos se marcan como abandonados en el overlay en vez de quedarse colgados.</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2><span class="num">08</span>Presupuesto de latencia</h2>
+  <p>Medido desde que el audio sale del vídeo hasta que el texto está en pantalla, con Whisper turbo en <code>int8_float16</code>, reejecución cada 0,8 s y beam 1.</p>
+
+  <figure>
+  <div class="figbox">
+  <svg viewBox="0 0 880 240" role="img" aria-label="Presupuesto de latencia: parcial 830 ms, japonés confirmado 1900 ms, frase completa con traducción 2515 ms">
+    <g class="grid">
+      <line x1="150" y1="44" x2="150" y2="186"/><line x1="267" y1="44" x2="267" y2="186"/>
+      <line x1="383" y1="44" x2="383" y2="186"/><line x1="500" y1="44" x2="500" y2="186"/>
+      <line x1="617" y1="44" x2="617" y2="186"/><line x1="733" y1="44" x2="733" y2="186"/>
+      <line x1="850" y1="44" x2="850" y2="186"/>
+    </g>
+    <g class="axt">
+      <text x="150" y="36" text-anchor="middle">0</text><text x="267" y="36" text-anchor="middle">0,5 s</text>
+      <text x="383" y="36" text-anchor="middle">1,0</text><text x="500" y="36" text-anchor="middle">1,5</text>
+      <text x="617" y="36" text-anchor="middle">2,0</text><text x="733" y="36" text-anchor="middle">2,5</text>
+      <text x="850" y="36" text-anchor="middle">3,0 s</text>
+    </g>
+
+    <text x="14" y="66" class="t">Parcial gris</text>
+    <rect x="150" y="54" width="30" height="26" style="fill:var(--ink-3)"/>
+    <rect x="180" y="54" width="93" height="26" style="fill:var(--amber)"/>
+    <rect x="273" y="54" width="63" height="26" style="fill:var(--ai)"/>
+    <rect x="336" y="54" width="7" height="26" style="fill:var(--ai-line)"/>
+    <text x="353" y="72" style="fill:var(--ink);font-family:var(--font-mono);font-size:12px;font-weight:500">830 ms</text>
+
+    <text x="14" y="116" class="t">Japonés</text>
+    <text x="14" y="129" class="ts">confirmado</text>
+    <rect x="150" y="104" width="30" height="26" style="fill:var(--ink-3)"/>
+    <rect x="180" y="104" width="93" height="26" style="fill:var(--amber)"/>
+    <rect x="273" y="104" width="63" height="26" style="fill:var(--ai)"/>
+    <rect x="336" y="104" width="187" height="26" style="fill:var(--amber)"/>
+    <rect x="523" y="104" width="63" height="26" style="fill:var(--ai)"/>
+    <rect x="586" y="104" width="7" height="26" style="fill:var(--ai-line)"/>
+    <text x="603" y="122" style="fill:var(--ink);font-family:var(--font-mono);font-size:12px;font-weight:500">1 900 ms</text>
+
+    <text x="14" y="166" class="t">Frase completa</text>
+    <text x="14" y="179" class="ts">ja + es + tokens</text>
+    <rect x="150" y="154" width="30" height="26" style="fill:var(--ink-3)"/>
+    <rect x="180" y="154" width="93" height="26" style="fill:var(--amber)"/>
+    <rect x="273" y="154" width="63" height="26" style="fill:var(--ai)"/>
+    <rect x="336" y="154" width="187" height="26" style="fill:var(--amber)"/>
+    <rect x="523" y="154" width="63" height="26" style="fill:var(--ai)"/>
+    <rect x="586" y="154" width="82" height="26" style="fill:var(--surface-2);stroke:var(--rule-2)"/>
+    <rect x="668" y="154" width="4" height="26" style="fill:var(--matcha)"/>
+    <rect x="672" y="154" width="58" height="26" style="fill:var(--ai-line)"/>
+    <rect x="730" y="154" width="7" height="26" style="fill:var(--ai-line)"/>
+    <text x="747" y="172" style="fill:var(--ink);font-family:var(--font-mono);font-size:12px;font-weight:500">2 515 ms</text>
+
+    <g class="ts">
+      <rect x="150" y="208" width="10" height="10" style="fill:var(--ink-3)"/><text x="166" y="217">red + buffer 130</text>
+      <rect x="280" y="208" width="10" height="10" style="fill:var(--amber)"/><text x="296" y="217">espera de pasada / acuerdo</text>
+      <rect x="470" y="208" width="10" height="10" style="fill:var(--ai)"/><text x="486" y="217">Whisper 270</text>
+      <rect x="590" y="208" width="10" height="10" style="fill:var(--surface-2);stroke:var(--rule-2);stroke-width:1"/><text x="606" y="217">silencio de cierre 350</text>
+      <rect x="742" y="208" width="10" height="10" style="fill:var(--ai-line)"/><text x="758" y="217">MT + render</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption>El componente dominante no es la inferencia (270 ms) sino la espera del acuerdo entre pasadas. Es el precio de tener parciales estables en lugar de texto que baila.</figcaption>
+  </figure>
+
+  <div class="note ok">
+    <div class="nt">Medido sobre audio real · 14-09-2026</div>
+    <p>Tres tramos de 70 s de un reportaje de televisión japonesa (ABC News Kansai): narración de estudio, entrevistas en la calle y voz sobre música de fondo.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Métrica</th><th class="num">large-v3-turbo</th><th class="num">kotoba-whisper-v2.0</th></tr></thead>
+    <tbody>
+      <tr><td>Latencia p50</td><td class="num">1 477 – 1 826 ms</td><td class="num">1 514 – 3 276 ms</td></tr>
+      <tr><td>Latencia p95</td><td class="num">2 096 – 4 307 ms</td><td class="num">4 359 – 7 301 ms</td></tr>
+      <tr><td>Inferencia por pasada, p50</td><td class="num">408 – 482 ms</td><td class="num">317 – 338 ms</td></tr>
+      <tr><td>Parciales emitidos (70 s)</td><td class="num">73 – 77</td><td class="num">36 – 41</td></tr>
+      <tr><td>Pasadas sin emitir nada</td><td class="num">0</td><td class="num">12 – 27</td></tr>
+      <tr><td>VRAM atribuible</td><td class="num">~1 600 MiB</td><td class="num">~1 400 MiB</td></tr>
+      <tr><td>Marcas por palabra</td><td class="num">sí</td><td class="num">no</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Decisión: large-v3-turbo.</strong> El resultado es contraintuitivo y merece explicarse. Kotoba infiere ~100 ms más rápido por pasada y ocupa 200 MiB menos, pero en streaming pierde: su decodificador destilado de dos capas se niega a emitir sobre ventanas parciales y devuelve texto vacío en una de cada tres pasadas. Como LocalAgreement necesita dos pasadas coincidentes para confirmar, cada ventana vacía retrasa toda la frase. En calidad tampoco compensa — sobre el mismo audio escribió <span class="jp">大人の自首室</span> («sala de entrega a la policía») donde turbo escribió <span class="jp">大人の自習室</span> («sala de estudio para adultos»).</p>
+  <p>La lección general, aplicable al resto del proyecto: <strong>un modelo mejor en pruebas por lotes puede ser peor en streaming</strong>, porque la carga de trabajo es distinta. Hay que medir en el régimen en el que se va a usar.</p>
+
+  <figure>
+  </figure>
+
+  <div class="cards">
+    <div class="card"><div class="ct">Parcial en pantalla</div><div class="cv">0,83 s</div><div class="cd">Texto gris, mutable. Da sensación de tiempo real.</div></div>
+    <div class="card"><div class="ct">Japonés confirmado</div><div class="cv">1,90 s</div><div class="cd">Inmutable. Es el número que compara con tu objetivo de 2–5 s.</div></div>
+    <div class="card"><div class="ct">Frase + español</div><div class="cv">2,52 s</div><div class="cd">Con tokens clicables y gramática detectada.</div></div>
+    <div class="card"><div class="ct">Si el LLM tradujera</div><div class="cv">5–9 s</div><div class="cd">Fuera de presupuesto. Confirma la decisión de §02.</div></div>
+  </div>
+
+  <h3>Palancas si no llegas</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Palanca</th><th>Ganancia</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Reejecutar cada 0,5 s en vez de 0,8 s</td><td class="num">−450 ms</td><td>Más carga de GPU; si la inferencia no cabe en el intervalo, empieza a descartar pasadas.</td></tr>
+      <tr><td>Confirmar con acuerdo parcial (n=1 con umbral de logprob)</td><td class="num">−800 ms</td><td>Los parciales pasan a reescribirse de vez en cuando. Probar, no asumir.</td></tr>
+      <tr><td>Recortar el buffer al último punto confirmado</td><td class="num">−50…150 ms</td><td>Ninguno; es obligatorio de todas formas, o la ventana crece hasta los 30 s y la inferencia se dispara.</td></tr>
+      <tr><td>Silencio de cierre 350 → 250 ms</td><td class="num">−100 ms</td><td>Más frases partidas por la mitad en habla pausada.</td></tr>
+      <tr><td>Bajar a <code>small</code></td><td class="num">−120 ms</td><td>No merece la pena. La precisión en japonés cae mucho más de lo que ganas.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="num">09</span>Japonés sin LLM</h2>
+  <p class="lede">Todo lo que pediste en la tarjeta de palabra — lectura, forma de diccionario, rōmaji, tipo, conjugación, nivel — se resuelve de forma determinista en unos pocos milisegundos. El LLM solo aporta las dos cosas que realmente necesitan comprensión: el matiz en <em>esta</em> frase y la explicación adaptada a tu nivel.</p>
+
+  <h3>Reconstruir la conjugación desde Sudachi</h3>
+  <p>Sudachi no te da una cadena de conjugación: te da morfemas con su POS, tipo de conjugación (<span class="jp">活用型</span>) y forma (<span class="jp">活用形</span>). La cadena se reconstruye agrupando el verbo con los auxiliares que lo siguen — un chunker de <span class="jp">文節</span> ligero, unas 80 líneas.</p>
+<pre><span class="c"># 食べさせられました  →  Sudachi modo A</span>
+食べ    動詞,一般        食べる    下一段-バ行 · 連用形-一般
+させ    助動詞           させる    下一段-サ行 · 連用形-一般   <span class="c">→ causativo</span>
+られ    助動詞           られる    下一段-ラ行 · 連用形-一般   <span class="c">→ pasivo</span>
+まし    助動詞           ます      助動詞-マス · 連用形-一般   <span class="c">→ formal</span>
+た      助動詞           た        助動詞-タ   · 終止形-一般   <span class="c">→ pasado</span>
+
+<span class="c"># El chunker devuelve:</span>
+{ <span class="k">"lemma"</span>: <span class="s">"食べる"</span>, <span class="k">"surface"</span>: <span class="s">"食べさせられました"</span>,
+  <span class="k">"chain"</span>: [<span class="s">"causativo"</span>, <span class="s">"pasivo"</span>, <span class="s">"formal"</span>, <span class="s">"pasado"</span>],
+  <span class="k">"gloss_es"</span>: <span class="s">"me hicieron comer (cortés, pasado)"</span> }</pre>
+  <p>La tabla de auxiliares (<span class="jp">せる/させる</span> → causativo, <span class="jp">れる/られる</span> → pasivo · potencial · respetuoso, <span class="jp">ます</span> → formal, <span class="jp">た</span> → pasado, <span class="jp">ない</span> → negativo, <span class="jp">ている</span> → progresivo…) cabe en un fichero de datos. El único caso genuinamente ambiguo es <span class="jp">れる/られる</span>: ahí sí conviene preguntar al LLM, pero solo cuando haces clic.</p>
+
+  <h3>Detección de gramática por reglas</h3>
+  <p>Un DSL declarativo sobre secuencias de morfemas. Con unos 120 patrones cubres N5 a N3, que es exactamente tu rango. Coste en ejecución: microsegundos y cero alucinaciones.</p>
+<pre><span class="c"># backend/youjp/nlp/grammar/n4.yaml</span>
+- <span class="k">id</span>: nakereba_naranai
+  <span class="k">name</span>: <span class="s">"～なければならない"</span>
+  <span class="k">jlpt</span>: N4
+  <span class="k">meaning_es</span>: <span class="s">"tener que / estar obligado a"</span>
+  <span class="k">match</span>:                          <span class="c"># secuencia sobre morfemas de Sudachi</span>
+    - { pos0: 動詞, form: 未然形 }   <span class="c"># 行か</span>
+    - { surface: なけれ, pos0: 助動詞 }
+    - { surface: ば,     pos0: 助詞 }
+    - { lemma: なる }
+    - { surface: ない,   pos0: 助動詞 }
+  <span class="k">variants</span>: [なければいけない, なきゃいけない, ないといけない, ねばならない]
+  <span class="k">build</span>:                          <span class="c"># para el desglose visual de la tarjeta</span>
+    - <span class="s">"行く → 行かない"</span>
+    - <span class="s">"行かない → 行かなければならない"</span></pre>
+
+  <div class="note ok">
+    <div class="nt">Explicaciones caras, pagadas una sola vez</div>
+    <p>Las explicaciones largas de cada punto gramatical se <strong>pregeneran una vez con el LLM en un script offline</strong> y se guardan en la tabla <code>grammar_points</code>. En ejecución, hacer clic en <span class="jp">なければならない</span> es un <code>SELECT</code>: instantáneo, idéntico cada vez y disponible sin Ollama levantado. El LLM en vivo queda solo para lo que depende de la frase concreta.</p>
+  </div>
+
+  <h3>Diccionario y nivel JLPT</h3>
+  <p>JMdict se carga desde el JSON de <code>jmdict-simplified</code> a SQLite con FTS5. La búsqueda es por forma de diccionario normalizada de Sudachi, con desempate por lectura y por POS. Un detalle que conviene saber ya: <strong>JMdict no contiene el nivel JLPT</strong>. Hay tres fuentes complementarias, ninguna oficial:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Señal</th><th>Origen</th><th>Fiabilidad</th></tr></thead>
+    <tbody>
+      <tr><td>Nivel JLPT</td><td>Listas comunitarias (Tanos, <code>jlpt-word-list</code> y similares) mapeadas a IDs de JMdict</td><td>Aproximada. El JLPT no publica listas desde 2010; hay que etiquetarlo en la interfaz como <em>aproximado</em>.</td></tr>
+      <tr><td>Frecuencia</td><td>Marcadores de prioridad de JMdict: <code>ichi1</code>, <code>news1</code>, <code>nf01</code>–<code>nf48</code></td><td>Buena y ya viene en los datos. Es la señal más honesta de «palabra común».</td></tr>
+      <tr><td>Kanji por nivel</td><td>KANJIDIC2 (grado escolar, frecuencia, número de trazos)</td><td>Buena. Útil para furigana selectiva en Fase 8.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Qué palabras marcar como «probablemente no la conoces»</h3>
+<pre>unknown_score = 0.55 · (1 − familiaridad)      <span class="c"># de user_vocabulary + estado FSRS</span>
+              + 0.25 · rareza                  <span class="c"># normalizada desde nf01–nf48</span>
+              + 0.20 · (nivel_palabra &gt; nivel_usuario)
+
+<span class="c"># Arranque en frío para un N4 → N3:</span>
+<span class="c">#   N5 y N4 se asumen conocidas · N3 en aprendizaje · N2/N1 y sin lista → desconocidas</span>
+<span class="c">#   El estudiante puede marcar en bloque desde la pantalla de vocabulario.</span>
+<span class="c">#   Se resalta solo si unknown_score &gt; 0,6 — subrayar media frase no enseña nada.</span></pre>
+
+  <h3>La tarjeta, capa a capa</h3>
+  <div class="two">
+    <div class="mock">
+      <div class="mh">
+        <div class="mw jp">影響</div>
+        <div class="mr">えいきょう</div>
+        <div class="mrom">eikyō</div>
+      </div>
+      <div class="mb">
+        <div class="row"><span class="lbl">Significado</span><span class="src">JMdict</span></div>
+        <div>influencia, impacto, efecto</div>
+        <div class="row"><span class="lbl">Tipo</span><span class="src">Sudachi</span></div>
+        <div>Sustantivo · <span class="jp">サ変可能</span> (admite <span class="jp">する</span>)</div>
+        <div class="row"><span class="lbl">Nivel</span><span class="src">lista aprox.</span><span class="pill p-new">N3</span></div>
+        <div class="row"><span class="lbl">En esta frase</span><span class="src">LLM</span></div>
+        <div style="color:var(--ink-3);font-style:italic">pulsa para generar</div>
+        <div class="btn">Explicar más con IA</div>
+      </div>
+    </div>
+    <div>
+      <h4>Primera capa · instantánea</h4>
+      <p>Lectura, rōmaji, significado, tipo, conjugación, nivel y frecuencia. Todo procede de Sudachi y de SQLite: se sirve en menos de 20 ms y funciona con el backend en modo mínimo. Es el 90 % de los clics.</p>
+      <h4>Segunda capa · bajo demanda</h4>
+      <p>El botón dispara al LLM con un contexto muy acotado: la frase actual, las 3–5 anteriores, las acepciones de JMdict del token, su análisis morfológico y tu nivel. Se le pide <em>elegir entre las acepciones dadas</em> y explicar, no inventar vocabulario. La respuesta se cachea por <code>(jmdict_id, hash de la frase)</code>, así que volver a esa palabra en ese vídeo es instantáneo.</p>
+      <div class="note"><div class="nt">Regla</div><p>El LLM nunca es la fuente de lectura, forma de diccionario ni significado base. Si alucina ahí, estarías enseñando japonés incorrecto a alguien que no puede detectarlo todavía.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="s10">
+  <h2><span class="num">10</span>Registro de riesgos</h2>
+  <p>Los cuatro bloqueos de §01 ya están resueltos por diseño. Estos son los que seguirán ahí durante la implementación.</p>
+
+  <div class="note warn">
+    <div class="nt">Corrección tras medir · 14-09-2026</div>
+    <p>Este documento proponía cuatro filtros contra las alucinaciones, «los cuatro juntos, no uno». Al medirlos con audio de control resulta que <strong>tres de los cuatro no sirven</strong>. Sobre <em>30 segundos de silencio digital absoluto</em>, no de música ni de ruido de sala:</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Modelo</th><th>Lo que inventa</th><th class="num">no_speech</th><th class="num">avg_logprob</th><th class="num">repetición</th><th>¿Lo para algo?</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="tech">large-v3-turbo</td>
+        <td><span class="jp">ご視聴ありがとうございました</span><br><span style="color:var(--ink-3);font-size:12px">«gracias por ver el vídeo»</span></td>
+        <td class="num">0,000</td><td class="num">−0,143</td><td class="num">0,00</td>
+        <td>Solo la lista negra</td>
+      </tr>
+      <tr>
+        <td class="tech">kotoba-whisper-v2.0</td>
+        <td><span class="jp">ごめん</span><br><span style="color:var(--ink-3);font-size:12px">«perdón»</span></td>
+        <td class="num">0,128</td><td class="num">−0,527</td><td class="num">0,00</td>
+        <td><strong style="color:var(--shu)">Nada</strong></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>Turbo inventa una frase sobre silencio puro con <code>no_speech_prob</code> <strong>exactamente cero</strong> y una confianza mejor que la que da sobre habla real. Un umbral de <code>0,6</code> no sirve de nada contra un <code>0,000</code>, y no hay umbral que sirva. La repetición tampoco: estas alucinaciones son cortas y no repiten. Y la lista negra es incompleta por construcción — <span class="jp">ごめん</span> es una palabra normal que nadie pondría en ella.</p>
+  <p><strong>Corolario de diseño:</strong> el VAD no es una optimización para ahorrar GPU, es la barrera. El pipeline se cambió para que ni las pasadas forzadas puedan saltárselo. Con esa corrección, el banco registra <strong>cero pasadas de Whisper</strong> sobre silencio y sobre ruido rosa: el modelo nunca llega a ver ese audio, así que la alucinación no puede ocurrir.</p>
+
+  <div class="risks">
+    <div class="risk high"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Alucinaciones de Whisper en japonés</span><span class="rt">Confirmado y medido</span></div>
+      <p>Sobre silencio, música o ruido, Whisper en japonés produce frases completas y plausibles sacadas de sus datos de entrenamiento. Confirmado en la Fase 0, y <strong>peor de lo que suponía la versión anterior de este documento</strong>: las señales estadísticas no distinguen una alucinación del habla real. Ver la tabla de abajo.</p>
+      <div class="mit"><b>Mitigación</b> · el VAD de Silero es la <strong>única</strong> defensa que funciona. Ninguna pasada puede saltárselo, tampoco una forzada por cierre de frase o por fin de sesión. Los filtros posteriores se conservan como segunda línea, nunca como primera.</div>
+    </div></div>
+    <div class="risk med"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Deriva entre el reloj de audio y el del vídeo</span><span class="rt">Medio</span></div>
+      <p>El audio capturado y <code>player.currentTime</code> avanzan por caminos distintos. En sesiones largas los subtítulos se desplazan respecto a lo que se oye.</p>
+      <div class="mit"><b>Mitigación</b> · sellar cada trama con los dos relojes (§07) y recalcular la deriva cada 30 s comparando <code>media_time_ms</code> esperado y observado. Si supera 300 ms, reanclar.</div>
+    </div></div>
+    <div class="risk med"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Seek, pausa y velocidad distinta de 1×</span><span class="rt">Medio</span></div>
+      <p>Retroceder invalida el buffer. Reproducir a 1,5× entrega a Whisper audio acelerado, que transcribe mal y descoloca todos los tiempos.</p>
+      <div class="mit"><b>Mitigación</b> · escuchar <code>seeking</code>, <code>pause</code> y <code>ratechange</code> en el content script y enviar <code>control.flush</code>. Con velocidad ≠ 1 se pausa la transcripción y el overlay lo dice explícitamente en vez de mostrar basura.</div>
+    </div></div>
+    <div class="risk med"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Ambigüedad de <span class="jp">れる / られる</span></span><span class="rt">Medio · intrínseco</span></div>
+      <p>El mismo auxiliar es pasivo, potencial o respetuoso. Ninguna regla morfológica lo resuelve; depende del significado.</p>
+      <div class="mit"><b>Mitigación</b> · mostrar las tres lecturas posibles marcadas como tal en la primera capa, y ofrecer la desambiguación contextual como caso de uso explícito del botón de IA. Es honesto y además es un buen momento pedagógico.</div>
+    </div></div>
+    <div class="risk med"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Contenido con DRM: Netflix nunca funcionará por esta vía</span><span class="rt">Medio · futuro</span></div>
+      <p>El audio protegido por EME no es capturable desde la pestaña. La funcionalidad futura nº 4 de tu lista necesita otra fuente de audio: captura de loopback WASAPI, que ya no es una extensión sino una aplicación de escritorio.</p>
+      <div class="mit"><b>Mitigación</b> · <code>AudioSource</code> como interfaz desde el día 1, con tres implementaciones previstas: pestaña, fichero (para tests) y, más adelante, loopback. El backend no sabe de dónde viene el PCM.</div>
+    </div></div>
+    <div class="risk low"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Nivel JLPT aproximado</span><span class="rt">Bajo · inevitable</span></div>
+      <p>No existe una lista oficial desde 2010. Cualquier etiqueta N3 que muestres es una estimación comunitaria.</p>
+      <div class="mit"><b>Mitigación</b> · etiquetarlo siempre como aproximado en la interfaz y apoyar las decisiones de resaltado más en frecuencia (que sí es dato duro) que en el nivel.</div>
+    </div></div>
+    <div class="risk low"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">YouTube cambia el DOM del reproductor</span><span class="rt">Bajo · recurrente</span></div>
+      <p>El overlay se ancla a contenedores que cambian sin aviso.</p>
+      <div class="mit"><b>Mitigación</b> · anclar a <code>.html5-video-player</code> con varios selectores de respaldo y un <code>MutationObserver</code> que remonta el overlay si desaparece. Un test de humo manual por versión.</div>
+    </div></div>
+    <div class="risk low"><div class="sev"></div><div class="rb">
+      <div class="rh"><span class="rn">Uso personal y términos de servicio</span><span class="rt">Bajo · a tener presente</span></div>
+      <p>Capturar el audio de una pestaña para transcribirlo localmente es distinto de descargar o redistribuir contenido. Todo se queda en tu máquina y no hay reproducción pública.</p>
+      <div class="mit"><b>Mitigación</b> · no añadir descarga de vídeo; la función futura de «guardar clip» se limita a unos segundos de audio con fin de estudio y almacenamiento local.</div>
+    </div></div>
+  </div>
+</section>
+
+<section id="s11">
+  <h2><span class="num">11</span>Estructura del repositorio</h2>
+<pre>youjp/
+├─ README.md                    <span class="c">arranque en 5 pasos · requisitos de CUDA</span>
+├─ .env.example                 <span class="c">puertos, rutas de modelos, flags de modo</span>
+├─ tasks.ps1                    <span class="c">setup · dev · bench · build-dict (PowerShell)</span>
+├─ docs/
+│  ├─ arquitectura.html         <span class="c">este documento</span>
+│  ├─ protocolo-ws.md           <span class="c">generado desde los esquemas Pydantic</span>
+│  ├─ metricas.md
+│  └─ adr/                      <span class="c">decisiones con fecha y motivo</span>
+│     ├─ 0001-websocket-en-offscreen.md
+│     ├─ 0002-localagreement-frente-a-vad-por-frase.md
+│     └─ 0003-nmt-dedicado-frente-a-llm.md
+│
+├─ extension/                   <span class="c">WXT + React + TypeScript</span>
+│  ├─ wxt.config.ts
+│  ├─ entrypoints/
+│  │  ├─ background.ts          <span class="c">SW: getMediaStreamId + crear offscreen</span>
+│  │  ├─ offscreen/
+│  │  │  ├─ index.html
+│  │  │  ├─ main.ts             <span class="c">getUserMedia · AudioContext 16k · WS</span>
+│  │  │  └─ pcm-worklet.ts      <span class="c">AudioWorkletProcessor → Int16</span>
+│  │  ├─ content/
+│  │  │  ├─ index.tsx           <span class="c">monta el overlay en el reproductor</span>
+│  │  │  └─ player.ts           <span class="c">currentTime · seek/pause/rate</span>
+│  │  └─ popup/                 <span class="c">on/off, modo, estado de conexión</span>
+│  ├─ src/
+│  │  ├─ ui/                    <span class="c">SubtitleLine · Token · WordCard · GrammarChip · DevPanel</span>
+│  │  ├─ state/                 <span class="c">store zustand: segmentos, tokens, modo</span>
+│  │  ├─ ws/                    <span class="c">cliente · códec binario · tipos generados</span>
+│  │  └─ lib/
+│  └─ tests/
+│
+├─ backend/
+│  ├─ pyproject.toml            <span class="c">gestionado con uv</span>
+│  └─ youjp/
+│     ├─ main.py                <span class="c">app FastAPI</span>
+│     ├─ config.py              <span class="c">pydantic-settings</span>
+│     ├─ ws/                    <span class="c">router · protocol.py (esquemas) · codec.py</span>
+│     ├─ audio/
+│     │  ├─ source.py           <span class="c">AudioSource: tab | file | (futuro) loopback</span>
+│     │  ├─ ring.py             <span class="c">anillo PCM de 30 s</span>
+│     │  ├─ vad.py              <span class="c">Silero v5 ONNX</span>
+│     │  └─ replay.py           <span class="c">reproduce un WAV como si fuera directo</span>
+│     ├─ asr/
+│     │  ├─ engine.py           <span class="c">faster-whisper · carga y descarga por modo</span>
+│     │  ├─ local_agreement.py  <span class="c">política de confirmación</span>
+│     │  ├─ segmenter.py        <span class="c">cierre por puntuación / silencio / longitud</span>
+│     │  └─ hallucination.py    <span class="c">filtros y lista negra</span>
+│     ├─ nlp/
+│     │  ├─ tokenizer.py        <span class="c">Sudachi A + C</span>
+│     │  ├─ chunker.py          <span class="c">bunsetsu + cadena de conjugación</span>
+│     │  ├─ romaji.py
+│     │  └─ grammar/            <span class="c">matcher.py + n5.yaml n4.yaml n3.yaml</span>
+│     ├─ dict/                  <span class="c">jmdict.py · kanjidic.py · jlpt.py · build_db.py</span>
+│     ├─ mt/                    <span class="c">base.py (TranslationProvider) · ct2_nllb.py · llm_mt.py</span>
+│     ├─ llm/                   <span class="c">ollama.py · prompts/ · cache.py</span>
+│     ├─ learn/                 <span class="c">vocab.py · srs.py (FSRS) · stats.py</span>
+│     ├─ store/                 <span class="c">db.py · schema.sql · migrations/</span>
+│     ├─ pipeline/              <span class="c">bus.py · workers.py · session.py</span>
+│     └─ obs/                   <span class="c">metrics.py · logging.py · gpu.py</span>
+│  └─ tests/
+│     ├─ fixtures/              <span class="c">wav cortos: noticias, charla, anime, silencio, música</span>
+│     ├─ test_local_agreement.py
+│     ├─ test_chunker.py        <span class="c">食べさせられました y compañía</span>
+│     └─ test_grammar.py
+│
+├─ data/
+│  ├─ raw/                      <span class="c">jmdict-eng.json · kanjidic2.json · jlpt/*.tsv</span>
+│  └─ youjp.sqlite3             <span class="c">ignorado por git</span>
+├─ models/                      <span class="c">ignorado por git · descargado por script</span>
+├─ scripts/                     <span class="c">fetch_dicts · build_dict_db · convert_nllb_ct2 · bench_latency</span>
+└─ bench/
+   ├─ samples/                  <span class="c">clips de 60 s con transcripción de referencia</span>
+   └─ results/                  <span class="c">JSON por ejecución, comparables entre sí</span></pre>
+</section>
+
+<section id="s12">
+  <h2><span class="num">12</span>Roadmap, MVP y criterios de éxito</h2>
+  <p>Tu orden de fases es correcto. Le añado una Fase 0 que no estaba y que es la que más tiempo te va a ahorrar: sin banco de pruebas no puedes medir latencia de forma reproducible ni depurar sin un directo delante.</p>
+
+  <div class="phase">
+    <div class="pid">F0<small>2–3 d</small></div>
+    <div>
+      <h4>Banco de pruebas y línea base</h4>
+      <p>Entorno con CUDA funcionando, <code>replay.py</code> reproduciendo un WAV como si fuera audio en vivo, <code>bench_latency.py</code> escribiendo JSON comparable, y medición real de VRAM con Chrome abierto. Sin extensión y sin interfaz.</p>
+      <div class="exit"><b>Salida</b> · cifras tuyas para turbo y kotoba-whisper sobre cinco clips distintos, con RTF, pico de VRAM y WER aproximado. Estas cifras deciden el modelo, no las estimaciones de este documento.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F1<small>4–6 d</small></div>
+    <div>
+      <h4>MVP · audio de la pestaña → japonés en pantalla</h4>
+      <p>Extensión con service worker, offscreen document, worklet y WebSocket. Backend con anillo, VAD, ASR con LocalAgreement y segmentador. Overlay con parcial gris y final blanco. Panel de métricas visible.</p>
+      <div class="exit"><b>Salida</b> · el MVP tal y como se define abajo.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F2<small>4–5 d</small></div>
+    <div>
+      <h4>Sudachi + JMdict + tokens clicables</h4>
+      <p>Construcción de la base del diccionario, tokenizador, chunker de conjugación, rōmaji y la primera capa de la tarjeta de palabra. Todo determinista.</p>
+      <div class="exit"><b>Salida</b> · clic en cualquier palabra → tarjeta completa en menos de 50 ms, sin LLM levantado.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F3<small>3–4 d</small></div>
+    <div>
+      <h4>Traducción al español</h4>
+      <p><code>TranslationProvider</code> con NLLB en CTranslate2, contexto de las 3 frases anteriores, y comparación medida contra Qwen3-4B sobre los mismos clips.</p>
+      <div class="exit"><b>Salida</b> · español bajo el japonés en menos de 3 s; decisión documentada sobre qué proveedor queda por defecto.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F4<small>3–4 d</small></div>
+    <div>
+      <h4>Gramática por reglas</h4>
+      <p>DSL, matcher, 120 patrones N5–N3, y pregeneración offline de las explicaciones al SQLite.</p>
+      <div class="exit"><b>Salida</b> · <span class="jp">行かなければならないと思います</span> detecta y explica el patrón sin tocar el LLM en vivo.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F5<small>3–5 d</small></div>
+    <div>
+      <h4>LLM local y explicaciones contextuales</h4>
+      <p>Cliente de Ollama con streaming y cancelación, plantillas de prompt por tipo de pregunta, caché en SQLite y el cambio de modo directo ↔ estudio con carga y descarga de modelos.</p>
+      <div class="exit"><b>Salida</b> · «Explicar más con IA» con primer token en menos de 3 s y respuesta completa en menos de 20 s, sin degradar la transcripción en curso.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F6<small>5–7 d</small></div>
+    <div>
+      <h4>Sistema de aprendizaje</h4>
+      <p>Vocabulario personal con la frase de origen y su marca temporal, resaltado de palabras probablemente desconocidas, estadísticas por sesión, FSRS y exportación a Anki.</p>
+      <div class="exit"><b>Salida</b> · una sesión de 30 minutos produce una lista de vocabulario en contexto lista para repasar.</div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="pid">F7+</div>
+    <div>
+      <h4>Lo demás</h4>
+      <p>Furigana, audio de pronunciación, modo solo japonés, ocultar traducción, pausa automática al hacer clic, retroceder 5 s, guardar clip, Twitch, perfiles, más idiomas. Ninguna de estas obliga a tocar la arquitectura.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h3>Definición exacta del MVP (Fase 1)</h3>
+  <p><strong>Dentro.</strong> Extensión que se activa con un clic en su icono sobre una pestaña de YouTube; captura de audio vía offscreen document con la pestaña siguiendo audible; PCM a 16 kHz por WebSocket al backend; VAD, Whisper turbo con LocalAgreement y segmentador; overlay sobre el reproductor con una línea de japonés confirmado y una de parcial en gris; panel de métricas activable; y <code>replay.py</code> para ejecutar el mismo pipeline sobre un fichero.</p>
+  <p><strong>Fuera.</strong> Sudachi, JMdict, tokens clicables, traducción, LLM, base de datos de usuario, gramática, vocabulario, ajustes, empaquetado, cualquier plataforma que no sea YouTube.</p>
+
+  <h3>Criterios para dar el MVP por bueno</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Criterio</th><th class="num">Umbral</th><th>Cómo se comprueba</th></tr></thead>
+    <tbody>
+      <tr><td>Japonés confirmado en pantalla</td><td class="num">&lt; 2,5 s · p50<br>&lt; 4,0 s · p95</td><td><code>end_to_end_latency_ms</code> sobre 10 min de un directo de noticias.</td></tr>
+      <tr><td>Parcial en pantalla</td><td class="num">&lt; 1,2 s · p50</td><td>Mismo registro, evento <code>asr.partial</code>.</td></tr>
+      <tr><td>Audio perdido</td><td class="num">0 en 10 min</td><td><code>dropped_audio_chunks</code> debe quedarse en cero en régimen normal.</td></tr>
+      <tr><td>Estabilidad de los parciales</td><td class="num">&lt; 5 % reescrito</td><td>Proporción de caracteres confirmados que luego cambian. Debe ser 0 si LocalAgreement está bien implementado.</td></tr>
+      <tr><td>Alucinación en silencio</td><td class="num">0 frases</td><td>Clip de 2 min con música y sin voz: no debe aparecer ni un subtítulo.</td></tr>
+      <tr><td>Audio de la pestaña</td><td class="num">audible</td><td>Verificación manual: el vídeo se sigue oyendo con normalidad durante toda la captura.</td></tr>
+      <tr><td>VRAM en régimen</td><td class="num">&lt; 3,0 GB</td><td><code>nvidia-smi</code> tras 30 min continuos, sin crecimiento sostenido.</td></tr>
+      <tr><td>Sincronía</td><td class="num">deriva &lt; 300 ms</td><td>A los 30 min, comparar <code>media_time_ms</code> del subtítulo con lo que se oye.</td></tr>
+      <tr><td>Precisión percibida</td><td class="num">utilizable</td><td>Juicio tuyo sobre 5 clips: ¿podrías seguir el contenido leyendo solo los subtítulos? No hace falta WER formal para decidir esto.</td></tr>
+      <tr><td>Recuperación</td><td class="num">&lt; 2 s</td><td>Tras un seek, el overlay vuelve a mostrar texto correcto sin reiniciar nada.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <div class="nt">Lo siguiente</div>
+    <p>Si este plan te cuadra, el primer paso concreto es la <strong>Fase 0</strong>: montar el repositorio con el esqueleto de §11, dejar el entorno de CUDA funcionando y ejecutar el banco de pruebas con tus propios clips. Con esas cifras encima de la mesa confirmamos el modelo de ASR y los umbrales, y empezamos la Fase 1 sobre datos en vez de sobre estimaciones.</p>
+  </div>
+</section>
+
+<footer style="margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-3)">
+  <p style="max-width:78ch">Documento de fase 1 · revisión de arquitectura. Las cifras de latencia y de VRAM son estimaciones de diseño salvo donde se indica que proceden de mediciones publicadas; la Fase 0 existe para sustituirlas por medidas propias. Diccionarios JMdict y KANJIDIC2 © EDRDG, CC BY-SA 4.0.</p>
+</footer>
+</main>
+</div>

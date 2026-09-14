@@ -1,0 +1,54 @@
+[project]
+name = "youjp"
+version = "0.1.0"
+description = "Subtitulos japoneses en tiempo real con analisis linguistico local"
+requires-python = ">=3.12,<3.13"
+
+dependencies = [
+    # ASR. Arrastra ctranslate2, tokenizers, huggingface-hub y av.
+    "faster-whisper>=1.1.0",
+    # VAD Silero en ONNX, para no arrastrar PyTorch (~2.5 GB) al proyecto.
+    "onnxruntime>=1.20",
+    # Buffers de audio y conversiones PCM.
+    "numpy>=2.0",
+    # Lectura y escritura de WAV para el banco de pruebas y los fixtures.
+    "soundfile>=0.12",
+    # Esquemas del protocolo y configuracion por .env.
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    # Metricas de GPU (VRAM) y de sistema (CPU, RAM).
+    "nvidia-ml-py>=12.560",
+    "psutil>=6.0",
+    # Salida legible del banco de pruebas en consola.
+    "rich>=13.9",
+]
+
+[project.optional-dependencies]
+# Bibliotecas CUDA para CTranslate2 en Windows. Se instalan como ruedas de pip:
+# no hace falta el CUDA Toolkit completo, solo el driver de NVIDIA.
+# youjp.cuda_setup anade sus carpetas al path de DLLs al arrancar.
+cuda = [
+    "nvidia-cublas-cu12>=12.4",
+    "nvidia-cudnn-cu12>=9.1,<10",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["youjp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+# Las ruedas de CUDA pesan ~1 GB; se instalan explicitamente con el extra "cuda".
+default-groups = ["dev"]
