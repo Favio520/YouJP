@@ -1,7 +1,9 @@
 # ADR 0003 — Traductor dedicado en el camino caliente, LLM bajo demanda
 
 - **Fecha:** 2026-09-14
-- **Estado:** aceptado, pendiente de validar con medidas (fase 3)
+- **Estado:** ⚠️ **parcialmente revocado el 2026-09-14 tras medir.** Ver la
+  sección *Qué dijeron las medidas* al final. La separación en dos niveles se
+  mantiene; la elección de NLLB para el camino caliente no.
 
 ## Contexto
 
@@ -53,6 +55,58 @@ modo estudio, con el vídeo pausado, el ASR se descarga y el LLM sube a la GPU.
 ## Alternativas descartadas
 
 - **Pivote ja → en → es:** duplica la latencia y acumula errores.
-- **Qwen3-1.7B en GPU como traductor:** cabe (~1,5 GB) pero su japonés no da la
-  talla, y si hay que revisar cada frase el sistema pierde su propósito.
 - **API externa de traducción:** contradice el requisito de funcionamiento local.
+
+---
+
+## Qué dijeron las medidas — 2026-09-14
+
+Las tres implementaciones, sobre las mismas seis frases sacadas de las
+transcripciones reales de la fase 0.
+
+| | NLLB-200-600M | Qwen3-1.7B | **Qwen3-4B-Instruct-2507** |
+|---|---|---|---|
+| Latencia p50 (GPU) | ~290 ms | ~130 ms | **~300 ms** |
+| VRAM | 1 117 MiB | 1 398 MiB | 2 741 MiB |
+| Frases correctas | 2 / 6 | 2 / 6 | **5 / 6** |
+
+**La premisa de este ADR era falsa.** Suponía que un traductor dedicado sería
+mucho más rápido que un LLM, y que por eso habría que aceptar su peor calidad en
+el camino caliente. En GPU los dos tardan lo mismo, así que no había nada que
+aceptar.
+
+Los errores de NLLB además no son del tipo tolerable. Sobre
+`魔力も技術もコントロールも私の方が遥かに上` («en magia, técnica y control yo
+estoy muy por encima») escribió *«son mucho mejores que yo»* — **el significado
+exactamente invertido**, con total fluidez. Para alguien que está aprendiendo
+japonés eso es peor que no traducir, porque no tiene forma de detectarlo. También
+convirtió `西山真さん` en *«Si-san-jin»* y cambió la persona de `自分の`
+(«mis») a *«tenemos»*.
+
+Qwen3-1.7B es peor todavía: se inventó un «¡Hola!» que no estaba en el original y
+tradujo `西山真さん` como *«mujer de nombre Weston»*.
+
+## Decisión revisada
+
+- **Camino caliente: Qwen3-4B-Instruct-2507 en GPU.** Medido en el pipeline
+  completo: 13 de 13 frases traducidas, p50 431 ms, y el subtítulo japonés sigue
+  llegando a 1 514 ms — la traducción va en paralelo y no lo retrasa.
+- **NLLB se conserva** detrás de la misma interfaz, como opción para cuando la
+  VRAM no dé (`YOUJP_MT_PROVIDER=nllb`, 1 500 MiB menos) o si algún día hay que
+  quitar la dependencia de Ollama.
+- La separación en dos niveles **sigue en pie**: el LLM del camino caliente
+  traduce y nada más. Las explicaciones de la fase 5 son otra petición, con otro
+  prompt y probablemente otro modelo.
+
+## El coste: ya no sobra VRAM
+
+Con el navegador abierto quedan entre 400 y 900 MiB libres de los 6 144. Es
+suficiente pero no hay margen para un juego. Consecuencias implementadas:
+
+- El servidor mide la VRAM libre al arrancar y avisa por debajo de 500 MiB,
+  indicando las dos salidas (`YOUJP_LLM_NUM_GPU=0` o `YOUJP_MT_PROVIDER=nllb`).
+- El servidor avisa también si Ollama tiene **otros** modelos residentes. No es
+  hipotético: durante estas pruebas un `qwen3:1.7b` olvidado de un experimento
+  anterior ocupaba 1 398 MiB y hacía parecer que el traductor no cabía.
+- `num_ctx` se acota a 2 048. Qwen3 declara 262 144 tokens de contexto y sin
+  acotarlo Ollama reserva caché KV en consecuencia.

@@ -112,6 +112,23 @@ export interface AsrFinal {
   latency_ms: number;
 }
 
+/**
+ * Traducción de una frase ya cerrada.
+ *
+ * Llega por separado y después del `asr.final` correspondiente, enlazada por
+ * `segment_id`. Así el japonés aparece en cuanto está listo sin esperar al
+ * traductor: son dos trabajos en paralelo, no una cadena.
+ */
+export interface MtFinal {
+  type: 'mt.final';
+  segment_id: number;
+  text_es: string;
+  provider: string;
+  media_start_ms: number;
+  media_end_ms: number;
+  latency_ms: number;
+}
+
 export interface MetricsTick {
   type: 'metrics.tick';
   end_to_end_ms_p50: number;
@@ -124,6 +141,10 @@ export interface MetricsTick {
   passes: number;
   skipped_silent: number;
   rejected: Record<string, number>;
+  translation_latency_ms_p50: number;
+  translations: number;
+  dropped_translations: number;
+  mt_provider: string;
   gpu_used_mb: number;
   gpu_total_mb: number;
   cpu_pct: number;
@@ -141,6 +162,7 @@ export type ServerMessage =
   | SessionReady
   | AsrPartial
   | AsrFinal
+  | MtFinal
   | MetricsTick
   | ServerError
   | { type: 'pong'; t: number };

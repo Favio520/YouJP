@@ -93,6 +93,23 @@ class AsrFinal(BaseModel):
     latency_ms: float
 
 
+class MtFinal(BaseModel):
+    """Traducción de una frase ya cerrada.
+
+    Llega por separado y después del ``asr.final`` correspondiente, y se enlaza
+    con él por ``segment_id``. Así el japonés aparece en cuanto está listo, sin
+    esperar al traductor: son dos trabajos en paralelo, no una cadena.
+    """
+
+    type: Literal["mt.final"] = "mt.final"
+    segment_id: int
+    text_es: str
+    provider: str
+    media_start_ms: int
+    media_end_ms: int
+    latency_ms: float
+
+
 class MetricsTick(BaseModel):
     type: Literal["metrics.tick"] = "metrics.tick"
     end_to_end_ms_p50: float = 0.0
@@ -105,6 +122,10 @@ class MetricsTick(BaseModel):
     passes: int = 0
     skipped_silent: int = 0
     rejected: dict[str, int] = Field(default_factory=dict)
+    translation_latency_ms_p50: float = 0.0
+    translations: int = 0
+    dropped_translations: int = 0
+    mt_provider: str = "none"
     gpu_used_mb: float = 0.0
     gpu_total_mb: float = 0.0
     cpu_pct: float = 0.0
@@ -123,7 +144,9 @@ class Pong(BaseModel):
     t: int = 0
 
 
-ServerMessage = Union[SessionReady, AsrPartial, AsrFinal, MetricsTick, ErrorMessage, Pong]
+ServerMessage = Union[
+    SessionReady, AsrPartial, AsrFinal, MtFinal, MetricsTick, ErrorMessage, Pong
+]
 
 
 class ClientEnvelope(BaseModel):

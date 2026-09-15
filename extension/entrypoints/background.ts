@@ -137,6 +137,7 @@ export default defineBackground(() => {
       message.type === 'status' ||
       message.type === 'subtitle.partial' ||
       message.type === 'subtitle.final' ||
+      message.type === 'subtitle.translation' ||
       message.type === 'metrics' ||
       message.type === 'backend.error'
     ) {

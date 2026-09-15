@@ -25,6 +25,7 @@ dependencies = [
     "psutil>=6.0",
     # Salida legible del banco de pruebas en consola.
     "rich>=13.9",
+    "transformers>=5.17.0",
 ]
 
 [project.optional-dependencies]

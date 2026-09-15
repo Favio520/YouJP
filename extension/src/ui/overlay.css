@@ -48,9 +48,38 @@
   overflow-wrap: anywhere;
 }
 
-.youjp-line--past {
+/* Una frase y su traducción van juntas: separarlas visualmente haría que con
+   varias en pantalla no se supiera qué línea traduce a cuál. */
+.youjp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.youjp-block--past .youjp-line {
   font-size: clamp(14px, 1.6vw, 21px);
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.youjp-block--past .youjp-es {
+  font-size: clamp(12px, 1.3vw, 17px);
+  color: rgba(168, 197, 240, 0.45);
+}
+
+/* El español en un azul claro y no en blanco: con los dos idiomas del mismo
+   color hay que leer para saber cuál es cuál, y el ojo tiene que poder saltar
+   directo al que busca. */
+.youjp-es {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(15px, 1.8vw, 24px);
+  line-height: 1.4;
+  color: #a8c5f0;
+  text-shadow:
+    0 0 4px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.85);
+  overflow-wrap: anywhere;
 }
 
 .youjp-committed {

@@ -144,6 +144,66 @@ class Settings(BaseSettings):
         description="Frases que Whisper inventa sobre silencio o musica.",
     )
 
+    # --- traduccion --------------------------------------------------------
+    mt_provider: Literal["nllb", "llm", "none"] = "llm"
+    """Traductor del camino caliente.
+
+    Por defecto ``llm`` (Qwen3-4B en GPU), contra lo que predecia el ADR 0003.
+    Medido el 14-09-2026 sobre las mismas seis frases: NLLB-200 acierta 2 de 6 e
+    invierte el significado de una ("mi control es superior al tuyo" se
+    convirtio en "son mucho mejores que yo"); Qwen3-4B acierta 5 de 6 y respeta
+    persona y direccion. En GPU los dos rondan los 300 ms, asi que la ventaja de
+    velocidad de NLLB no existia.
+
+    ``nllb`` se conserva porque pesa 1 500 MiB menos de VRAM y porque NLLB no
+    depende de Ollama. ``none`` desactiva la traduccion."""
+
+    mt_model: str = "entai2965/nllb-200-distilled-600M-ctranslate2"
+    """Repositorio de Hugging Face o ruta local. Se usa una conversion a
+    CTranslate2 ya publicada porque convertirla aqui exigiria instalar PyTorch
+    (2,5 GB) para una operacion de una sola vez."""
+
+    mt_device: str = "cuda"
+    mt_compute_type: str = "int8_float16"
+    mt_beam_size: int = 2
+    """Beam 2 y no 1: la traduccion corre solo sobre frases finales, no en cada
+    pasada, asi que el coste extra cabe de sobra en el presupuesto."""
+
+    mt_source_lang: str = "jpn_Jpan"
+    mt_target_lang: str = "spa_Latn"
+
+    mt_max_tokens: int = 256
+    """Cota de generacion. Acota el peor caso igual que en el ASR."""
+
+    mt_context_sentences: int = 3
+    """Frases anteriores que se pasan como contexto. NLLB las ignora; el LLM
+    las usa para resolver sujetos omitidos y mantener el registro."""
+
+    # --- LLM ---------------------------------------------------------------
+    llm_url: str = "http://127.0.0.1:11434"
+    llm_model: str = "qwen3:4b-instruct-2507-q4_K_M"
+    llm_timeout_s: float = 120.0
+    llm_keep_alive: str = "30m"
+    """Cuanto mantiene Ollama el modelo residente sin usarlo. Descargarlo cuesta
+    30 s de recarga en la siguiente frase."""
+
+    llm_num_gpu: int = 99
+    """Capas que Ollama sube a la GPU. 99 significa todas.
+
+    En CPU el mismo modelo tarda 967-6 219 ms por frase y no sostiene un
+    directo; en GPU baja a 152-540 ms. Ponerlo a 0 devuelve el LLM a la CPU,
+    que es lo que hara falta cuando la fase 5 anada el modelo grande de
+    explicaciones."""
+
+    llm_num_ctx: int = 2048
+    """Ventana de contexto que reserva Ollama.
+
+    Importa mucho mas de lo que parece: Qwen3 declara 262 144 tokens de
+    contexto y, si no se acota, Ollama reserva cache KV en consecuencia. Una
+    frase mas tres de contexto no pasan de unos cientos de tokens, asi que
+    2 048 sobra y ahorra cientos de MiB de VRAM en una tarjeta donde no
+    sobran."""
+
     # --- servidor ----------------------------------------------------------
     host: str = "127.0.0.1"
     port: int = 8770

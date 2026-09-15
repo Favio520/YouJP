@@ -14,9 +14,14 @@ import type { CaptureStatus, ExtensionMessage } from '../messages';
 
 const MAX_HISTORY = 3;
 
+/**
+ * Una frase cerrada. El español llega por separado y después, así que `es`
+ * empieza vacío y se rellena cuando aparece el `mt.final` con el mismo id.
+ */
 interface Line {
   id: number;
-  text: string;
+  ja: string;
+  es: string;
 }
 
 const STATUS_LABEL: Record<CaptureStatus, string> = {
@@ -59,9 +64,18 @@ export function Overlay() {
           if (final.segment_id === lastFinal.current) break;
           lastFinal.current = final.segment_id;
           setHistory((prev) =>
-            [...prev, { id: final.segment_id, text: final.text }].slice(-MAX_HISTORY),
+            [...prev, { id: final.segment_id, ja: final.text, es: '' }].slice(-MAX_HISTORY),
           );
           setPartial(null);
+          break;
+        }
+        case 'subtitle.translation': {
+          const { segment_id, text_es } = message.payload;
+          // La traducción puede llegar cuando la frase ya ha salido del
+          // historial: en ese caso no hay nada que actualizar y se descarta.
+          setHistory((prev) =>
+            prev.map((line) => (line.id === segment_id ? { ...line, es: text_es } : line)),
+          );
           break;
         }
         case 'metrics':
@@ -120,16 +134,22 @@ export function Overlay() {
       )}
 
       <div className="youjp-subs">
-        {history.map((line) => (
-          <p key={line.id} className="youjp-line youjp-line--past">
-            {line.text}
-          </p>
-        ))}
+        {history.map((line, index) => {
+          const actual = index === history.length - 1;
+          return (
+            <div key={line.id} className={actual ? 'youjp-block' : 'youjp-block youjp-block--past'}>
+              <p className="youjp-line">{line.ja}</p>
+              {line.es && <p className="youjp-es">{line.es}</p>}
+            </div>
+          );
+        })}
         {(committed || tentative) && (
-          <p className="youjp-line">
-            <span className="youjp-committed">{committed}</span>
-            <span className="youjp-tentative">{tentative}</span>
-          </p>
+          <div className="youjp-block">
+            <p className="youjp-line">
+              <span className="youjp-committed">{committed}</span>
+              <span className="youjp-tentative">{tentative}</span>
+            </p>
+          </div>
         )}
       </div>
 
@@ -157,7 +177,19 @@ export function Overlay() {
           <span title="pasadas de Whisper / saltadas por el VAD">
             pas {metrics.passes}/<b>{metrics.skipped_silent}</b>
           </span>
-          <span title="VRAM usada">
+          <span title="traducción: latencia p50 y frases traducidas">
+            mt <b>{metrics.translation_latency_ms_p50.toFixed(0)}</b> ms ·{' '}
+            {metrics.translations}
+            {metrics.dropped_translations > 0 && (
+              <span className="youjp-bad"> (−{metrics.dropped_translations})</span>
+            )}
+          </span>
+          <span
+            title="VRAM usada — por debajo de 500 MiB libres el sistema empieza a degradarse"
+            className={
+              metrics.gpu_total_mb - metrics.gpu_used_mb < 500 ? 'youjp-bad' : undefined
+            }
+          >
             gpu <b>{metrics.gpu_used_mb.toFixed(0)}</b>/{metrics.gpu_total_mb.toFixed(0)} MiB
           </span>
           {model && <span className="youjp-model">{model}</span>}

@@ -65,6 +65,14 @@ async def receive_loop(ws, started: float, stats: dict) -> None:
                 f"[dim]{msg['latency_ms']:.0f} ms[/dim]",
                 highlight=False,
             )
+        elif kind == "mt.final":
+            stats["translations"] += 1
+            stats["mt_latencies"].append(msg["latency_ms"])
+            console.print(
+                f"        [cyan]{msg['text_es']}[/cyan]  "
+                f"[dim]{msg['latency_ms']:.0f} ms · {msg['provider']}[/dim]",
+                highlight=False,
+            )
         elif kind == "metrics.tick":
             stats["last_metrics"] = msg
         elif kind == "error":
@@ -80,7 +88,8 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
 
     frame_ms = 100
     step = 16_000 * frame_ms // 1000
-    stats = {"partials": 0, "finals": 0, "latencies": [], "last_metrics": None}
+    stats = {"partials": 0, "finals": 0, "translations": 0,
+             "latencies": [], "mt_latencies": [], "last_metrics": None}
 
     console.rule(f"[bold]{path.name}[/bold]  {len(audio) / 16_000:.1f} s")
     async with websockets.connect(url, max_size=None) as ws:
@@ -149,6 +158,11 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
         )
     else:
         console.print(f"sin frases · parciales {stats['partials']}")
+    mt = sorted(stats["mt_latencies"])
+    if mt:
+        console.print(
+            f"traducciones {len(mt)} · p50 {mt[len(mt) // 2]:.0f} ms · max {mt[-1]:.0f} ms"
+        )
     if m := stats["last_metrics"]:
         console.print(
             f"[dim]buffer {m['audio_buffer_ms']:.0f} ms · descartadas "

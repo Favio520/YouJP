@@ -19,9 +19,9 @@ de construir nada encima.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Banco de pruebas y línea base de medidas | **cerrada** |
-| 1 | MVP: audio de la pestaña → japonés en pantalla | **en pruebas** |
-| 2 | Sudachi + JMdict + tokens clicables | pendiente |
-| 3 | Traducción al español | pendiente |
+| 1 | MVP: audio de la pestaña → japonés en pantalla | **cerrada** |
+| 3 | Traducción al español | **en pruebas** |
+| 2 | Sudachi + JMdict + tokens clicables | siguiente |
 | 4 | Gramática por reglas | pendiente |
 | 5 | LLM local y explicaciones contextuales | pendiente |
 | 6 | Vocabulario, estadísticas y repaso espaciado | pendiente |
@@ -135,6 +135,33 @@ diferente: informativo (habla clara y pausada), conversación o charla, anime o
 drama (habla rápida y coloquial), un tramo con música de fondo, y un tramo de
 **silencio puro** — este último es la prueba que de verdad importa, porque es
 donde Whisper en japonés inventa frases.
+
+## Traducción
+
+El traductor por defecto es **Qwen3-4B-Instruct-2507 en GPU, vía Ollama**. Hay
+que descargarlo una vez:
+
+```powershell
+ollama pull qwen3:4b-instruct-2507-q4_K_M
+```
+
+Contra lo previsto, un LLM pequeño resultó mejor que un traductor dedicado: NLLB
+acierta 2 de 6 frases y Qwen3-4B 5 de 6, y en GPU los dos tardan ~300 ms. El
+detalle y las alternativas están en
+[ADR 0003](docs/adr/0003-nmt-dedicado-frente-a-llm.md).
+
+**Cuidado con la VRAM.** Whisper y el traductor juntos dejan entre 400 y 900 MiB
+libres de 6 144 con el navegador abierto. Si va justo:
+
+```powershell
+$env:YOUJP_LLM_NUM_GPU = '0'        # traductor a CPU: libera 2,7 GB, 1-6 s por frase
+$env:YOUJP_MT_PROVIDER = 'nllb'     # traductor ligero: 1,5 GB menos, peor calidad
+$env:YOUJP_MT_PROVIDER = 'none'     # sin traducción
+```
+
+El servidor avisa al arrancar si queda poca VRAM, y también si Ollama tiene otros
+modelos residentes — es fácil dejarse uno cargado de una prueba anterior y
+perder 1,4 GB sin enterarse (`ollama stop <nombre>`).
 
 ## Usar la extensión
 

@@ -51,10 +51,14 @@ class AsrWorker:
         *,
         start_media_ms: int = 0,
         max_queued_frames: int = 64,
+        on_sentence: Callable[[FinalUpdate], None] | None = None,
     ) -> None:
         self.settings = settings
         self.metrics = MetricsCollector()
         self._emit = emit
+        # Gancho para el traductor. Se llama desde el hilo de ASR, así que lo
+        # que haya al otro lado tiene que encolar y volver, no trabajar.
+        self._on_sentence = on_sentence
         self._queue: queue.Queue[Any] = queue.Queue(maxsize=max_queued_frames)
         self._dropped = 0
 
@@ -158,6 +162,8 @@ class AsrWorker:
         )
 
     def _on_final(self, update: FinalUpdate) -> None:
+        # El japonés sale primero y sin esperar a nadie. La traducción llegará
+        # después por su cuenta, enlazada por segment_id.
         self._emit(
             AsrFinal(
                 segment_id=update.sentence.segment_id,
@@ -168,6 +174,8 @@ class AsrWorker:
                 latency_ms=round(update.latency_ms, 1),
             )
         )
+        if self._on_sentence is not None:
+            self._on_sentence(update)
 
     # -- diagnostico -------------------------------------------------------
 
