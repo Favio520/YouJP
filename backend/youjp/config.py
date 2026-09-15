@@ -144,6 +144,21 @@ class Settings(BaseSettings):
         description="Frases que Whisper inventa sobre silencio o musica.",
     )
 
+    # --- diccionario y analisis del japones --------------------------------
+    dict_db: Path = PROJECT_ROOT / "data" / "youjp.sqlite3"
+    sudachi_dict: str = "core"
+    """``core`` cubre el vocabulario general. ``full` anade nombres propios y
+    terminologia, a cambio de mas memoria."""
+
+    gloss_langs: tuple[str, ...] = ("spa", "eng")
+    """Orden de preferencia de las glosas. El espanol de JMdict es una
+    contribucion parcial, asi que el ingles queda de respaldo -- marcado como tal
+    en la interfaz, para que se distinga de una acepcion revisada en espanol."""
+
+    max_senses: int = 4
+    """Acepciones que se envian por palabra. JMdict llega a tener veinte en
+    palabras comunes y en una tarjeta sobre un video eso no se lee."""
+
     # --- traduccion --------------------------------------------------------
     mt_provider: Literal["nllb", "llm", "none"] = "llm"
     """Traductor del camino caliente.

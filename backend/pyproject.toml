@@ -26,6 +26,9 @@ dependencies = [
     # Salida legible del banco de pruebas en consola.
     "rich>=13.9",
     "transformers>=5.17.0",
+    "sudachipy>=0.6.11",
+    "sudachidict-core>=20260723",
+    "pykakasi>=2.3.0",
 ]
 
 [project.optional-dependencies]
