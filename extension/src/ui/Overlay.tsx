@@ -1,19 +1,29 @@
 /**
  * Overlay de subtítulos sobre el reproductor.
  *
- * Dos líneas y nada más, que es lo que pide el MVP: el texto confirmado en
- * blanco y la cola tentativa en gris. Esa distinción no es decorativa — el
- * prefijo confirmado por LocalAgreement ya no cambiará nunca, y la cola se
- * reescribe cada 0,8 s. Pintarlos igual haría que el subtítulo pareciera
- * bailar sin motivo.
+ * El texto confirmado va en blanco y la cola tentativa en gris. Esa distinción
+ * no es decorativa: el prefijo confirmado por LocalAgreement ya no cambiará
+ * nunca, y la cola se reescribe cada 0,8 s. Pintarlos igual haría que el
+ * subtítulo pareciera bailar sin motivo.
+ *
+ * Todo lo que afecta a la legibilidad —tamaño, altura, fondo, furigana— es
+ * ajustable en vivo desde el panel de la rueda dentada. Ver `settings.ts`.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AsrFinal, AsrPartial, MetricsTick, Token } from '../protocol';
 import type { CaptureStatus, ExtensionMessage } from '../messages';
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  onSettingsChanged,
+  saveSettings,
+  toCssVars,
+  type OverlaySettings,
+} from '../settings';
+import { SettingsPanel } from './SettingsPanel';
+import { Subtitle } from './Subtitle';
 import { WordCard } from './WordCard';
-
-const MAX_HISTORY = 3;
 
 /**
  * Una frase cerrada.
@@ -28,6 +38,8 @@ interface Line {
   es: string;
   tokens: Token[];
 }
+
+const MAX_LINES = 4; // la actual más tres de historial
 
 const STATUS_LABEL: Record<CaptureStatus, string> = {
   idle: 'inactivo',
@@ -48,9 +60,24 @@ export function Overlay() {
   const [showMetrics, setShowMetrics] = useState(false);
   const [rateWarning, setRateWarning] = useState<number | null>(null);
   const [selected, setSelected] = useState<Token | null>(null);
+  const [settings, setSettings] = useState<OverlaySettings>(DEFAULT_SETTINGS);
+  const [showSettings, setShowSettings] = useState(false);
   const lastFinal = useRef(0);
 
   const closeCard = useCallback(() => setSelected(null), []);
+
+  const patchSettings = useCallback((patch: Partial<OverlaySettings>) => {
+    setSettings((previous) => {
+      const next = { ...previous, ...patch };
+      void saveSettings(next);
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    void loadSettings().then(setSettings);
+    return onSettingsChanged(setSettings);
+  }, []);
 
   useEffect(() => {
     const listener = (message: ExtensionMessage) => {
@@ -74,7 +101,7 @@ export function Overlay() {
           lastFinal.current = final.segment_id;
           setHistory((prev) =>
             [...prev, { id: final.segment_id, ja: final.text, es: '', tokens: [] }].slice(
-              -MAX_HISTORY,
+              -MAX_LINES,
             ),
           );
           setPartial(null);
@@ -115,7 +142,14 @@ export function Overlay() {
         event.preventDefault();
         setShowMetrics((value) => !value);
       }
-      if (event.key === 'Escape') setSelected(null);
+      if (event.altKey && event.code === 'KeyS') {
+        event.preventDefault();
+        setShowSettings((value) => !value);
+      }
+      if (event.key === 'Escape') {
+        setSelected(null);
+        setShowSettings(false);
+      }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
@@ -132,11 +166,17 @@ export function Overlay() {
 
   if (status === 'idle' && history.length === 0) return null;
 
+  const visible = settings.history >= MAX_LINES ? history : history.slice(-(settings.history + 1));
   const committed = partial?.committed ?? '';
-  const tentative = partial?.tentative ?? '';
+  const tentative = settings.showTentative ? (partial?.tentative ?? '') : '';
+  const showJa = settings.languages !== 'es';
+  const showEs = settings.languages !== 'ja';
 
   return (
-    <div className="youjp-root">
+    <div
+      className={`youjp-root youjp-bg--${settings.backdrop}`}
+      style={toCssVars(settings) as React.CSSProperties}
+    >
       {status !== 'running' && (
         <div className={`youjp-status youjp-status--${status}`}>
           <span className="youjp-dot" />
@@ -152,44 +192,38 @@ export function Overlay() {
         </div>
       )}
 
+      {showSettings && (
+        <SettingsPanel
+          settings={settings}
+          onChange={patchSettings}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
       {selected && <WordCard token={selected} onClose={closeCard} />}
 
       <div className="youjp-subs">
-        {history.map((line, index) => {
-          const actual = index === history.length - 1;
+        {visible.map((line, index) => {
+          const actual = index === visible.length - 1;
           return (
             <div key={line.id} className={actual ? 'youjp-block' : 'youjp-block youjp-block--past'}>
-              <p className="youjp-line">
-                {line.tokens.length > 0
-                  ? line.tokens.map((token) =>
-                      token.clickable ? (
-                        <button
-                          key={token.i}
-                          className={
-                            selected?.i === token.i && selected.surface === token.surface
-                              ? 'youjp-token youjp-token--active'
-                              : 'youjp-token'
-                          }
-                          onClick={() => setSelected(token)}
-                          title={token.kana || undefined}
-                        >
-                          {token.surface}
-                        </button>
-                      ) : (
-                        // Partículas, auxiliares y puntuación: se pintan, pero
-                        // no se pulsan. Una tarjeta para は sería ruido.
-                        <span key={token.i} className="youjp-token youjp-token--plain">
-                          {token.surface}
-                        </span>
-                      ),
-                    )
-                  : line.ja}
-              </p>
-              {line.es && <p className="youjp-es">{line.es}</p>}
+              {showJa && (
+                <p className="youjp-line">
+                  <Subtitle
+                    text={line.ja}
+                    tokens={line.tokens}
+                    furigana={settings.furigana}
+                    selectedIndex={selected?.i ?? null}
+                    onSelect={setSelected}
+                  />
+                </p>
+              )}
+              {showEs && line.es && <p className="youjp-es">{line.es}</p>}
             </div>
           );
         })}
-        {(committed || tentative) && (
+
+        {showJa && (committed || tentative) && (
           <div className="youjp-block">
             <p className="youjp-line">
               <span className="youjp-committed">{committed}</span>
@@ -198,6 +232,15 @@ export function Overlay() {
           </div>
         )}
       </div>
+
+      <button
+        className="youjp-gear"
+        onClick={() => setShowSettings((value) => !value)}
+        title="Ajustes de subtítulos (Alt+S)"
+        aria-label="Ajustes de subtítulos"
+      >
+        ⚙
+      </button>
 
       {showMetrics && metrics && (
         <div className="youjp-metrics">
@@ -208,21 +251,6 @@ export function Overlay() {
           <span title="inferencia de Whisper">
             asr <b>{metrics.whisper_processing_ms_p50.toFixed(0)}</b> ms
           </span>
-          <span title="audio pendiente en la cola del backend">
-            buf <b>{metrics.audio_buffer_ms.toFixed(0)}</b> ms
-          </span>
-          <span
-            title="tramas de audio descartadas — debe quedarse en cero"
-            className={metrics.dropped_audio_chunks > 0 ? 'youjp-bad' : undefined}
-          >
-            drop <b>{metrics.dropped_audio_chunks}</b>
-          </span>
-          <span title="parciales / finales">
-            {metrics.partial_transcripts}/{metrics.final_transcripts}
-          </span>
-          <span title="pasadas de Whisper / saltadas por el VAD">
-            pas {metrics.passes}/<b>{metrics.skipped_silent}</b>
-          </span>
           <span title="análisis morfológico y consulta de diccionario">
             nlp <b>{metrics.nlp_ms_p50.toFixed(1)}</b> ms
           </span>
@@ -232,6 +260,18 @@ export function Overlay() {
             {metrics.dropped_translations > 0 && (
               <span className="youjp-bad"> (−{metrics.dropped_translations})</span>
             )}
+          </span>
+          <span title="audio pendiente en la cola del backend">
+            buf <b>{metrics.audio_buffer_ms.toFixed(0)}</b> ms
+          </span>
+          <span
+            title="tramas de audio descartadas — debe quedarse en cero"
+            className={metrics.dropped_audio_chunks > 0 ? 'youjp-bad' : undefined}
+          >
+            drop <b>{metrics.dropped_audio_chunks}</b>
+          </span>
+          <span title="pasadas de Whisper / saltadas por el VAD">
+            pas {metrics.passes}/<b>{metrics.skipped_silent}</b>
           </span>
           <span
             title="VRAM usada — por debajo de 500 MiB libres el sistema empieza a degradarse"

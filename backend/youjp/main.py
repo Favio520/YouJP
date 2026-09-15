@@ -161,7 +161,7 @@ def _warn_if_vram_tight() -> None:
         )
 
 
-app = FastAPI(title="youjp", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="youjp", version="1.0.0", lifespan=lifespan)
 
 
 @app.get("/health")

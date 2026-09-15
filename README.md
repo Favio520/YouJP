@@ -205,9 +205,31 @@ usuario, y por eso la extensión no tiene popup — con popup, `action.onClicked
 no se dispararía.
 
 - El icono muestra `ON` mientras captura. Otro clic la detiene.
-- **Alt+M** abre el panel de métricas sobre el vídeo.
 - El texto blanco está confirmado y ya no cambiará; el gris en cursiva todavía
   puede reescribirse.
+- **Clic en cualquier palabra** abre su tarjeta: lectura, rōmaji, categoría,
+  conjugación desglosada y acepciones de JMdict.
+
+| Atajo | |
+|---|---|
+| **Alt+S** | Ajustes de los subtítulos |
+| **Alt+M** | Panel de métricas |
+| **Esc** | Cerrar tarjeta o ajustes |
+
+### Ajustes de legibilidad
+
+La rueda dentada sobre los subtítulos (o Alt+S) abre los ajustes, que se aplican
+**en vivo**: tamaño del japonés y del español, altura sobre el borde, ancho
+máximo, fondo, frases anteriores visibles y si se muestra el texto en curso.
+Se guardan y se mantienen entre sesiones.
+
+Dos que cambian cómo se estudia, no solo cómo se ve:
+
+- **Furigana.** Por defecto en modo *automático*: solo aparece sobre las palabras
+  que JMdict no marca como comunes. Ponerla en todo es contraproducente pasado
+  cierto nivel — se acaba leyendo solo el kana y los kanji dejan de aprenderse.
+- **Idiomas.** *Solo japonés* oculta la traducción para practicar comprensión;
+  sigue estando ahí si cambias de opinión a mitad de frase.
 
 Durante el desarrollo, `npm run dev` levanta un Chrome aparte con recarga en
 caliente.
