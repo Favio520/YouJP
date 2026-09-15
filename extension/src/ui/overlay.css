@@ -195,30 +195,158 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* ------------------------------------------------------------------ rueda */
+/* --------------------------------------------------- posición arrastrable */
 
-.youjp-gear {
+/* Cuando el overlay se ha movido a mano deja de anclarse abajo y pasa a
+   coordenadas libres, centrado sobre el punto elegido. */
+.youjp-root--free {
+  left: var(--youjp-x);
+  top: var(--youjp-y);
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 92%;
+}
+
+.youjp-root--dragging {
+  /* Sin esto, el cursor sobre una palabra durante el arrastre la resalta y
+     parece que se va a abrir una tarjeta. */
+  user-select: none;
+}
+
+.youjp-root--dragging .youjp-token {
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ herramientas */
+
+.youjp-tools {
   position: absolute;
   top: -26px;
   right: 4%;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  font-size: 14px;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(16, 19, 21, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 5px;
-  cursor: pointer;
-  pointer-events: auto;
+  display: flex;
+  gap: 4px;
   opacity: 0.28;
   transition: opacity 120ms ease;
 }
 
-.youjp-gear:hover,
-.youjp-gear:focus-visible {
+.youjp-root:hover .youjp-tools,
+.youjp-tools:focus-within {
   opacity: 1;
+}
+
+.youjp-tool {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(16, 19, 21, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 5px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.youjp-tool:hover {
+  background: rgba(16, 19, 21, 0.92);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.youjp-grip {
+  cursor: grab;
+  letter-spacing: -1px;
+}
+
+.youjp-root--dragging .youjp-grip {
+  cursor: grabbing;
+}
+
+/* --------------------------------------------------------------- historial */
+
+.youjp-transcript {
+  pointer-events: auto;
+  width: min(520px, 94%);
+  max-height: 54vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: rgba(16, 19, 21, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
+  color: #e7e9e5;
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.youjp-transcript-body {
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.youjp-transcript-empty {
+  margin: 0;
+  padding: 18px 12px;
+  text-align: center;
+  font-size: 12.5px;
+  color: rgba(231, 233, 229, 0.45);
+}
+
+/* Cada fila es un botón: lleva el vídeo a esa frase. Es la diferencia entre un
+   subtítulo y algo con lo que se puede estudiar. */
+.youjp-transcript-row {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  padding: 6px 8px;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.youjp-transcript-row:hover {
+  background: rgba(168, 197, 240, 0.12);
+}
+
+.youjp-transcript-row:focus-visible {
+  outline: 2px solid #a8c5f0;
+  outline-offset: -2px;
+}
+
+.youjp-transcript-time {
+  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(231, 233, 229, 0.4);
+}
+
+.youjp-transcript-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.youjp-transcript-ja {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.youjp-transcript-es {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #a8c5f0;
 }
 
 /* --------------------------------------------------------------- ajustes */

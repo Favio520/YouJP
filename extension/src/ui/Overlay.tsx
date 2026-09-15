@@ -21,25 +21,19 @@ import {
   toCssVars,
   type OverlaySettings,
 } from '../settings';
+import { findVideo } from '../player';
 import { SettingsPanel } from './SettingsPanel';
 import { Subtitle } from './Subtitle';
+import { TranscriptPanel } from './TranscriptPanel';
+import type { Line } from './types';
+import { useDrag } from './useDrag';
 import { WordCard } from './WordCard';
 
-/**
- * Una frase cerrada.
- *
- * El japonés llega primero; la traducción y los tokens vienen después y por
- * separado, cada uno cuando está listo. Por eso `es` y `tokens` empiezan vacíos
- * y se rellenan al llegar el mensaje con el mismo `segment_id`.
- */
-interface Line {
-  id: number;
-  ja: string;
-  es: string;
-  tokens: Token[];
-}
+const MAX_LINES = 4; // la actual mas tres de historial en el overlay
 
-const MAX_LINES = 4; // la actual más tres de historial
+/** Frases que se conservan para el historial completo. Una sesion larga de
+ *  estudio son unos cientos; mas alla no se consulta y solo ocupa. */
+const MAX_LOG = 300;
 
 const STATUS_LABEL: Record<CaptureStatus, string> = {
   idle: 'inactivo',
@@ -62,6 +56,7 @@ export function Overlay() {
   const [selected, setSelected] = useState<Token | null>(null);
   const [settings, setSettings] = useState<OverlaySettings>(DEFAULT_SETTINGS);
   const [showSettings, setShowSettings] = useState(false);
+  const [showTranscript, setShowTranscript] = useState(false);
   const lastFinal = useRef(0);
 
   const closeCard = useCallback(() => setSelected(null), []);
@@ -77,6 +72,20 @@ export function Overlay() {
   useEffect(() => {
     void loadSettings().then(setSettings);
     return onSettingsChanged(setSettings);
+  }, []);
+
+  const { dragging, preview, empezar } = useDrag(
+    useCallback((position) => patchSettings({ position }), [patchSettings]),
+  );
+
+  /** Lleva el vídeo a una frase del historial. */
+  const seek = useCallback((mediaMs: number) => {
+    const video = findVideo();
+    if (!video) return;
+    // Un pelín antes del inicio de la frase: caer justo en el límite corta la
+    // primera sílaba, que es precisamente la que se quería volver a oír.
+    video.currentTime = Math.max(0, mediaMs / 1000 - 0.4);
+    if (video.paused) void video.play().catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -100,9 +109,16 @@ export function Overlay() {
           if (final.segment_id === lastFinal.current) break;
           lastFinal.current = final.segment_id;
           setHistory((prev) =>
-            [...prev, { id: final.segment_id, ja: final.text, es: '', tokens: [] }].slice(
-              -MAX_LINES,
-            ),
+            [
+              ...prev,
+              {
+                id: final.segment_id,
+                ja: final.text,
+                es: '',
+                tokens: [],
+                mediaStartMs: final.media_start_ms,
+              },
+            ].slice(-MAX_LOG),
           );
           setPartial(null);
           break;
@@ -146,9 +162,14 @@ export function Overlay() {
         event.preventDefault();
         setShowSettings((value) => !value);
       }
+      if (event.altKey && event.code === 'KeyH') {
+        event.preventDefault();
+        setShowTranscript((value) => !value);
+      }
       if (event.key === 'Escape') {
         setSelected(null);
         setShowSettings(false);
+        setShowTranscript(false);
       }
     };
     window.addEventListener('keydown', onKey, true);
@@ -172,10 +193,26 @@ export function Overlay() {
   const showJa = settings.languages !== 'es';
   const showEs = settings.languages !== 'ja';
 
+  // Durante el arrastre manda la posición provisional, para que el overlay siga
+  // al cursor sin escribir en el almacenamiento en cada píxel.
+  const posicion = preview ?? settings.position;
+  const libre = posicion !== null;
+  const estilo = {
+    ...toCssVars(settings),
+    ...(posicion ? { '--youjp-x': `${posicion.x}%`, '--youjp-y': `${posicion.y}%` } : {}),
+  } as React.CSSProperties;
+
   return (
     <div
-      className={`youjp-root youjp-bg--${settings.backdrop}`}
-      style={toCssVars(settings) as React.CSSProperties}
+      className={[
+        'youjp-root',
+        `youjp-bg--${settings.backdrop}`,
+        libre ? 'youjp-root--free' : '',
+        dragging ? 'youjp-root--dragging' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={estilo}
     >
       {status !== 'running' && (
         <div className={`youjp-status youjp-status--${status}`}>
@@ -197,6 +234,15 @@ export function Overlay() {
           settings={settings}
           onChange={patchSettings}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {showTranscript && (
+        <TranscriptPanel
+          lines={history}
+          onSeek={seek}
+          onClose={() => setShowTranscript(false)}
+          showEs={showEs}
         />
       )}
 
@@ -233,14 +279,35 @@ export function Overlay() {
         )}
       </div>
 
-      <button
-        className="youjp-gear"
-        onClick={() => setShowSettings((value) => !value)}
-        title="Ajustes de subtítulos (Alt+S)"
-        aria-label="Ajustes de subtítulos"
-      >
-        ⚙
-      </button>
+      <div className="youjp-tools">
+        {/* El asa está separada del subtítulo a propósito: el subtítulo está
+            lleno de palabras pulsables y arrastrarlo por ahí abriría tarjetas
+            al azar. */}
+        <button
+          className="youjp-tool youjp-grip"
+          onMouseDown={empezar}
+          title="Arrastrar para mover los subtítulos"
+          aria-label="Mover los subtítulos"
+        >
+          ⠿
+        </button>
+        <button
+          className="youjp-tool"
+          onClick={() => setShowTranscript((value) => !value)}
+          title={`Historial de la sesión · ${history.length} frases (Alt+H)`}
+          aria-label="Historial de la sesión"
+        >
+          ☰
+        </button>
+        <button
+          className="youjp-tool"
+          onClick={() => setShowSettings((value) => !value)}
+          title="Ajustes de subtítulos (Alt+S)"
+          aria-label="Ajustes de subtítulos"
+        >
+          ⚙
+        </button>
+      </div>
 
       {showMetrics && metrics && (
         <div className="youjp-metrics">

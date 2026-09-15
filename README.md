@@ -213,8 +213,22 @@ no se dispararía.
 | Atajo | |
 |---|---|
 | **Alt+S** | Ajustes de los subtítulos |
+| **Alt+H** | Historial de la sesión |
 | **Alt+M** | Panel de métricas |
-| **Esc** | Cerrar tarjeta o ajustes |
+| **Esc** | Cerrar cualquier panel |
+
+Sobre los subtítulos aparecen tres botones al pasar el ratón: **⠿** para
+arrastrarlos a donde quieras (la posición se guarda en porcentaje, así que
+aguanta el cambio a pantalla completa), **☰** para el historial y **⚙** para los
+ajustes.
+
+### Historial
+
+El overlay solo enseña la frase actual y unas pocas anteriores, porque lo
+contrario taparía el vídeo. El panel de historial (**Alt+H**) guarda las últimas
+300 frases con su traducción, y **cada línea lleva el vídeo a ese momento** al
+pulsarla — releer algo que pasó rápido, comprobar una traducción o volver a oír
+una frase.
 
 ### Ajustes de legibilidad
 

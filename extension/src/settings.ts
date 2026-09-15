@@ -29,6 +29,16 @@ export interface OverlaySettings {
   /** Mostrar la cola tentativa en gris. Quitarla da un subtítulo más estable
    *  a cambio de que aparezca más tarde. */
   showTentative: boolean;
+
+  /**
+   * Posición libre, en porcentaje del reproductor.
+   *
+   * `null` significa el sitio de siempre: abajo y centrado, a `bottom` píxeles
+   * del borde. En cuanto se arrastra el overlay pasa a coordenadas libres, y
+   * entonces `bottom` deja de aplicarse. En porcentaje y no en píxeles para que
+   * sobreviva al cambio de tamaño y a la pantalla completa.
+   */
+  position: { x: number; y: number } | null;
 }
 
 export const DEFAULT_SETTINGS: OverlaySettings = {
@@ -44,6 +54,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   languages: 'both',
   history: 1,
   showTentative: true,
+  position: null,
 };
 
 const KEY = 'overlaySettings';
@@ -82,10 +93,15 @@ export function onSettingsChanged(fn: (settings: OverlaySettings) => void): () =
 
 /** Traduce los ajustes a las variables CSS que consume la hoja de estilos. */
 export function toCssVars(s: OverlaySettings): Record<string, string> {
-  return {
+  const vars: Record<string, string> = {
     '--youjp-ja-size': `${s.jaSize}px`,
     '--youjp-es-size': `${s.esSize}px`,
     '--youjp-bottom': `${s.bottom}px`,
     '--youjp-width': `${s.width}%`,
   };
+  if (s.position) {
+    vars['--youjp-x'] = `${s.position.x}%`;
+    vars['--youjp-y'] = `${s.position.y}%`;
+  }
+  return vars;
 }

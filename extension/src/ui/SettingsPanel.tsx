@@ -111,17 +111,25 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           />
         </Row>
 
-        <Row label="Altura sobre el borde" hint={`${settings.bottom} px`}>
-          <input
-            id="youjp-bottom"
-            type="range"
-            min={8}
-            max={320}
-            step={4}
-            value={settings.bottom}
-            onChange={(e) => onChange({ bottom: Number(e.target.value) })}
-          />
-        </Row>
+        {settings.position ? (
+          <Row label="Posición" hint="colocada a mano">
+            <button className="youjp-reset" onClick={() => onChange({ position: null })}>
+              Volver abajo y centrado
+            </button>
+          </Row>
+        ) : (
+          <Row label="Altura sobre el borde" hint={`${settings.bottom} px`}>
+            <input
+              id="youjp-bottom"
+              type="range"
+              min={8}
+              max={320}
+              step={4}
+              value={settings.bottom}
+              onChange={(e) => onChange({ bottom: Number(e.target.value) })}
+            />
+          </Row>
+        )}
 
         <Row label="Ancho máximo" hint={`${settings.width} %`}>
           <input

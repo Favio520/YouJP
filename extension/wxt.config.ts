@@ -23,6 +23,14 @@ export default defineConfig({
       // Sin default_popup a proposito: con popup, action.onClicked no se
       // dispara, y ese clic es el gesto de usuario que habilita tabCapture.
       default_title: 'Activar subtítulos japoneses',
+      // Chrome usaría el bloque `icons` como respaldo, pero declararlo aquí
+      // evita depender de ese comportamiento implícito.
+      default_icon: {
+        16: 'icon/16.png',
+        32: 'icon/32.png',
+        48: 'icon/48.png',
+        128: 'icon/128.png',
+      },
     },
   },
   webExt: {
