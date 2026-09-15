@@ -192,6 +192,7 @@ export default defineBackground(() => {
       message.type === 'subtitle.partial' ||
       message.type === 'subtitle.final' ||
       message.type === 'subtitle.translation' ||
+      message.type === 'subtitle.tokens' ||
       message.type === 'metrics' ||
       message.type === 'backend.error'
     ) {

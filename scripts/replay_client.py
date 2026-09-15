@@ -73,6 +73,28 @@ async def receive_loop(ws, started: float, stats: dict) -> None:
                 f"[dim]{msg['latency_ms']:.0f} ms · {msg['provider']}[/dim]",
                 highlight=False,
             )
+        elif kind == "nlp.tokens":
+            stats["analyses"] += 1
+            stats["nlp_ms"].append(msg["analysis_ms"])
+            clicables = [t for t in msg["tokens"] if t["clickable"]]
+            resumen = []
+            for t in clicables[:6]:
+                e = t["entry"]
+                glosa = ""
+                for sense in e["senses"]:
+                    if sense["glosses_es"]:
+                        glosa = sense["glosses_es"][0]
+                        break
+                    if sense["glosses_en"]:
+                        glosa = sense["glosses_en"][0] + "*"
+                        break
+                cadena = f" [{'+'.join(t['chain'])}]" if t["chain"] else ""
+                resumen.append(f"{t['surface']}({t['kana']}: {glosa}){cadena}")
+            console.print(
+                f"        [magenta]{len(clicables)} clicables[/magenta] "
+                f"[dim]{' · '.join(resumen)}  {msg['analysis_ms']:.1f} ms[/dim]",
+                highlight=False,
+            )
         elif kind == "metrics.tick":
             stats["last_metrics"] = msg
         elif kind == "error":
@@ -89,7 +111,8 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
     frame_ms = 100
     step = 16_000 * frame_ms // 1000
     stats = {"partials": 0, "finals": 0, "translations": 0,
-             "latencies": [], "mt_latencies": [], "last_metrics": None}
+             "analyses": 0,
+             "latencies": [], "mt_latencies": [], "nlp_ms": [], "last_metrics": None}
 
     console.rule(f"[bold]{path.name}[/bold]  {len(audio) / 16_000:.1f} s")
     async with websockets.connect(url, max_size=None) as ws:
@@ -162,6 +185,11 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
     if mt:
         console.print(
             f"traducciones {len(mt)} · p50 {mt[len(mt) // 2]:.0f} ms · max {mt[-1]:.0f} ms"
+        )
+    nlp = sorted(stats["nlp_ms"])
+    if nlp:
+        console.print(
+            f"analisis {len(nlp)} · p50 {nlp[len(nlp) // 2]:.1f} ms · max {nlp[-1]:.1f} ms"
         )
     if m := stats["last_metrics"]:
         console.print(

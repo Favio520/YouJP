@@ -13,7 +13,14 @@
  * offscreen, así que el tiempo del reproductor va directo.
  */
 
-import type { AsrFinal, AsrPartial, MetricsTick, MtFinal, ServerError } from './protocol';
+import type {
+  AsrFinal,
+  AsrPartial,
+  MetricsTick,
+  MtFinal,
+  NlpTokens,
+  ServerError,
+} from './protocol';
 
 export type CaptureStatus =
   | 'idle'
@@ -78,6 +85,11 @@ export interface SubtitleTranslation {
   payload: MtFinal;
 }
 
+export interface SubtitleTokens {
+  type: 'subtitle.tokens';
+  payload: NlpTokens;
+}
+
 export interface MetricsUpdate {
   type: 'metrics';
   payload: MetricsTick;
@@ -97,6 +109,7 @@ export type ExtensionMessage =
   | SubtitleUpdate
   | SubtitleFinal
   | SubtitleTranslation
+  | SubtitleTokens
   | MetricsUpdate
   | BackendError;
 

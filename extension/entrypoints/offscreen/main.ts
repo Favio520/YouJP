@@ -150,6 +150,9 @@ function openSocket(url: string, params: StartCapture): Promise<WebSocket> {
         case 'mt.final':
           report({ type: 'subtitle.translation', payload: message });
           break;
+        case 'nlp.tokens':
+          report({ type: 'subtitle.tokens', payload: message });
+          break;
         case 'metrics.tick':
           report({ type: 'metrics', payload: message });
           break;

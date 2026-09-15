@@ -8,20 +8,25 @@
  * bailar sin motivo.
  */
 
-import { useEffect, useRef, useState } from 'react';
-import type { AsrFinal, AsrPartial, MetricsTick } from '../protocol';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { AsrFinal, AsrPartial, MetricsTick, Token } from '../protocol';
 import type { CaptureStatus, ExtensionMessage } from '../messages';
+import { WordCard } from './WordCard';
 
 const MAX_HISTORY = 3;
 
 /**
- * Una frase cerrada. El español llega por separado y después, así que `es`
- * empieza vacío y se rellena cuando aparece el `mt.final` con el mismo id.
+ * Una frase cerrada.
+ *
+ * El japonés llega primero; la traducción y los tokens vienen después y por
+ * separado, cada uno cuando está listo. Por eso `es` y `tokens` empiezan vacíos
+ * y se rellenan al llegar el mensaje con el mismo `segment_id`.
  */
 interface Line {
   id: number;
   ja: string;
   es: string;
+  tokens: Token[];
 }
 
 const STATUS_LABEL: Record<CaptureStatus, string> = {
@@ -42,7 +47,10 @@ export function Overlay() {
   const [metrics, setMetrics] = useState<MetricsTick | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [rateWarning, setRateWarning] = useState<number | null>(null);
+  const [selected, setSelected] = useState<Token | null>(null);
   const lastFinal = useRef(0);
+
+  const closeCard = useCallback(() => setSelected(null), []);
 
   useEffect(() => {
     const listener = (message: ExtensionMessage) => {
@@ -54,6 +62,7 @@ export function Overlay() {
           if (message.status === 'idle') {
             setPartial(null);
             setHistory([]);
+            setSelected(null);
           }
           break;
         case 'subtitle.partial':
@@ -64,7 +73,9 @@ export function Overlay() {
           if (final.segment_id === lastFinal.current) break;
           lastFinal.current = final.segment_id;
           setHistory((prev) =>
-            [...prev, { id: final.segment_id, ja: final.text, es: '' }].slice(-MAX_HISTORY),
+            [...prev, { id: final.segment_id, ja: final.text, es: '', tokens: [] }].slice(
+              -MAX_HISTORY,
+            ),
           );
           setPartial(null);
           break;
@@ -75,6 +86,13 @@ export function Overlay() {
           // historial: en ese caso no hay nada que actualizar y se descarta.
           setHistory((prev) =>
             prev.map((line) => (line.id === segment_id ? { ...line, es: text_es } : line)),
+          );
+          break;
+        }
+        case 'subtitle.tokens': {
+          const { segment_id, tokens } = message.payload;
+          setHistory((prev) =>
+            prev.map((line) => (line.id === segment_id ? { ...line, tokens } : line)),
           );
           break;
         }
@@ -97,6 +115,7 @@ export function Overlay() {
         event.preventDefault();
         setShowMetrics((value) => !value);
       }
+      if (event.key === 'Escape') setSelected(null);
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
@@ -133,12 +152,39 @@ export function Overlay() {
         </div>
       )}
 
+      {selected && <WordCard token={selected} onClose={closeCard} />}
+
       <div className="youjp-subs">
         {history.map((line, index) => {
           const actual = index === history.length - 1;
           return (
             <div key={line.id} className={actual ? 'youjp-block' : 'youjp-block youjp-block--past'}>
-              <p className="youjp-line">{line.ja}</p>
+              <p className="youjp-line">
+                {line.tokens.length > 0
+                  ? line.tokens.map((token) =>
+                      token.clickable ? (
+                        <button
+                          key={token.i}
+                          className={
+                            selected?.i === token.i && selected.surface === token.surface
+                              ? 'youjp-token youjp-token--active'
+                              : 'youjp-token'
+                          }
+                          onClick={() => setSelected(token)}
+                          title={token.kana || undefined}
+                        >
+                          {token.surface}
+                        </button>
+                      ) : (
+                        // Partículas, auxiliares y puntuación: se pintan, pero
+                        // no se pulsan. Una tarjeta para は sería ruido.
+                        <span key={token.i} className="youjp-token youjp-token--plain">
+                          {token.surface}
+                        </span>
+                      ),
+                    )
+                  : line.ja}
+              </p>
               {line.es && <p className="youjp-es">{line.es}</p>}
             </div>
           );
@@ -176,6 +222,9 @@ export function Overlay() {
           </span>
           <span title="pasadas de Whisper / saltadas por el VAD">
             pas {metrics.passes}/<b>{metrics.skipped_silent}</b>
+          </span>
+          <span title="análisis morfológico y consulta de diccionario">
+            nlp <b>{metrics.nlp_ms_p50.toFixed(1)}</b> ms
           </span>
           <span title="traducción: latencia p50 y frases traducidas">
             mt <b>{metrics.translation_latency_ms_p50.toFixed(0)}</b> ms ·{' '}

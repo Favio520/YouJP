@@ -23,9 +23,12 @@ from pydantic import BaseModel, ValidationError
 from youjp.asr.engine import WhisperEngine
 from youjp.audio.vad import SileroVAD
 from youjp.config import Settings, get_settings
+from youjp.dict.jmdict import Dictionary
 from youjp.mt import build_provider
+from youjp.nlp.tokenizer import JapaneseTokenizer
 from youjp.obs.gpu import read_gpu
 from youjp.obs.logging import setup_logging
+from youjp.pipeline.analyze import NlpWorker, SentenceAnalyzer
 from youjp.pipeline.streaming import FinalUpdate
 from youjp.pipeline.translate import MtWorker, TranslationJob
 from youjp.ws.codec import FrameDecodeError, decode_frame
@@ -59,8 +62,13 @@ class AppState:
         self.settings = settings
         self.engine = WhisperEngine(settings)
         self.translator = build_provider(settings)
+        self.tokenizer = JapaneseTokenizer(settings.sudachi_dict)
+        self.dictionary: Dictionary | None = None
         self.vad_path = settings.vad_model
         self.sessions = 0
+
+    def new_analyzer(self) -> SentenceAnalyzer:
+        return SentenceAnalyzer(self.tokenizer, self.dictionary)
 
     def new_vad(self) -> SileroVAD:
         # Una instancia por sesion: el modelo es diminuto (2 MB) pero su estado
@@ -78,6 +86,24 @@ async def lifespan(app: FastAPI):
     log.info("precargando el modelo de ASR...")
     await asyncio.to_thread(state.engine.load)
     await asyncio.to_thread(state.engine.warmup)
+
+    log.info("cargando Sudachi y el diccionario...")
+    await asyncio.to_thread(state.tokenizer.load)
+    try:
+        state.dictionary = Dictionary(settings.dict_db, max_senses=settings.max_senses)
+        stats = state.dictionary.stats()
+        warm_ms = await asyncio.to_thread(state.dictionary.warmup)
+        log.info(
+            "diccionario: %s entradas, %s kanji (calentado en %.0f ms)",
+            f"{int(stats.get('entries', 0)):,}",
+            f"{int(stats.get('kanji', 0)):,}",
+            warm_ms,
+        )
+    except FileNotFoundError as exc:
+        # Sin diccionario los subtítulos y la traducción siguen funcionando;
+        # solo se pierden las palabras clicables. Arrancar cojo es mejor que no
+        # arrancar.
+        log.warning("%s", exc)
 
     if settings.mt_provider != "none":
         try:
@@ -174,6 +200,7 @@ async def stream(ws: WebSocket) -> None:
 
     worker: AsrWorker | None = None
     mt: MtWorker | None = None
+    nlp: NlpWorker | None = None
     sender = asyncio.create_task(_sender(ws, outbox), name=f"sender-{session_id}")
     ticker: asyncio.Task | None = None
 
@@ -216,6 +243,8 @@ async def stream(ws: WebSocket) -> None:
                     worker.stop()
                 if mt is not None:
                     mt.stop()
+                if nlp is not None:
+                    nlp.stop()
 
                 mt = MtWorker(
                     state.translator,
@@ -224,17 +253,20 @@ async def stream(ws: WebSocket) -> None:
                 )
                 mt.start()
 
+                nlp = NlpWorker(settings, state.new_analyzer(), emitter)
+                nlp.start()
+
                 worker = AsrWorker(
                     settings,
                     state.engine,
                     state.new_vad(),
                     emitter,
                     start_media_ms=message.media_time_ms,
-                    on_sentence=_forward_to_mt(mt),
+                    on_sentence=_fan_out(mt, nlp),
                 )
                 worker.start()
                 ticker = asyncio.create_task(
-                    _metrics_ticker(worker, mt, emitter), name=f"metrics-{session_id}"
+                    _metrics_ticker(worker, mt, nlp, emitter), name=f"metrics-{session_id}"
                 )
                 log.info(
                     "[%s] sesion iniciada · video=%s directo=%s t=%d ms",
@@ -285,14 +317,21 @@ async def stream(ws: WebSocket) -> None:
             await asyncio.to_thread(worker.stop)
         if mt is not None:
             await asyncio.to_thread(mt.stop)
+        if nlp is not None:
+            await asyncio.to_thread(nlp.stop)
         log.info("[%s] sesion cerrada", session_id)
 
 
-def _forward_to_mt(mt: MtWorker):
-    """Puente ASR -> traducción. Encola y vuelve: se ejecuta en el hilo de ASR
-    y no puede pararse a trabajar."""
+def _fan_out(mt: MtWorker, nlp: NlpWorker):
+    """Reparte cada frase final a traducción y análisis, en paralelo.
+
+    Encola y vuelve: se ejecuta en el hilo de ASR y no puede pararse a trabajar.
+    Los dos destinos son independientes — encadenarlos sumaría sus latencias sin
+    ganar nada.
+    """
 
     def forward(update: FinalUpdate) -> None:
+        nlp.submit(update.sentence.segment_id, update.sentence.text)
         mt.submit(
             TranslationJob(
                 segment_id=update.sentence.segment_id,
@@ -317,7 +356,7 @@ async def _sender(ws: WebSocket, outbox: asyncio.Queue[BaseModel]) -> None:
             return
 
 
-async def _metrics_ticker(worker: AsrWorker, mt: MtWorker, emit: LoopEmitter) -> None:
+async def _metrics_ticker(worker: AsrWorker, mt: MtWorker, nlp: NlpWorker, emit: LoopEmitter) -> None:
     proc = psutil.Process()
     while True:
         await asyncio.sleep(METRICS_INTERVAL_S)
@@ -328,6 +367,8 @@ async def _metrics_ticker(worker: AsrWorker, mt: MtWorker, emit: LoopEmitter) ->
         e2e_summary = e2e.summary() if e2e else {}
         whisper_summary = whisper.summary() if whisper else {}
         mt_summary = mt_latency.summary() if mt_latency else {}
+        nlp_series = nlp.metrics.get("nlp_ms")
+        nlp_summary = nlp_series.summary() if nlp_series else {}
         gpu = read_gpu()
         emit(
             MetricsTick(
@@ -341,6 +382,7 @@ async def _metrics_ticker(worker: AsrWorker, mt: MtWorker, emit: LoopEmitter) ->
                 passes=worker.session.stats.passes,
                 skipped_silent=worker.session.stats.skipped_silent,
                 rejected=dict(worker.session.stats.rejected),
+                nlp_ms_p50=nlp_summary.get("p50", 0.0),
                 translation_latency_ms_p50=mt_summary.get("p50", 0.0),
                 translations=mt.metrics.counter("translations"),
                 dropped_translations=mt.dropped,

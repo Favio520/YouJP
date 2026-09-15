@@ -129,6 +129,52 @@ export interface MtFinal {
   latency_ms: number;
 }
 
+export interface Sense {
+  /** Etiquetas de JMdict: `n`, `vs`, `adj-i`... */
+  pos: string[];
+  glosses_es: string[];
+  glosses_en: string[];
+}
+
+export interface DictEntry {
+  id: number;
+  headword: string;
+  readings: string[];
+  common: boolean;
+  freq_rank: number | null;
+  senses: Sense[];
+}
+
+/**
+ * Una unidad clicable del subtítulo.
+ *
+ * La entrada de diccionario viene incrustada en vez de un identificador para
+ * pedirla después: una frase son unos pocos kilobytes por localhost, y a cambio
+ * la tarjeta aparece en el mismo fotograma del clic.
+ */
+export interface Token {
+  i: number;
+  /** Índices sobre el texto de `asr.final`. */
+  span: [number, number];
+  surface: string;
+  lemma: string;
+  kana: string;
+  romaji: string;
+  pos: string[];
+  pos_label: string;
+  /** Cadena de conjugación: `["causativo", "formal", "pasado"]`. */
+  chain: string[];
+  clickable: boolean;
+  entry: DictEntry | null;
+}
+
+export interface NlpTokens {
+  type: 'nlp.tokens';
+  segment_id: number;
+  tokens: Token[];
+  analysis_ms: number;
+}
+
 export interface MetricsTick {
   type: 'metrics.tick';
   end_to_end_ms_p50: number;
@@ -141,6 +187,7 @@ export interface MetricsTick {
   passes: number;
   skipped_silent: number;
   rejected: Record<string, number>;
+  nlp_ms_p50: number;
   translation_latency_ms_p50: number;
   translations: number;
   dropped_translations: number;
@@ -163,6 +210,7 @@ export type ServerMessage =
   | AsrPartial
   | AsrFinal
   | MtFinal
+  | NlpTokens
   | MetricsTick
   | ServerError
   | { type: 'pong'; t: number };

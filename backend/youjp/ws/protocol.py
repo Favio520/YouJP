@@ -110,6 +110,61 @@ class MtFinal(BaseModel):
     latency_ms: float
 
 
+class SensePayload(BaseModel):
+    pos: list[str] = Field(default_factory=list)
+    """Etiquetas de JMdict: ``n``, ``vs``, ``adj-i``..."""
+
+    glosses_es: list[str] = Field(default_factory=list)
+    glosses_en: list[str] = Field(default_factory=list)
+
+
+class DictPayload(BaseModel):
+    id: int
+    headword: str
+    readings: list[str] = Field(default_factory=list)
+    common: bool = False
+    freq_rank: int | None = None
+    senses: list[SensePayload] = Field(default_factory=list)
+
+
+class Token(BaseModel):
+    """Una unidad clicable del subtítulo.
+
+    Lleva la entrada de diccionario incrustada en vez de un identificador para
+    pedirla después: una frase completa son unos pocos kilobytes por localhost, y
+    a cambio la tarjeta aparece en el mismo fotograma del clic en lugar de
+    esperar una ida y vuelta.
+    """
+
+    i: int
+    span: tuple[int, int]
+    """Índices sobre el texto de ``asr.final``, para resaltar sin recalcular."""
+
+    surface: str
+    lemma: str
+    kana: str
+    romaji: str
+    pos: list[str] = Field(default_factory=list)
+    pos_label: str = ""
+    chain: list[str] = Field(default_factory=list)
+    """Cadena de conjugación: ``["causativo", "formal", "pasado"]``."""
+
+    clickable: bool = False
+    """Falso para partículas, auxiliares y puntuación: no tienen tarjeta propia."""
+
+    entry: DictPayload | None = None
+
+
+class NlpTokens(BaseModel):
+    """Análisis de una frase final. Llega después del ``asr.final`` y se enlaza
+    por ``segment_id``, igual que la traducción."""
+
+    type: Literal["nlp.tokens"] = "nlp.tokens"
+    segment_id: int
+    tokens: list[Token] = Field(default_factory=list)
+    analysis_ms: float = 0.0
+
+
 class MetricsTick(BaseModel):
     type: Literal["metrics.tick"] = "metrics.tick"
     end_to_end_ms_p50: float = 0.0
@@ -122,6 +177,7 @@ class MetricsTick(BaseModel):
     passes: int = 0
     skipped_silent: int = 0
     rejected: dict[str, int] = Field(default_factory=dict)
+    nlp_ms_p50: float = 0.0
     translation_latency_ms_p50: float = 0.0
     translations: int = 0
     dropped_translations: int = 0
@@ -145,7 +201,7 @@ class Pong(BaseModel):
 
 
 ServerMessage = Union[
-    SessionReady, AsrPartial, AsrFinal, MtFinal, MetricsTick, ErrorMessage, Pong
+    SessionReady, AsrPartial, AsrFinal, MtFinal, NlpTokens, MetricsTick, ErrorMessage, Pong
 ]
 
 

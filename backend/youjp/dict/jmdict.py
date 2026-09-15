@@ -103,8 +103,51 @@ class Dictionary:
         if conn is None:
             conn = sqlite3.connect(f"file:{self.path}?mode=ro", uri=True, check_same_thread=False)
             conn.row_factory = sqlite3.Row
+            # La base son 70 MB y las búsquedas tocan páginas dispersas del
+            # índice. Sin esto, las primeras consultas van a disco: medido en
+            # el pipeline real, 253 ms la primera frase frente a los 2,4 ms de
+            # una consulta en caliente.
+            #
+            # mmap deja que el sistema pagine el fichero y lo comparta entre
+            # conexiones, así que el hilo de análisis no repite el trabajo que
+            # ya hizo el del servidor.
+            conn.execute("PRAGMA mmap_size = 268435456")  # 256 MB
+            conn.execute("PRAGMA cache_size = -32000")  # 32 MB por conexión
+            conn.execute("PRAGMA temp_store = MEMORY")
             self._local.conn = conn
         return conn
+
+    # Palabras frecuentes de categorías distintas, para que el calentamiento
+    # toque las zonas del índice que se van a usar de verdad.
+    _WARMUP_WORDS = (
+        "する",
+        "こと",
+        "人",
+        "見る",
+        "言う",
+        "いい",
+        "今日",
+        "影響",
+        "思う",
+        "大きい",
+        "とても",
+        "学校",
+    )
+
+    def warmup(self) -> float:
+        """Fuerza la lectura de las páginas del índice antes de la primera frase.
+
+        Sin esto, las primeras frases de cada sesión se analizan cien veces más
+        despacio que las siguientes mientras la caché se llena. No se nota como
+        un fallo, solo como que "al principio va raro".
+        """
+        import time as _time
+
+        t0 = _time.perf_counter()
+        for word in self._WARMUP_WORDS:
+            self.lookup(word)
+        self.kanji("日")
+        return (_time.perf_counter() - t0) * 1000
 
     # -- búsqueda ----------------------------------------------------------
 

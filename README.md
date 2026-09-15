@@ -20,8 +20,8 @@ de construir nada encima.
 |---|---|---|
 | 0 | Banco de pruebas y línea base de medidas | **cerrada** |
 | 1 | MVP: audio de la pestaña → japonés en pantalla | **cerrada** |
-| 3 | Traducción al español | **en pruebas** |
-| 2 | Sudachi + JMdict + tokens clicables | siguiente |
+| 3 | Traducción al español | **cerrada** |
+| 2 | Sudachi + JMdict + tokens clicables | **en pruebas** |
 | 4 | Gramática por reglas | pendiente |
 | 5 | LLM local y explicaciones contextuales | pendiente |
 | 6 | Vocabulario, estadísticas y repaso espaciado | pendiente |
@@ -135,6 +135,26 @@ diferente: informativo (habla clara y pausada), conversación o charla, anime o
 drama (habla rápida y coloquial), un tramo con música de fondo, y un tramo de
 **silencio puro** — este último es la prueba que de verdad importa, porque es
 donde Whisper en japonés inventa frases.
+
+## Diccionario
+
+Hay que construirlo una vez (unos 145 MB de descarga, 15 s de proceso):
+
+```powershell
+cd backend
+uv run python ../scripts/fetch_dicts.py
+uv run python -m youjp.dict.build_db
+```
+
+Deja `data/youjp.sqlite3` con 218 776 entradas de JMdict y 10 384 kanji de
+KANJIDIC2, 70 MB. Sin él, los subtítulos y la traducción siguen funcionando;
+solo se pierden las palabras clicables.
+
+Las glosas van en español cuando JMdict las tiene y en inglés cuando no,
+**marcadas como tales** en la tarjeta. La cobertura bruta en español es del 16 %
+de las entradas, pero medida sobre transcripciones reales sube al **88 % de las
+palabras que aparecen al hablar**: las entradas en español son justo las
+palabras comunes.
 
 ## Traducción
 
