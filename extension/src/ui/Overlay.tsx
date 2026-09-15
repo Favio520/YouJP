@@ -203,17 +203,34 @@ export function Overlay() {
   } as React.CSSProperties;
 
   return (
-    <div
-      className={[
-        'youjp-root',
-        `youjp-bg--${settings.backdrop}`,
-        libre ? 'youjp-root--free' : '',
-        dragging ? 'youjp-root--dragging' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={estilo}
-    >
+    <>
+      {/* El historial va fuera de `.youjp-root`, como hermano y no como hijo:
+          los dos se posicionan respecto al reproductor y se mueven por separado.
+          Anidado heredaría la transformación del overlay y arrastrar uno movería
+          el otro. */}
+      {showTranscript && (
+        <TranscriptPanel
+          lines={history}
+          position={settings.transcriptPosition}
+          onMove={(transcriptPosition) => patchSettings({ transcriptPosition })}
+          onResetPosition={() => patchSettings({ transcriptPosition: null })}
+          onSeek={seek}
+          onClose={() => setShowTranscript(false)}
+          showEs={showEs}
+        />
+      )}
+
+      <div
+        className={[
+          'youjp-root',
+          `youjp-bg--${settings.backdrop}`,
+          libre ? 'youjp-root--free' : '',
+          dragging ? 'youjp-root--dragging' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={estilo}
+      >
       {status !== 'running' && (
         <div className={`youjp-status youjp-status--${status}`}>
           <span className="youjp-dot" />
@@ -234,15 +251,6 @@ export function Overlay() {
           settings={settings}
           onChange={patchSettings}
           onClose={() => setShowSettings(false)}
-        />
-      )}
-
-      {showTranscript && (
-        <TranscriptPanel
-          lines={history}
-          onSeek={seek}
-          onClose={() => setShowTranscript(false)}
-          showEs={showEs}
         />
       )}
 
@@ -351,6 +359,7 @@ export function Overlay() {
           {model && <span className="youjp-model">{model}</span>}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -8,13 +8,21 @@
  *
  * Por eso cada línea es pulsable y lleva el vídeo a su marca temporal. Es la
  * diferencia entre un subtítulo y algo con lo que se puede estudiar.
+ *
+ * El panel se mueve y se redimensiona por su cuenta, independiente de los
+ * subtítulos: mientras se consulta el historial hay que poder seguir viendo la
+ * frase actual, así que tienen que poder ocupar sitios distintos.
  */
 
 import { useEffect, useRef } from 'react';
 import type { Line } from './types';
+import { useDrag, type Position } from './useDrag';
 
 interface Props {
   lines: Line[];
+  position: Position | null;
+  onMove: (position: Position) => void;
+  onResetPosition: () => void;
   onSeek: (mediaMs: number) => void;
   onClose: () => void;
   showEs: boolean;
@@ -30,9 +38,18 @@ function marca(ms: number): string {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-export function TranscriptPanel({ lines, onSeek, onClose, showEs }: Props) {
+export function TranscriptPanel({
+  lines,
+  position,
+  onMove,
+  onResetPosition,
+  onSeek,
+  onClose,
+  showEs,
+}: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const pegadoAbajo = useRef(true);
+  const { dragging, preview, empezar } = useDrag(onMove);
 
   // Autoscroll solo si el usuario ya estaba al final. Si ha subido a releer
   // algo, arrastrarle hacia abajo en cada frase nueva haría el panel inservible
@@ -48,11 +65,42 @@ export function TranscriptPanel({ lines, onSeek, onClose, showEs }: Props) {
     pegadoAbajo.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32;
   };
 
+  const actual = preview ?? position;
+  const estilo = actual
+    ? ({ left: `${actual.x}%`, top: `${actual.y}%`, bottom: 'auto', right: 'auto' } as const)
+    : undefined;
+
   return (
-    <div className="youjp-transcript" role="dialog" aria-label="Historial de la sesión">
-      <div className="youjp-settings-head">
-        <span>Historial · {lines.length} frases</span>
-        <button className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
+    <div
+      className={
+        actual
+          ? `youjp-transcript youjp-transcript--free${dragging ? ' youjp-transcript--dragging' : ''}`
+          : 'youjp-transcript'
+      }
+      style={estilo}
+      role="dialog"
+      aria-label="Historial de la sesión"
+    >
+      {/* La cabecera entera es el asa: es la zona que no tiene nada pulsable
+          dentro, así que arrastrar desde ahí no compite con nada. */}
+      <div className="youjp-transcript-head" onMouseDown={empezar}>
+        <span className="youjp-transcript-title">Historial · {lines.length} frases</span>
+        {actual && (
+          <button
+            className="youjp-transcript-action"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={onResetPosition}
+            title="Devolver el panel a su sitio"
+          >
+            ⌖
+          </button>
+        )}
+        <button
+          className="youjp-transcript-action"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={onClose}
+          aria-label="Cerrar"
+        >
           ×
         </button>
       </div>

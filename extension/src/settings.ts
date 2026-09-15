@@ -39,6 +39,9 @@ export interface OverlaySettings {
    * sobreviva al cambio de tamaño y a la pantalla completa.
    */
   position: { x: number; y: number } | null;
+
+  /** Posición del panel de historial, con el mismo criterio que `position`. */
+  transcriptPosition: { x: number; y: number } | null;
 }
 
 export const DEFAULT_SETTINGS: OverlaySettings = {
@@ -55,6 +58,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   history: 1,
   showTentative: true,
   position: null,
+  transcriptPosition: null,
 };
 
 const KEY = 'overlaySettings';

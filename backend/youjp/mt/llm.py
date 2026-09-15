@@ -27,14 +27,27 @@ from youjp.mt.base import Translation
 
 log = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = (
-    "Eres un traductor de japonés a español para subtítulos. "
-    "Devuelves ÚNICAMENTE la traducción de la última línea, en una sola línea, "
-    "sin comillas, sin el texto japonés, sin explicaciones y sin notas. "
-    "Mantienes el registro del original: si es conversación informal, traduces "
-    "en informal. Si la línea está incompleta, traduces lo que hay sin inventar "
-    "el final."
-)
+SYSTEM_PROMPT = """Traduces japonés a español para subtítulos. Devuelves solo la
+traducción de la última línea: una línea, sin comillas, sin el japonés, sin notas.
+
+El japonés omite el sujeto. Dedúcelo del contexto:
+- Hablando DE alguien → tercera persona.
+  「ここで毎朝2時間勉強しています」 tras presentar al Sr. Nishiyama
+  = "Estudia aquí dos horas cada mañana" (NO "Estudio").
+- 「私の方が〜」 compara al hablante CON SU INTERLOCUTOR.
+  「私の方が遥かに上」 = "Yo estoy muy por encima de ti" (NO "que los míos").
+- 「〜を目指して」 es aspirar, no ser.
+  「漫画家を目指して10年」 = "lleva 10 años intentando ser dibujante de manga".
+
+Los nombres propios se transcriben por su SONIDO, nunca por el significado de
+sus kanji: 西山 = "Nishiyama" (nunca "Westyama" ni "montaña del oeste"),
+本町 = "Honmachi", 西梅田 = "Nishi-Umeda".
+
+Si la línea está cortada a la mitad, traduce solo lo que hay: no completes la
+frase ni inventes el final.
+
+Mantén el registro del original y elige la acepción que encaje con el contexto
+(技術 es "técnica" hablando de habilidad, "tecnología" hablando de industria)."""
 
 # Los modelos con modo de razonamiento emiten el bloque de pensamiento en la
 # respuesta. En un subtítulo eso es ruido.
@@ -129,8 +142,12 @@ class LlmProvider:
         if not context:
             return f"Línea a traducir:\n{text}"
         previas = "\n".join(context)
+        # Se dice explícitamente para qué sirve el contexto. Dárselo sin más lo
+        # usa para el tema pero no para lo que más falla, que es decidir de
+        # quién se está hablando.
         return (
-            "Contexto (líneas anteriores, NO las traduzcas):\n"
+            "Líneas anteriores. NO las traduzcas: úsalas para saber de quién se "
+            "habla y en qué persona va la línea siguiente.\n"
             f"{previas}\n\n"
             f"Línea a traducir:\n{text}"
         )
