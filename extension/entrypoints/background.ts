@@ -59,6 +59,38 @@ async function ensureOffscreen(): Promise<void> {
   });
 }
 
+/**
+ * Se asegura de que el content script está vivo en la pestaña.
+ *
+ * Al recargar la extensión, Chrome no vuelve a inyectar los content scripts en
+ * las pestañas que ya estaban abiertas: solo entran al cargar la página. El
+ * síntoma es de los peores, porque todo lo demás funciona — la captura arranca,
+ * el audio llega al backend y se transcribe — pero no hay nadie que pinte el
+ * overlay, así que parece que la extensión está rota.
+ *
+ * En vez de pedirle al usuario que recuerde recargar la pestaña, se inyecta a
+ * mano cuando no contesta.
+ */
+async function ensureContentScript(tabId: number): Promise<any | null> {
+  const probe = () => askTab(tabId, { type: 'player.probe' } as never);
+
+  try {
+    return await probe();
+  } catch {
+    // No está. Se inyecta leyendo la ruta del propio manifest, para que no se
+    // quede desfasada si cambia la salida del empaquetado.
+    const files = chrome.runtime.getManifest().content_scripts?.[0]?.js ?? [];
+    if (files.length === 0) return null;
+    try {
+      await chrome.scripting.executeScript({ target: { tabId }, files });
+      return await probe();
+    } catch (error) {
+      console.warn('[youjp] no se pudo inyectar el overlay en la pestaña', error);
+      return null;
+    }
+  }
+}
+
 async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return;
 
@@ -69,7 +101,17 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
   // se manda inmediatamente.
   const streamId = await getMediaStreamId(tab.id);
 
-  const info = await askTab(tab.id, { type: 'player.probe' } as never).catch(() => null);
+  const info = await ensureContentScript(tab.id);
+  if (info === null) {
+    // Sin overlay no hay nada que ver, así que capturar sería gastar GPU para
+    // nadie. Mejor fallar aquí y decirlo que quedarse mudo.
+    await chrome.action.setBadgeText({ text: '!', tabId: tab.id });
+    await chrome.action.setBadgeBackgroundColor({ color: '#B8422B', tabId: tab.id });
+    throw new Error(
+      'No se pudo montar el overlay en esta pestaña. Recárgala (F5) e inténtalo de nuevo.',
+    );
+  }
+
   const { serverUrl = DEFAULT_SERVER_URL } = await chrome.storage.local.get('serverUrl');
 
   capture = { tabId: tab.id, videoId: info?.videoId ?? '' };
@@ -87,6 +129,7 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
 
   await chrome.action.setBadgeText({ text: 'ON', tabId: tab.id });
   await chrome.action.setBadgeBackgroundColor({ color: '#24427C', tabId: tab.id });
+  await chrome.action.setTitle({ title: 'youjp: capturando — clic para parar', tabId: tab.id });
 }
 
 async function stopCapture(): Promise<void> {
@@ -95,6 +138,9 @@ async function stopCapture(): Promise<void> {
   await chrome.runtime.sendMessage({ type: 'capture.stop' } satisfies ExtensionMessage).catch(() => {});
   if (previous) {
     await chrome.action.setBadgeText({ text: '', tabId: previous.tabId }).catch(() => {});
+    await chrome.action
+      .setTitle({ title: 'Activar subtítulos japoneses', tabId: previous.tabId })
+      .catch(() => {});
     await chrome.tabs
       .sendMessage(previous.tabId, { type: 'status', status: 'idle' } satisfies ExtensionMessage)
       .catch(() => {});
@@ -116,14 +162,22 @@ export default defineBackground(() => {
         await startCapture(tab);
       }
     } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
       console.error('[youjp] no se pudo alternar la captura', error);
       capture = null;
       if (tab.id) {
+        // El overlay puede no existir justo cuando falla, así que el aviso va
+        // también al icono: es el único sitio que siempre se ve.
+        await chrome.action.setBadgeText({ text: '!', tabId: tab.id }).catch(() => {});
+        await chrome.action
+          .setBadgeBackgroundColor({ color: '#B8422B', tabId: tab.id })
+          .catch(() => {});
+        await chrome.action.setTitle({ title: `youjp: ${detail}`, tabId: tab.id }).catch(() => {});
         chrome.tabs
           .sendMessage(tab.id, {
             type: 'status',
             status: 'error',
-            detail: String(error),
+            detail,
           } satisfies ExtensionMessage)
           .catch(() => {});
       }

@@ -12,6 +12,10 @@ export default defineConfig({
       // El documento offscreen es quien sostiene el audio y el WebSocket: el
       // service worker se termina por inactividad y se llevaria la sesion.
       'offscreen',
+      // Para reinyectar el content script en pestañas que ya estaban abiertas
+      // cuando se recargó la extensión. Sin esto, todo funciona menos la parte
+      // que se ve.
+      'scripting',
       'storage',
     ],
     host_permissions: ['https://www.youtube.com/*'],
