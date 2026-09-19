@@ -96,6 +96,7 @@ export function Overlay() {
           setDetail(message.detail ?? '');
           if (message.model) setModel(message.model);
           if (message.status === 'idle') {
+            lastFinal.current = 0;
             setPartial(null);
             setHistory([]);
             setSelected(null);
@@ -114,7 +115,8 @@ export function Overlay() {
               {
                 id: final.segment_id,
                 ja: final.text,
-                es: '',
+                translation: '',
+                target: null,
                 tokens: [],
                 mediaStartMs: final.media_start_ms,
               },
@@ -124,11 +126,12 @@ export function Overlay() {
           break;
         }
         case 'subtitle.translation': {
-          const { segment_id, text_es } = message.payload;
+          const { segment_id, text, text_es, target = 'es' } = message.payload;
           // La traducción puede llegar cuando la frase ya ha salido del
           // historial: en ese caso no hay nada que actualizar y se descarta.
           setHistory((prev) =>
-            prev.map((line) => (line.id === segment_id ? { ...line, es: text_es } : line)),
+            prev.map((line) => (line.id === segment_id
+              ? { ...line, translation: text ?? text_es ?? '', target } : line)),
           );
           break;
         }
@@ -190,8 +193,8 @@ export function Overlay() {
   const visible = settings.history >= MAX_LINES ? history : history.slice(-(settings.history + 1));
   const committed = partial?.committed ?? '';
   const tentative = settings.showTentative ? (partial?.tentative ?? '') : '';
-  const showJa = settings.languages !== 'es';
-  const showEs = settings.languages !== 'ja';
+  const showJa = settings.languages !== 'translation';
+  const showTranslation = settings.languages !== 'ja';
 
   // Durante el arrastre manda la posición provisional, para que el overlay siga
   // al cursor sin escribir en el almacenamiento en cada píxel.
@@ -216,7 +219,7 @@ export function Overlay() {
           onResetPosition={() => patchSettings({ transcriptPosition: null })}
           onSeek={seek}
           onClose={() => setShowTranscript(false)}
-          showEs={showEs}
+          showTranslation={showTranslation}
         />
       )}
 
@@ -254,7 +257,7 @@ export function Overlay() {
         />
       )}
 
-      {selected && <WordCard token={selected} onClose={closeCard} />}
+      {selected && <WordCard token={selected} target={settings.targetLanguage} onClose={closeCard} />}
 
       <div className="youjp-subs">
         {visible.map((line, index) => {
@@ -272,7 +275,9 @@ export function Overlay() {
                   />
                 </p>
               )}
-              {showEs && line.es && <p className="youjp-es">{line.es}</p>}
+              {showTranslation && line.target === settings.targetLanguage && line.translation && (
+                <p className="youjp-es" lang={line.target}>{line.translation}</p>
+              )}
             </div>
           );
         })}

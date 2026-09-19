@@ -9,14 +9,17 @@
  * la hoja de estilos no necesita saber nada de React.
  */
 
+import type { TargetLanguage } from './protocol';
+
 export type FuriganaMode = 'off' | 'auto' | 'all';
 export type BackdropMode = 'none' | 'soft' | 'solid';
-export type LanguageMode = 'both' | 'ja' | 'es';
+export type LanguageMode = 'both' | 'ja' | 'translation';
 
 export interface OverlaySettings {
   /** Tamaño del japonés en píxeles a 1080p; escala con el ancho del vídeo. */
   jaSize: number;
-  esSize: number;
+  translationSize: number;
+  targetLanguage: TargetLanguage;
   /** Distancia desde el borde inferior del reproductor, en píxeles. */
   bottom: number;
   /** Ancho máximo del bloque de subtítulos, en porcentaje del vídeo. */
@@ -46,7 +49,8 @@ export interface OverlaySettings {
 
 export const DEFAULT_SETTINGS: OverlaySettings = {
   jaSize: 28,
-  esSize: 21,
+  translationSize: 21,
+  targetLanguage: 'es',
   bottom: 72,
   width: 86,
   // `auto` pone furigana solo donde probablemente hace falta. Ponerla en todo
@@ -63,10 +67,26 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
 
 const KEY = 'overlaySettings';
 
+/** Migrate the Spanish-only settings without losing saved display preferences. */
+export function normalizeSettings(value: unknown): OverlaySettings {
+  const stored = value && typeof value === 'object'
+    ? value as Record<string, unknown> : {};
+  const { esSize, ...rest } = stored;
+  const current = { ...DEFAULT_SETTINGS, ...rest };
+  return {
+    ...current,
+    translationSize: typeof stored.translationSize === 'number'
+      ? stored.translationSize : typeof esSize === 'number' ? esSize : DEFAULT_SETTINGS.translationSize,
+    targetLanguage: stored.targetLanguage === 'en' ? 'en' : 'es',
+    languages: stored.languages === 'es' || stored.languages === 'translation'
+      ? 'translation' : stored.languages === 'ja' ? 'ja' : 'both',
+  } as OverlaySettings;
+}
+
 export async function loadSettings(): Promise<OverlaySettings> {
   try {
     const stored = await chrome.storage.local.get(KEY);
-    return { ...DEFAULT_SETTINGS, ...(stored[KEY] as Partial<OverlaySettings> | undefined) };
+    return normalizeSettings(stored[KEY]);
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
@@ -88,7 +108,7 @@ export function onSettingsChanged(fn: (settings: OverlaySettings) => void): () =
     area: string,
   ) => {
     if (area === 'local' && changes[KEY]?.newValue) {
-      fn({ ...DEFAULT_SETTINGS, ...(changes[KEY].newValue as Partial<OverlaySettings>) });
+      fn(normalizeSettings(changes[KEY].newValue));
     }
   };
   chrome.storage.onChanged.addListener(listener);
@@ -99,7 +119,7 @@ export function onSettingsChanged(fn: (settings: OverlaySettings) => void): () =
 export function toCssVars(s: OverlaySettings): Record<string, string> {
   const vars: Record<string, string> = {
     '--youjp-ja-size': `${s.jaSize}px`,
-    '--youjp-es-size': `${s.esSize}px`,
+    '--youjp-es-size': `${s.translationSize}px`,
     '--youjp-bottom': `${s.bottom}px`,
     '--youjp-width': `${s.width}%`,
   };

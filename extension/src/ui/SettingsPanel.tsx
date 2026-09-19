@@ -14,6 +14,7 @@ import type {
   OverlaySettings,
 } from '../settings';
 import { DEFAULT_SETTINGS } from '../settings';
+import type { TargetLanguage } from '../protocol';
 
 interface Props {
   settings: OverlaySettings;
@@ -36,7 +37,12 @@ const BACKDROP: Array<[BackdropMode, string, string]> = [
 const LANGUAGES: Array<[LanguageMode, string, string]> = [
   ['both', 'Ambos', ''],
   ['ja', 'Solo japonés', 'Para practicar comprensión sin la muleta'],
-  ['es', 'Solo español', ''],
+  ['translation', 'Solo traducción', ''],
+];
+
+const TARGETS: Array<[TargetLanguage, string, string]> = [
+  ['es', 'Español', 'Japonés → español'],
+  ['en', 'English', 'Japanese → English'],
 ];
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -99,15 +105,15 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           />
         </Row>
 
-        <Row label="Tamaño del español" hint={`${settings.esSize} px`}>
+        <Row label="Tamaño de la traducción" hint={`${settings.translationSize} px`}>
           <input
             id="youjp-es-size"
             type="range"
             min={12}
             max={44}
             step={1}
-            value={settings.esSize}
-            onChange={(e) => onChange({ esSize: Number(e.target.value) })}
+            value={settings.translationSize}
+            onChange={(e) => onChange({ translationSize: Number(e.target.value) })}
           />
         </Row>
 
@@ -151,7 +157,11 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           <Choice options={BACKDROP} value={settings.backdrop} onPick={(v) => onChange({ backdrop: v })} />
         </Row>
 
-        <Row label="Idiomas">
+        <Row label="Traducir al" hint="Se aplica a las próximas frases; el historial conserva su idioma original.">
+          <Choice options={TARGETS} value={settings.targetLanguage} onPick={(v) => onChange({ targetLanguage: v })} />
+        </Row>
+
+        <Row label="Mostrar">
           <Choice options={LANGUAGES} value={settings.languages} onPick={(v) => onChange({ languages: v })} />
         </Row>
 

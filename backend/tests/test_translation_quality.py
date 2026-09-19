@@ -25,14 +25,17 @@ settings = get_settings()
 @pytest.fixture(scope="module")
 def traductor() -> LlmProvider:
     provider = LlmProvider(settings)
-    if not provider.available():
-        pytest.skip(f"Ollama no tiene {settings.llm_model}")
-    provider.warmup()
-    return provider
+    try:
+        if not provider.available():
+            pytest.skip(f"Ollama no tiene {settings.llm_model}")
+        provider.warmup()
+        yield provider
+    finally:
+        provider.unload()
 
 
 def traducir(provider: LlmProvider, texto: str, contexto: tuple[str, ...] = ()) -> str:
-    return provider.translate(texto, contexto).text.lower()
+    return provider.translate(texto, contexto, target="es").text.lower()
 
 
 def test_tercera_persona_en_narracion(traductor: LlmProvider):
@@ -135,3 +138,15 @@ def test_devuelve_una_sola_linea(traductor: LlmProvider):
     ).text
     assert "\n" not in salida
     assert not salida.startswith('"') and not salida.startswith("「")
+
+
+@pytest.mark.parametrize("source,expected", [
+    ("今日は経済について話します。", ("economy", "economics")),
+    ("私の名前は田中です。", ("tanaka",)),
+    ("ありがとうございます。", ("thank",)),
+])
+def test_traduccion_ingles_real(traductor, source, expected):
+    output = traductor.translate(source, target="en").text.lower()
+    assert any(word in output for word in expected), output
+    assert "\n" not in output
+    assert not any("\u3040" <= char <= "\u30ff" for char in output)

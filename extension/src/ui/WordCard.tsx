@@ -7,10 +7,11 @@
  * está aprendiendo no puede detectar una lectura inventada.
  */
 
-import type { Token } from '../protocol';
+import type { TargetLanguage, Token } from '../protocol';
 
 interface Props {
   token: Token;
+  target: TargetLanguage;
   onClose: () => void;
 }
 
@@ -30,7 +31,7 @@ const POS_TAGS: Record<string, string> = {
   prt: 'partícula',
 };
 
-export function WordCard({ token, onClose }: Props) {
+export function WordCard({ token, target, onClose }: Props) {
   const entry = token.entry;
   if (!entry) return null;
 
@@ -90,7 +91,7 @@ export function WordCard({ token, onClose }: Props) {
               // El español de JMdict cubre una parte de las entradas. Cuando
               // falta se muestra el inglés, marcado: es mejor que un hueco, pero
               // el estudiante debe saber que no es una acepción revisada.
-              const enEspanol = sense.glosses_es.length > 0;
+              const enEspanol = target === 'es' && sense.glosses_es.length > 0;
               const glosas = enEspanol ? sense.glosses_es : sense.glosses_en;
               if (glosas.length === 0) return null;
               return (
@@ -99,7 +100,7 @@ export function WordCard({ token, onClose }: Props) {
                   <span className={enEspanol ? undefined : 'youjp-gloss-en'}>
                     {glosas.slice(0, 4).join('; ')}
                   </span>
-                  {!enEspanol && <span className="youjp-lang-badge">en inglés</span>}
+                  {!enEspanol && target === 'es' && <span className="youjp-lang-badge">en inglés</span>}
                 </li>
               );
             })}

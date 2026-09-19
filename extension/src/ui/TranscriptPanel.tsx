@@ -25,7 +25,7 @@ interface Props {
   onResetPosition: () => void;
   onSeek: (mediaMs: number) => void;
   onClose: () => void;
-  showEs: boolean;
+  showTranslation: boolean;
 }
 
 function marca(ms: number): string {
@@ -45,7 +45,7 @@ export function TranscriptPanel({
   onResetPosition,
   onSeek,
   onClose,
-  showEs,
+  showTranslation,
 }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const pegadoAbajo = useRef(true);
@@ -121,7 +121,11 @@ export function TranscriptPanel({
             <span className="youjp-transcript-time">{marca(line.mediaStartMs)}</span>
             <span className="youjp-transcript-text">
               <span className="youjp-transcript-ja">{line.ja}</span>
-              {showEs && line.es && <span className="youjp-transcript-es">{line.es}</span>}
+              {showTranslation && line.translation && (
+                <span className="youjp-transcript-es" lang={line.target ?? undefined}>
+                  <small>{line.target?.toUpperCase()} · </small>{line.translation}
+                </span>
+              )}
             </span>
           </button>
         ))}

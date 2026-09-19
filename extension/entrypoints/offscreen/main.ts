@@ -11,6 +11,7 @@ import {
   type ExtensionMessage,
   type StartCapture,
 } from '@/src/messages';
+import { loadSettings, onSettingsChanged } from '@/src/settings';
 import {
   buildFrame,
   FLAG_DISCONTINUITY,
@@ -19,9 +20,12 @@ import {
   FRAME_SAMPLES,
   SAMPLE_RATE,
   type ServerMessage,
+  type TargetLanguage,
+  type SessionStart,
 } from '@/src/protocol';
 
 interface Capture {
+  tabId: number;
   stream: MediaStream;
   /** Contexto a 16 kHz que alimenta al worklet. */
   asrCtx: AudioContext;
@@ -34,10 +38,11 @@ interface Capture {
   mediaTimeMs: number;
   isLive: boolean;
   pendingDiscontinuity: boolean;
+  target: TargetLanguage;
 }
 
 let current: Capture | null = null;
-let reconnectTimer: number | undefined;
+let captureCommands: Promise<void> = Promise.resolve();
 
 function report(message: ExtensionMessage): void {
   chrome.runtime.sendMessage(message).catch(() => {
@@ -84,37 +89,52 @@ async function buildGraph(stream: MediaStream, onFrame: (pcm: ArrayBuffer) => vo
   // explícitamente: mientras capturas, el audio deja de reproducirse para el
   // usuario. Es el fallo más fácil de cometer y el que más asusta.
   const playbackCtx = new AudioContext();
-  playbackCtx.createMediaStreamSource(stream).connect(playbackCtx.destination);
+  let asrCtx: AudioContext | undefined;
+  try {
+    playbackCtx.createMediaStreamSource(stream).connect(playbackCtx.destination);
 
-  // --- análisis: 16 kHz, que es lo que quiere el modelo -------------------
-  const asrCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
-  await asrCtx.audioWorklet.addModule(chrome.runtime.getURL('pcm-worklet.js'));
+    // --- análisis: 16 kHz, que es lo que quiere el modelo -------------------
+    asrCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
+    await asrCtx.audioWorklet.addModule(chrome.runtime.getURL('pcm-worklet.js'));
 
-  const node = new AudioWorkletNode(asrCtx, 'pcm-collector', {
-    processorOptions: { frameSamples: FRAME_SAMPLES },
-    numberOfOutputs: 1,
-  });
-  asrCtx.createMediaStreamSource(stream).connect(node);
+    const node = new AudioWorkletNode(asrCtx, 'pcm-collector', {
+      processorOptions: { frameSamples: FRAME_SAMPLES },
+      numberOfOutputs: 1,
+    });
+    asrCtx.createMediaStreamSource(stream).connect(node);
 
-  // El worklet no escribe en su salida, así que esto no suena. Se conecta
-  // igualmente porque Chrome solo procesa los nodos que llegan al destino: sin
-  // esta arista, `process()` dejaría de llamarse y no llegaría ni una trama.
-  node.connect(asrCtx.destination);
+    // El worklet no escribe en su salida, así que esto no suena. Se conecta
+    // igualmente porque Chrome solo procesa los nodos que llegan al destino.
+    node.connect(asrCtx.destination);
 
-  node.port.onmessage = (event: MessageEvent<ArrayBuffer>) => onFrame(event.data);
-  return { asrCtx, playbackCtx, node };
+    node.port.onmessage = (event: MessageEvent<ArrayBuffer>) => onFrame(event.data);
+    return { asrCtx, playbackCtx, node };
+  } catch (error) {
+    await Promise.all([
+      playbackCtx.close().catch(() => {}),
+      asrCtx?.close().catch(() => {}),
+    ]);
+    throw error;
+  }
 }
 
 // ---------------------------------------------------------------------------
 // transporte
 // ---------------------------------------------------------------------------
 
-function openSocket(url: string, params: StartCapture): Promise<WebSocket> {
+function openSocket(url: string, params: StartCapture, target: TargetLanguage): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(url);
     ws.binaryType = 'arraybuffer';
+    let opened = false;
+    const timeout = setTimeout(() => {
+      reject(new Error(`Tiempo de conexión agotado: ${url}`));
+      ws.close();
+    }, 8000);
 
     ws.addEventListener('open', () => {
+      clearTimeout(timeout);
+      opened = true;
       ws.send(
         JSON.stringify({
           type: 'session.start',
@@ -123,16 +143,23 @@ function openSocket(url: string, params: StartCapture): Promise<WebSocket> {
           is_live: params.isLive,
           media_time_ms: Math.round(params.mediaTimeMs),
           source: 'ja',
-          target: 'es',
+          target,
           profile: 'n4',
-        }),
+        } satisfies SessionStart),
       );
       resolve(ws);
     });
 
     ws.addEventListener('message', (event) => {
       if (typeof event.data !== 'string') return;
-      const message = JSON.parse(event.data) as ServerMessage;
+      let message: ServerMessage;
+      try {
+        message = JSON.parse(event.data) as ServerMessage;
+        if (!message || typeof message.type !== 'string') return;
+      } catch {
+        console.warn('[youjp] mensaje JSON inválido del servidor');
+        return;
+      }
       switch (message.type) {
         case 'session.ready':
           report({
@@ -163,6 +190,7 @@ function openSocket(url: string, params: StartCapture): Promise<WebSocket> {
     });
 
     ws.addEventListener('error', () => {
+      clearTimeout(timeout);
       reject(
         new Error(
           `No se pudo conectar con ${url}. ¿Está arrancado el backend? ` +
@@ -172,8 +200,10 @@ function openSocket(url: string, params: StartCapture): Promise<WebSocket> {
     });
 
     ws.addEventListener('close', () => {
+      clearTimeout(timeout);
+      if (!opened) reject(new Error(`Se cerró la conexión con ${url}`));
       if (current?.ws === ws) {
-        report({ type: 'status', status: 'reconnecting', detail: 'conexión perdida' });
+        report({ type: 'status', status: 'error', detail: 'Conexión perdida. Reinicia la captura con el icono de YouJP.' });
       }
     });
   });
@@ -217,10 +247,28 @@ async function start(params: StartCapture): Promise<void> {
     capture.mediaTimeMs += FRAME_MS;
   };
 
-  const { asrCtx, playbackCtx, node } = await buildGraph(stream, onFrame);
-  const ws = await openSocket(params.serverUrl || DEFAULT_SERVER_URL, params);
+  let graph: Awaited<ReturnType<typeof buildGraph>>;
+  try {
+    graph = await buildGraph(stream, onFrame);
+  } catch (error) {
+    stream.getTracks().forEach((track) => track.stop());
+    throw error;
+  }
+  const { asrCtx, playbackCtx, node } = graph;
+  const settings = await loadSettings();
+  let ws: WebSocket;
+  try {
+    ws = await openSocket(params.serverUrl || DEFAULT_SERVER_URL, params, settings.targetLanguage);
+  } catch (error) {
+    node.port.onmessage = null;
+    node.disconnect();
+    stream.getTracks().forEach((track) => track.stop());
+    await Promise.all([asrCtx.close().catch(() => {}), playbackCtx.close().catch(() => {})]);
+    throw error;
+  }
 
   capture = {
+    tabId: params.tabId,
     stream,
     asrCtx,
     playbackCtx,
@@ -231,15 +279,23 @@ async function start(params: StartCapture): Promise<void> {
     mediaTimeMs: params.mediaTimeMs,
     isLive: params.isLive,
     pendingDiscontinuity: false,
+    target: settings.targetLanguage,
   };
   current = capture;
+  // Settings may have changed while the socket was connecting.
+  updateTarget((await loadSettings()).targetLanguage);
 }
 
-async function stop(): Promise<void> {
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer);
-    reconnectTimer = undefined;
+function updateTarget(target: TargetLanguage): void {
+  if (current?.ws.readyState === WebSocket.OPEN && current.target !== target) {
+    current.ws.send(JSON.stringify({ type: 'session.configure', target }));
+    current.target = target;
   }
+}
+
+onSettingsChanged((settings) => updateTarget(settings.targetLanguage));
+
+async function stop(): Promise<void> {
   const capture = current;
   current = null;
   if (!capture) return;
@@ -267,18 +323,21 @@ async function stop(): Promise<void> {
 // mensajes
 // ---------------------------------------------------------------------------
 
-chrome.runtime.onMessage.addListener((message: ExtensionMessage) => {
+chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender) => {
+  if ((message.type === 'player.tick' || message.type === 'player.flush') &&
+      sender.tab?.id !== current?.tabId) return;
   switch (message.type) {
     case 'capture.start':
-      start(message).catch((error) => {
+      captureCommands = captureCommands.then(() => start(message)).catch((error) => {
         console.error('[youjp] fallo al iniciar la captura', error);
         report({ type: 'status', status: 'error', detail: String(error.message ?? error) });
-        void stop();
       });
       break;
 
     case 'capture.stop':
-      void stop();
+      captureCommands = captureCommands.then(stop).catch((error) => {
+        console.error('[youjp] fallo al parar la captura', error);
+      });
       break;
 
     case 'player.tick':

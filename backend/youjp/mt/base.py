@@ -16,6 +16,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
+from youjp.mt.languages import TargetLanguage
+
 
 @dataclass(slots=True)
 class Translation:
@@ -43,7 +45,9 @@ class TranslationProvider(Protocol):
         """Libera recursos. Necesario para el cambio a modo estudio."""
         ...
 
-    def translate(self, text: str, context: Sequence[str] = ()) -> Translation:
+    def translate(
+        self, text: str, context: Sequence[str] = (), *, target: TargetLanguage | None = None
+    ) -> Translation:
         ...
 
 
@@ -59,5 +63,7 @@ class NullProvider:
     def unload(self) -> None:
         return None
 
-    def translate(self, text: str, context: Sequence[str] = ()) -> Translation:
+    def translate(
+        self, text: str, context: Sequence[str] = (), *, target: TargetLanguage | None = None
+    ) -> Translation:
         return Translation(text="", provider=self.name, latency_ms=0.0)

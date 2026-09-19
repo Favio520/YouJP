@@ -1,4 +1,4 @@
-"""Traducción japonés → español."""
+"""Traducción japonés → español o inglés, con modelos compartidos por sesión."""
 
 from __future__ import annotations
 

@@ -56,14 +56,16 @@ export function buildFrame(pcm: ArrayBuffer, header: FrameHeader): ArrayBuffer {
 // mensajes de texto
 // ---------------------------------------------------------------------------
 
+export type TargetLanguage = 'es' | 'en';
+
 export interface SessionStart {
   type: 'session.start';
   video_id: string;
   url: string;
   is_live: boolean;
   media_time_ms: number;
-  source: string;
-  target: string;
+  source: 'ja';
+  target: TargetLanguage;
   profile: string;
 }
 
@@ -77,7 +79,12 @@ export interface ControlFlush {
   media_time_ms: number;
 }
 
-export type ClientMessage = SessionStart | SessionStop | ControlFlush | { type: 'ping'; t: number };
+export interface SessionConfigure {
+  type: 'session.configure';
+  target: TargetLanguage;
+}
+
+export type ClientMessage = SessionStart | SessionStop | SessionConfigure | ControlFlush | { type: 'ping'; t: number };
 
 export interface SessionReady {
   type: 'session.ready';
@@ -88,6 +95,7 @@ export interface SessionReady {
   sample_rate: number;
   frame_ms: number;
   protocol_version: number;
+  target: TargetLanguage;
 }
 
 /**
@@ -122,7 +130,10 @@ export interface AsrFinal {
 export interface MtFinal {
   type: 'mt.final';
   segment_id: number;
-  text_es: string;
+  text: string;
+  target: TargetLanguage;
+  /** Compatibility with Spanish-only servers. */
+  text_es?: string;
   provider: string;
   media_start_ms: number;
   media_end_ms: number;

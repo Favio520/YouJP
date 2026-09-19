@@ -185,7 +185,7 @@ class Settings(BaseSettings):
     pasada, asi que el coste extra cabe de sobra en el presupuesto."""
 
     mt_source_lang: str = "jpn_Jpan"
-    mt_target_lang: str = "spa_Latn"
+    mt_target_lang: Literal["spa_Latn", "eng_Latn"] = "spa_Latn"
 
     mt_max_tokens: int = 256
     """Cota de generacion. Acota el peor caso igual que en el ASR."""

@@ -24,6 +24,7 @@ from pathlib import Path
 from youjp.config import Settings
 from youjp.cuda_setup import enable_cuda_dlls
 from youjp.mt.base import Translation
+from youjp.mt.languages import NLLB_TARGETS, TargetLanguage, resolve_target
 
 log = logging.getLogger(__name__)
 
@@ -107,7 +108,10 @@ class Nllb200Provider:
 
     # -- traducción --------------------------------------------------------
 
-    def translate(self, text: str, context: Sequence[str] = ()) -> Translation:
+    def translate(
+        self, text: str, context: Sequence[str] = (), *, target: TargetLanguage | None = None
+    ) -> Translation:
+        language = resolve_target(target, self.settings.mt_target_lang)
         del context  # NLLB traduce frase a frase; el contexto es para el LLM
         self.load()
         s = self.settings
@@ -123,7 +127,7 @@ class Nllb200Provider:
         source = self._tokenizer.convert_ids_to_tokens(self._tokenizer.encode(source_text))
         results = self._translator.translate_batch(
             [source],
-            target_prefix=[[s.mt_target_lang]],
+            target_prefix=[[NLLB_TARGETS[language]]],
             beam_size=s.mt_beam_size,
             max_decoding_length=s.mt_max_tokens,
         )

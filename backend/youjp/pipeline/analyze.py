@@ -30,8 +30,6 @@ from youjp.ws.protocol import DictPayload, NlpTokens, SensePayload, Token
 
 log = logging.getLogger(__name__)
 
-_STOP = object()
-
 # Categorías sin tarjeta propia. Se pintan, pero no se pueden pulsar: una
 # partícula no tiene "significado" que enseñar fuera de su función gramatical,
 # y ofrecer una tarjeta para は llena la interfaz de ruido.
@@ -116,16 +114,21 @@ class NlpWorker:
         self._emit = emit
         self._queue: queue.Queue = queue.Queue(maxsize=max_queued)
         self._dropped = 0
+        self._stopped = threading.Event()
         self._thread = threading.Thread(target=self._run, name="nlp-worker", daemon=True)
 
     def start(self) -> None:
         self._thread.start()
 
     def stop(self, timeout: float = 5.0) -> None:
-        self._queue.put(_STOP)
+        self._stopped.set()
         self._thread.join(timeout=timeout)
+        if self._thread.is_alive():
+            log.warning("el hilo de analisis no termino en %.1f s", timeout)
 
     def submit(self, segment_id: int, text: str) -> None:
+        if self._stopped.is_set():
+            return
         try:
             self._queue.put_nowait((segment_id, text))
         except queue.Full:
@@ -140,10 +143,11 @@ class NlpWorker:
         if self.analyzer.dictionary is not None:
             ms = self.analyzer.dictionary.warmup()
             log.debug("diccionario calentado en el hilo de analisis: %.0f ms", ms)
-        while True:
-            item = self._queue.get()
-            if item is _STOP:
-                break
+        while not self._stopped.is_set():
+            try:
+                item = self._queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
             segment_id, text = item
             try:
                 t0 = time.perf_counter()

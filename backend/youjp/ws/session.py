@@ -52,6 +52,7 @@ class AsrWorker:
         start_media_ms: int = 0,
         max_queued_frames: int = 64,
         on_sentence: Callable[[FinalUpdate], None] | None = None,
+        on_reset: Callable[[], None] | None = None,
     ) -> None:
         self.settings = settings
         self.metrics = MetricsCollector()
@@ -59,6 +60,10 @@ class AsrWorker:
         # Gancho para el traductor. Se llama desde el hilo de ASR, así que lo
         # que haya al otro lado tiene que encolar y volver, no trabajar.
         self._on_sentence = on_sentence
+        self._on_reset = on_reset
+        self._stopped = threading.Event()
+        self._control_lock = threading.Lock()
+        self._pending_flush: tuple[str, int] | None = None
         self._queue: queue.Queue[Any] = queue.Queue(maxsize=max_queued_frames)
         self._dropped = 0
 
@@ -86,7 +91,9 @@ class AsrWorker:
         self._thread.start()
 
     def stop(self, timeout: float = 5.0) -> None:
-        self._queue.put(_STOP)
+        with self._control_lock:
+            self._stopped.set()
+            self._replace_pending(_STOP)
         self._thread.join(timeout=timeout)
         if self._thread.is_alive():
             log.warning("el hilo de ASR no termino en %.1f s", timeout)
@@ -100,13 +107,22 @@ class AsrWorker:
         entonces lo correcto es tirar lo mas antiguo: acumular retraso es peor
         que perder 100 ms de audio viejo, porque el retraso no se recupera nunca.
         """
+        with self._control_lock:
+            return self._submit(frame)
+
+    def _submit(self, frame: AudioFrame) -> bool:
+        if self._stopped.is_set():
+            return False
         try:
             self._queue.put_nowait(frame)
             return True
         except queue.Full:
             try:
-                self._queue.get_nowait()
-                self._queue.put_nowait(frame)
+                # Do not dequeue/reinsert a flush: that would move it behind
+                # post-seek audio and reset the new timeline too late.
+                if self._pending_flush is None:
+                    self._queue.get_nowait()
+                    self._queue.put_nowait(frame)
             except (queue.Empty, queue.Full):  # pragma: no cover - carrera rara
                 pass
             self._dropped += 1
@@ -122,7 +138,19 @@ class AsrWorker:
         ``media_time_ms`` es solo informativo: el reanclaje lo hace la siguiente
         trama. Ver :meth:`StreamingSession.reset`.
         """
-        self._queue.put(("flush", media_time_ms))
+        with self._control_lock:
+            if not self._stopped.is_set():
+                # All queued audio predates this control message and is obsolete.
+                self._pending_flush = ("flush", media_time_ms)
+                self._replace_pending(self._pending_flush)
+
+    def _replace_pending(self, control: Any) -> None:
+        while True:
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                break
+        self._queue.put_nowait(control)
 
     # -- bucle del hilo ----------------------------------------------------
 
@@ -135,7 +163,14 @@ class AsrWorker:
             try:
                 if isinstance(item, tuple) and item[0] == "flush":
                     self.session.reset()
+                    if self._on_reset is not None:
+                        self._on_reset()
+                    with self._control_lock:
+                        if self._pending_flush is item:
+                            self._pending_flush = None
                 else:
+                    if item.discontinuity and self._on_reset is not None:
+                        self._on_reset()
                     self.session.push(item)
             except Exception:  # noqa: BLE001 - un fallo aqui no debe matar el hilo
                 log.exception("error procesando audio; la sesion continua")
@@ -203,10 +238,22 @@ class LoopEmitter:
     def __init__(self, loop: asyncio.AbstractEventLoop, out: asyncio.Queue[BaseModel]) -> None:
         self._loop = loop
         self._out = out
+        self._closed = False
+
+    def close(self) -> None:
+        self._closed = True
+
+    def _enqueue(self, message: BaseModel) -> None:
+        if self._closed:
+            return
+        try:
+            self._out.put_nowait(message)
+        except asyncio.QueueFull:
+            log.warning("cliente lento: mensaje %s descartado", type(message).__name__)
 
     def __call__(self, message: BaseModel) -> None:
         try:
-            self._loop.call_soon_threadsafe(self._out.put_nowait, message)
+            self._loop.call_soon_threadsafe(self._enqueue, message)
         except RuntimeError:
             # El loop se ha cerrado: la sesion esta terminando y ya no hay a
             # quien enviar. No es un error.

@@ -24,6 +24,7 @@ import httpx
 
 from youjp.config import Settings
 from youjp.mt.base import Translation
+from youjp.mt.languages import TargetLanguage, resolve_target
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +52,26 @@ Mantén el registro del original y elige la acepción que encaje con el contexto
 
 # Los modelos con modo de razonamiento emiten el bloque de pensamiento en la
 # respuesta. En un subtítulo eso es ruido.
+SYSTEM_PROMPT_EN = """Translate Japanese into natural English subtitles. Return only
+the translation of the last line: one line, no quotes, Japanese, notes or explanations.
+
+Japanese often omits subjects. Infer them from the preceding context:
+- When someone is being described, use third person, not first person.
+  After introducing Mr. Nishiyama, 「ここで毎朝2時間勉強しています」 means
+  "He studies here for two hours every morning", not "I study".
+- 「私の方が遥かに上」 compares the speaker with the other person:
+  "I am far better than you", not "better than mine".
+- 「漫画家を目指して10年」 means spending ten years trying to become a manga
+  artist, not already being one.
+
+Transliterate proper names by sound, never by the meaning of their kanji:
+西山 = Nishiyama, 本町 = Honmachi, 西梅田 = Nishi-Umeda.
+Translate only what is present in an unfinished sentence; do not invent its ending.
+Preserve the original register and choose meanings that fit the context:
+技術 means technique or skill when discussing abilities, technology in industry."""
+
+SYSTEM_PROMPTS = {"es": SYSTEM_PROMPT, "en": SYSTEM_PROMPT_EN}
+
 _THINK = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
 _WRAPPING_QUOTES = re.compile(r'^["「“\'](.*)["」”\']$', re.DOTALL)
 
@@ -138,7 +159,15 @@ class LlmProvider:
 
     # -- traducción --------------------------------------------------------
 
-    def _build_prompt(self, text: str, context: Sequence[str]) -> str:
+    def _build_prompt(
+        self, text: str, context: Sequence[str], target: TargetLanguage = "es"
+    ) -> str:
+        if target == "en":
+            previous = "\n".join(context)
+            return (
+                f"Previous lines (context only; do not translate them):\n{previous}\n\n"
+                f"Line to translate:\n{text}"
+            )
         if not context:
             return f"Línea a traducir:\n{text}"
         previas = "\n".join(context)
@@ -152,7 +181,10 @@ class LlmProvider:
             f"Línea a traducir:\n{text}"
         )
 
-    def translate(self, text: str, context: Sequence[str] = ()) -> Translation:
+    def translate(
+        self, text: str, context: Sequence[str] = (), *, target: TargetLanguage | None = None
+    ) -> Translation:
+        language = resolve_target(target, self.settings.mt_target_lang)
         self.load()
         assert self._client is not None
         s = self.settings
@@ -167,8 +199,8 @@ class LlmProvider:
                 json={
                     "model": s.llm_model,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": self._build_prompt(source, context)},
+                        {"role": "system", "content": SYSTEM_PROMPTS[language]},
+                        {"role": "user", "content": self._build_prompt(source, context, language)},
                     ],
                     "stream": False,
                     # Desactiva el modo de razonamiento en los modelos que lo

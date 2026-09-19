@@ -20,6 +20,8 @@ dependencies = [
     # Esquemas del protocolo y configuracion por .env.
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    # Cliente HTTP de Ollama y pruebas del servidor ASGI.
+    "httpx>=0.28",
     # Metricas de GPU (VRAM) y de sistema (CPU, RAM).
     "nvidia-ml-py>=12.560",
     "psutil>=6.0",

@@ -1,8 +1,6 @@
 """Mensajes de texto del WebSocket.
 
-Los esquemas viven aqui y de aqui salen los tipos de TypeScript de la extension
-(``scripts/gen_ts_types.py``), para que el protocolo no pueda desincronizarse
-entre los dos lados sin que alguien se entere.
+Los esquemas se mantienen junto a su espejo en ``extension/src/protocol.ts``.
 
 Las tramas de audio no pasan por aqui: van en binario, ver :mod:`youjp.ws.codec`.
 """
@@ -12,6 +10,8 @@ from __future__ import annotations
 from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field
+
+from youjp.mt.languages import TargetLanguage
 
 # --------------------------------------------------------------------------
 # cliente -> servidor
@@ -24,13 +24,20 @@ class SessionStart(BaseModel):
     url: str = ""
     is_live: bool = False
     media_time_ms: int = 0
-    source: str = "ja"
-    target: str = "es"
+    source: Literal["ja"] = "ja"
+    target: TargetLanguage = "es"
     profile: str = "n4"
 
 
 class SessionStop(BaseModel):
     type: Literal["session.stop"] = "session.stop"
+
+
+class SessionConfigure(BaseModel):
+    """Changes the target for future subtitles without restarting audio capture."""
+
+    type: Literal["session.configure"] = "session.configure"
+    target: TargetLanguage
 
 
 class ControlFlush(BaseModel):
@@ -47,7 +54,7 @@ class Ping(BaseModel):
 
 
 ClientMessage = Annotated[
-    Union[SessionStart, SessionStop, ControlFlush, Ping],
+    Union[SessionStart, SessionStop, SessionConfigure, ControlFlush, Ping],
     Field(discriminator="type"),
 ]
 
@@ -66,6 +73,7 @@ class SessionReady(BaseModel):
     sample_rate: int
     frame_ms: int
     protocol_version: int = 1
+    target: TargetLanguage = "es"
 
 
 class AsrPartial(BaseModel):
@@ -103,7 +111,10 @@ class MtFinal(BaseModel):
 
     type: Literal["mt.final"] = "mt.final"
     segment_id: int
-    text_es: str
+    text: str
+    target: TargetLanguage = "es"
+    # Compatibility with old Spanish-only clients; never put English here.
+    text_es: str = ""
     provider: str
     media_start_ms: int
     media_end_ms: int

@@ -69,7 +69,7 @@ async def receive_loop(ws, started: float, stats: dict) -> None:
             stats["translations"] += 1
             stats["mt_latencies"].append(msg["latency_ms"])
             console.print(
-                f"        [cyan]{msg['text_es']}[/cyan]  "
+                f"        [cyan]{msg.get('text', msg.get('text_es', ''))}[/cyan]  "
                 f"[dim]{msg['latency_ms']:.0f} ms · {msg['provider']}[/dim]",
                 highlight=False,
             )
@@ -101,7 +101,7 @@ async def receive_loop(ws, started: float, stats: dict) -> None:
             console.print(f"[red]error {msg['code']}: {msg['message'][:200]}[/red]")
 
 
-async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
+async def run(path: Path, url: str, seek_at: float | None, live: bool, language: str = "es") -> int:
     pcm, rate = sf.read(str(path), dtype="float32", always_2d=True)
     if rate != 16_000:
         console.print(f"[red]{path.name} esta a {rate} Hz, se esperan 16 000[/red]")
@@ -122,7 +122,7 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool) -> int:
             "is_live": live,
             "media_time_ms": 0,
             "source": "ja",
-            "target": "es",
+            "target": language,
         }))
         receiver = asyncio.create_task(receive_loop(ws, time.perf_counter(), stats))
 
@@ -206,8 +206,9 @@ def main() -> None:
     parser.add_argument("--url", default="ws://127.0.0.1:8770/stream")
     parser.add_argument("--seek-at", type=float, help="simula un seek en el segundo N")
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--target", choices=("es", "en"), default="es", help="idioma de traducción")
     args = parser.parse_args()
-    raise SystemExit(asyncio.run(run(args.wav, args.url, args.seek_at, args.live)))
+    raise SystemExit(asyncio.run(run(args.wav, args.url, args.seek_at, args.live, args.target)))
 
 
 if __name__ == "__main__":

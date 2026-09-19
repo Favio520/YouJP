@@ -39,6 +39,7 @@ from youjp.ws.protocol import (
     Ping,
     Pong,
     SessionReady,
+    SessionConfigure,
     SessionStart,
     SessionStop,
     parse_client_message,
@@ -239,17 +240,29 @@ async def stream(ws: WebSocket) -> None:
                 continue
 
             if isinstance(message, SessionStart):
+                # Invalidate late results before replacing a session (segment IDs restart).
+                emitter.close()
+                if ticker is not None:
+                    ticker.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await ticker
+                    ticker = None
                 if worker is not None:
-                    worker.stop()
+                    await asyncio.to_thread(worker.stop)
                 if mt is not None:
-                    mt.stop()
+                    await asyncio.to_thread(mt.stop)
                 if nlp is not None:
-                    nlp.stop()
+                    await asyncio.to_thread(nlp.stop)
+
+                while not outbox.empty():
+                    outbox.get_nowait()
+                emitter = LoopEmitter(loop, outbox)
 
                 mt = MtWorker(
                     state.translator,
                     emitter,
                     context_sentences=settings.mt_context_sentences,
+                    target=message.target,
                 )
                 mt.start()
 
@@ -263,6 +276,7 @@ async def stream(ws: WebSocket) -> None:
                     emitter,
                     start_media_ms=message.media_time_ms,
                     on_sentence=_fan_out(mt, nlp),
+                    on_reset=mt.reset,
                 )
                 worker.start()
                 ticker = asyncio.create_task(
@@ -283,8 +297,13 @@ async def stream(ws: WebSocket) -> None:
                         compute_type=settings.asr_compute_type,
                         sample_rate=settings.sample_rate,
                         frame_ms=settings.frame_ms,
+                        target=message.target,
                     )
                 )
+
+            elif isinstance(message, SessionConfigure):
+                if mt is not None:
+                    mt.set_target(message.target)
 
             elif isinstance(message, ControlFlush):
                 if worker is not None:
@@ -307,6 +326,7 @@ async def stream(ws: WebSocket) -> None:
     except Exception:  # noqa: BLE001
         log.exception("[%s] error en la sesion", session_id)
     finally:
+        emitter.close()
         state.sessions -= 1
         for task in (ticker, sender):
             if task is not None:

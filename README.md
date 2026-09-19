@@ -4,7 +4,7 @@
 
 ### Subtítulos japoneses en tiempo real para YouTube
 
-Captura el audio de la pestaña, lo transcribe localmente, lo traduce al español
+Captura el audio de la pestaña, lo transcribe localmente, lo traduce al español o inglés
 y convierte cada línea en una herramienta para estudiar japonés.
 
 <p>
@@ -48,13 +48,13 @@ JLPT N4–N3.
   envía PCM mono de 16 kHz al backend por WebSocket.
 - **Transcripción local:** faster-whisper con `large-v3-turbo`, VAD Silero,
   LocalAgreement y segmentación de frases.
-- **Traducción japonés → español:** Qwen3-4B mediante Ollama como opción
+- **Traducción japonés → español / inglés:** Qwen3-4B mediante Ollama como opción
   principal; NLLB o traducción desactivada como alternativas.
 - **Análisis japonés:** Sudachi, JMdict y KANJIDIC2 para tokenización,
   lecturas, rōmaji, categorías, conjugaciones y glosas.
 - **Palabras clicables:** abre una tarjeta contextual sin abandonar el vídeo.
 - **Furigana configurable:** desactivada, automática o sobre todos los kanji.
-- **Modo de estudio:** solo japonés, solo español o ambos idiomas.
+- **Modo de estudio:** solo japonés, solo traducción o ambos idiomas.
 - **Historial de sesión:** conserva hasta 300 frases y permite volver al momento
   exacto del vídeo con un clic.
 - **Overlay configurable:** posición arrastrable, tamaño, fondo, ancho, frases
@@ -73,7 +73,7 @@ flowchart LR
     D --> E[Whisper]
     E --> F[LocalAgreement]
     F --> G[Segmentador]
-    G --> H[Traducción JA → ES]
+    G --> H[Traducción JA → ES / EN]
     G --> I[Sudachi + JMdict]
     H --> J[Overlay y paneles]
     I --> J
@@ -96,7 +96,7 @@ y parada viajan por la misma cola que las tramas para conservar el orden.
 | Banco de pruebas de streaming | ✅ Implementado |
 | Captura de audio desde una pestaña | ✅ Implementado |
 | Subtítulos japoneses provisionales y confirmados | ✅ Implementado |
-| Traducción japonés → español | ✅ Implementado |
+| Traducción japonés → español / inglés | ✅ Implementado |
 | Tokens clicables y tarjeta de diccionario | ✅ Implementado |
 | Historial, seek y ajustes de legibilidad | ✅ Implementado |
 | Gramática explicada por reglas | 🚧 Planificado |
@@ -238,14 +238,31 @@ Al activar la extensión:
 
 ### Ajustes principales
 
-- tamaño del japonés y del español;
+- tamaño del japonés y de la traducción;
 - altura y anchura del overlay;
 - fondo suave, sólido o transparente;
 - número de frases anteriores;
 - mostrar u ocultar texto provisional;
 - furigana automática, completa o desactivada;
-- japonés, español o ambos idiomas;
+- idioma de destino: español o inglés;
+- mostrar japonés, traducción o ambos idiomas;
 - posición libre del overlay y del panel de historial.
+
+### Cambiar entre español e inglés
+
+Abre los ajustes con **Alt+S** (o el botón **⚙**) y selecciona **Traducir al →
+Español / English**. El ajuste se guarda y se aplica a las próximas frases sin
+reiniciar la captura. Las frases ya traducidas conservan su idioma en el historial,
+identificadas con `ES` o `EN`; el overlay muestra la traducción del idioma elegido.
+Las definiciones de JMdict también siguen esa selección. Los controles y las
+etiquetas gramaticales de la interfaz siguen en español.
+
+La selección funciona con Ollama y NLLB; con `YOUJP_MT_PROVIDER=none` la traducción
+permanece desactivada. Tras actualizar esta versión, **reinicia el backend y recarga
+la extensión** para que ambos extremos reconozcan el selector.
+
+Detalles del protocolo y las decisiones de arquitectura:
+[traducción multilingüe](docs/adr/0004-translation-targets.md).
 
 ## Probar sin navegador
 
@@ -256,6 +273,7 @@ ASR, segmentación, traducción y protocolo sin abrir Chrome:
 cd backend
 uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav
 uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav --seek-at 20
+uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav --target en
 uv run python ../scripts/check_frame_conformance.py
 ```
 
@@ -361,7 +379,7 @@ YouJP/
 - [x] Banco de pruebas y medición de latencia/VRAM.
 - [x] Captura de audio de pestaña con Manifest V3.
 - [x] Subtítulos japoneses en tiempo real.
-- [x] Traducción japonés → español.
+- [x] Traducción japonés → español / inglés.
 - [x] Análisis morfológico y tarjetas de palabras.
 - [ ] Reglas gramaticales orientadas a N4–N3.
 - [ ] Explicaciones contextuales con LLM local.
