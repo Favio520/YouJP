@@ -18,7 +18,11 @@ export default defineConfig({
       'scripting',
       'storage',
     ],
-    host_permissions: ['https://www.youtube.com/*'],
+    host_permissions: [
+      'https://www.youtube.com/*',
+      'http://127.0.0.1/*',
+      'http://localhost/*',
+    ],
     action: {
       // Sin default_popup a proposito: con popup, action.onClicked no se
       // dispara, y ese clic es el gesto de usuario que habilita tabCapture.

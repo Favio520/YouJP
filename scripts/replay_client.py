@@ -30,8 +30,10 @@ import websockets  # noqa: E402
 from rich.console import Console  # noqa: E402
 
 HEADER = struct.Struct("<BBBBIII")
-MAGIC, VERSION = 0xA5, 1
-FLAG_LIVE, FLAG_DISCONTINUITY = 1, 2
+from youjp.contract import (  # noqa: E402
+    MAGIC, AUDIO_VERSION as VERSION, FLAG_LIVE, FLAG_DISCONTINUITY,
+    APP_VERSION, PROTOCOL_VERSION,
+)
 
 console = Console()
 
@@ -118,12 +120,18 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool, language:
     async with websockets.connect(url, max_size=None) as ws:
         await ws.send(json.dumps({
             "type": "session.start",
+            "app_version": APP_VERSION,
+            "protocol_version": PROTOCOL_VERSION,
             "video_id": path.stem,
             "is_live": live,
             "media_time_ms": 0,
             "source": "ja",
             "target": language,
         }))
+        ready = json.loads(await asyncio.wait_for(ws.recv(), timeout=15))
+        if ready.get("type") != "session.ready" or ready.get("protocol_version") != PROTOCOL_VERSION:
+            console.print(f"[red]Backend incompatible: {ready}[/red]")
+            return 1
         receiver = asyncio.create_task(receive_loop(ws, time.perf_counter(), stats))
 
         t0 = time.perf_counter()

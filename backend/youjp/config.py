@@ -16,6 +16,7 @@ from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from youjp.contract import FRAME_MS, SAMPLE_RATE
 
 # backend/youjp/config.py -> backend/youjp -> backend -> raiz del repo
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -24,7 +25,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="YOUJP_",
-        env_file=PROJECT_ROOT / ".env",
+        env_file=(PROJECT_ROOT / ".youjp" / "launcher.env", PROJECT_ROOT / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -36,10 +37,10 @@ class Settings(BaseSettings):
     bench_dir: Path = PROJECT_ROOT / "bench"
 
     # --- audio -------------------------------------------------------------
-    sample_rate: int = 16_000
+    sample_rate: int = SAMPLE_RATE
     """Fijo. Whisper y Silero trabajan a 16 kHz; el navegador remuestrea."""
 
-    frame_ms: int = 100
+    frame_ms: int = FRAME_MS
     """Tamano de trama que envia la extension. 100 ms = 1600 muestras."""
 
     ring_seconds: float = 30.0

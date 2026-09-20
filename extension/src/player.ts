@@ -84,7 +84,7 @@ export function watchPlayer(handlers: PlayerWatchHandlers): () => void {
     const onRate = () => {
       const snap = snapshot();
       handlers.onFlush('rate', snap);
-      if (Math.abs(snap.rate - 1) > 0.01) handlers.onRateWarning(snap.rate);
+      handlers.onRateWarning(snap.rate);
     };
 
     element.addEventListener('seeked', onSeeked);
@@ -110,7 +110,7 @@ export function watchPlayer(handlers: PlayerWatchHandlers): () => void {
   observer.observe(document.body, { childList: true, subtree: true });
 
   const timer = window.setInterval(() => {
-    if (video && !video.paused) handlers.onTick(snapshot());
+    if (video) handlers.onTick(snapshot());
   }, TICK_MS);
 
   return () => {

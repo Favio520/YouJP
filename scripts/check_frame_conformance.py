@@ -37,7 +37,7 @@ NODE = "node.exe" if sys.platform == "win32" else "node"
 def build_bundle() -> None:
     """esbuild viene con Vite, que ya esta en las dependencias de la extension."""
     subprocess.run(  # noqa: S603
-        [NPX, "esbuild", str(PROTOCOL_TS), "--format=esm", f"--outfile={BUNDLE}"],
+        [NPX, "esbuild", str(PROTOCOL_TS), "--bundle", "--format=esm", f"--outfile={BUNDLE}"],
         cwd=EXTENSION,
         check=True,
         capture_output=True,

@@ -95,6 +95,11 @@ export function Overlay() {
           setStatus(message.status);
           setDetail(message.detail ?? '');
           if (message.model) setModel(message.model);
+          if (message.status === 'reconnecting' || message.status === 'connecting') {
+            setPartial(null);
+            setSelected(null);
+            setMetrics(null);
+          }
           if (message.status === 'idle') {
             lastFinal.current = 0;
             setPartial(null);

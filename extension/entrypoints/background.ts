@@ -42,6 +42,10 @@ interface CaptureState {
 }
 
 let capture: CaptureState | null = null;
+// The service worker may sleep during a 30-second reconnect delay.
+const restored = chrome.storage.session.get('capture').then((state) => {
+  capture = state.capture ?? null;
+});
 
 async function ensureOffscreen(): Promise<void> {
   // Solo puede existir un documento offscreen por extensión, así que hay que
@@ -49,14 +53,26 @@ async function ensureOffscreen(): Promise<void> {
   const existing = await chrome.runtime.getContexts({
     contextTypes: [chrome.runtime.ContextType.OFFSCREEN_DOCUMENT],
   });
-  if (existing.length > 0) return;
+  if (existing.length === 0) {
+    await chrome.offscreen.createDocument({
+      url: OFFSCREEN_PATH,
+      reasons: [chrome.offscreen.Reason.USER_MEDIA],
+      justification:
+        'Capturar el audio de la pestaña y mantener la conexión con el servidor local de transcripción.',
+    });
+  }
 
-  await chrome.offscreen.createDocument({
-    url: OFFSCREEN_PATH,
-    reasons: [chrome.offscreen.Reason.USER_MEDIA],
-    justification:
-      'Capturar el audio de la pestaña y mantener la conexión con el servidor local de transcripción.',
-  });
+  // createDocument resuelve antes de que el módulo de la página termine de
+  // cargar. Esperar su confirmación evita perder capture.start y consumir un
+  // streamId de corta vida sin que nadie lo reciba.
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const response = await chrome.runtime
+      .sendMessage({ type: 'offscreen.ping' } satisfies ExtensionMessage)
+      .catch(() => null);
+    if (response?.ready === true) return;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error('El componente de captura de YouJP no pudo iniciarse. Recarga la extensión.');
 }
 
 /**
@@ -115,6 +131,10 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
   const { serverUrl = DEFAULT_SERVER_URL } = await chrome.storage.local.get('serverUrl');
 
   capture = { tabId: tab.id, videoId: info?.videoId ?? '' };
+  await chrome.storage.session.set({ capture });
+  await chrome.action.setBadgeText({ text: '...', tabId: tab.id });
+  await chrome.action.setBadgeBackgroundColor({ color: '#24427C', tabId: tab.id });
+  await chrome.action.setTitle({ title: 'YouJP: conectando', tabId: tab.id });
 
   await chrome.runtime.sendMessage({
     type: 'capture.start',
@@ -127,14 +147,12 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
     serverUrl,
   } satisfies ExtensionMessage);
 
-  await chrome.action.setBadgeText({ text: 'ON', tabId: tab.id });
-  await chrome.action.setBadgeBackgroundColor({ color: '#24427C', tabId: tab.id });
-  await chrome.action.setTitle({ title: 'youjp: capturando — clic para parar', tabId: tab.id });
 }
 
 async function stopCapture(): Promise<void> {
   const previous = capture;
   capture = null;
+  await chrome.storage.session.remove('capture');
   await chrome.runtime.sendMessage({ type: 'capture.stop' } satisfies ExtensionMessage).catch(() => {});
   if (previous) {
     await chrome.action.setBadgeText({ text: '', tabId: previous.tabId }).catch(() => {});
@@ -155,6 +173,7 @@ function askTab(tabId: number, message: unknown): Promise<any> {
 export default defineBackground(() => {
   chrome.action.onClicked.addListener(async (tab) => {
     try {
+      await restored;
       if (capture && capture.tabId === tab.id) {
         await stopCapture();
       } else {
@@ -165,6 +184,7 @@ export default defineBackground(() => {
       const detail = error instanceof Error ? error.message : String(error);
       console.error('[youjp] no se pudo alternar la captura', error);
       capture = null;
+      await chrome.storage.session.remove('capture');
       if (tab.id) {
         // El overlay puede no existir justo cuando falla, así que el aviso va
         // también al icono: es el único sitio que siempre se ve.
@@ -185,30 +205,47 @@ export default defineBackground(() => {
   });
 
   // Encaminamiento offscreen -> pestaña. El offscreen no tiene chrome.tabs.
-  chrome.runtime.onMessage.addListener((message: ExtensionMessage) => {
-    if (!capture) return;
-    if (
-      message.type === 'status' ||
-      message.type === 'subtitle.partial' ||
-      message.type === 'subtitle.final' ||
-      message.type === 'subtitle.translation' ||
-      message.type === 'subtitle.tokens' ||
-      message.type === 'metrics' ||
-      message.type === 'backend.error'
-    ) {
-      chrome.tabs.sendMessage(capture.tabId, message).catch(() => {
-        // La pestaña puede estar navegando; no es un error que merezca ruido.
-      });
-    }
+  chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender) => {
+    // Los content scripts siempre tienen sender.tab. Edge puede omitir
+    // sender.url para documentos offscreen, así que no dependemos de esa URL.
+    if (sender.id !== chrome.runtime.id || sender.tab) return;
+    void restored.then(async () => {
+      if (!capture || message.tabId !== capture.tabId) return;
+      const tabId = capture.tabId;
+      if (
+        message.type === 'status' ||
+        message.type === 'subtitle.partial' ||
+        message.type === 'subtitle.final' ||
+        message.type === 'subtitle.translation' ||
+        message.type === 'subtitle.tokens' ||
+        message.type === 'metrics' ||
+        message.type === 'backend.error'
+      ) {
+        await chrome.tabs.sendMessage(tabId, message).catch(() => {});
+        if (message.type === 'status' && capture?.tabId === tabId) {
+          await chrome.action.setBadgeText({ tabId,
+            text: message.status === 'running' ? 'ON' : message.status === 'idle' ? '' : message.status === 'error' ? '!' : '...' });
+          await chrome.action.setTitle({ tabId,
+            title: 'YouJP: ' + (message.detail || message.status) });
+          if (message.status === 'error') {
+            capture = null;
+            await chrome.storage.session.remove('capture');
+            await chrome.offscreen.closeDocument().catch(() => {});
+          }
+        }
+      }
+    }).catch(console.warn);
   });
 
   // Si la pestaña capturada se cierra o navega fuera, la captura ya no tiene
   // sentido: el streamId queda huérfano y el audio deja de llegar.
   chrome.tabs.onRemoved.addListener((tabId) => {
-    if (capture?.tabId === tabId) void stopCapture();
+    void restored.then(() => { if (capture?.tabId === tabId) return stopCapture(); });
   });
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    if (capture?.tabId === tabId && changeInfo.status === 'loading') void stopCapture();
+    void restored.then(() => {
+      if (capture?.tabId === tabId && changeInfo.status === 'loading') return stopCapture();
+    });
   });
 });

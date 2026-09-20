@@ -15,13 +15,13 @@ from youjp.mt.base import Translation
 from youjp.mt.ct2_nllb import Nllb200Provider
 from youjp.mt.llm import LlmProvider, SYSTEM_PROMPTS
 from youjp.pipeline.translate import MtWorker, TranslationJob
-from youjp.ws.protocol import SessionConfigure, parse_client_message
+from youjp.ws.protocol import PROTOCOL_VERSION, SessionConfigure, parse_client_message
 
 
 @pytest.mark.parametrize("target", ["es", "en"])
 @pytest.mark.parametrize("kind", ["session.start", "session.configure"])
 def test_protocol_accepts_supported_targets(target, kind):
-    message = parse_client_message(json.dumps({"type": kind, "target": target}))
+    message = parse_client_message(json.dumps({"type": kind, "target": target, "protocol_version": PROTOCOL_VERSION}))
     assert message.target == target
     if kind == "session.configure":
         assert isinstance(message, SessionConfigure)
@@ -31,12 +31,12 @@ def test_protocol_accepts_supported_targets(target, kind):
 @pytest.mark.parametrize("kind", ["session.start", "session.configure"])
 def test_protocol_rejects_unsupported_targets(target, kind):
     with pytest.raises(ValidationError):
-        parse_client_message(json.dumps({"type": kind, "target": target}))
+        parse_client_message(json.dumps({"type": kind, "target": target, "protocol_version": PROTOCOL_VERSION}))
 
 
 def test_protocol_rejects_non_japanese_source():
     with pytest.raises(ValidationError):
-        parse_client_message('{"type":"session.start","source":"en"}')
+        parse_client_message(json.dumps({"type": "session.start", "source": "en", "protocol_version": PROTOCOL_VERSION}))
 
 
 @pytest.mark.parametrize("target", ["es", "en"])

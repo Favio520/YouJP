@@ -62,6 +62,11 @@ export interface StopCapture {
   type: 'capture.stop';
 }
 
+/** service worker -> offscreen: confirma que su listener ya está listo */
+export interface OffscreenPing {
+  type: 'offscreen.ping';
+}
+
 /** offscreen -> service worker -> content script */
 export interface StatusUpdate {
   type: 'status';
@@ -100,17 +105,19 @@ export interface BackendError {
   payload: ServerError;
 }
 
-export type ExtensionMessage =
+export type ExtensionMessage = (
   | PlayerTick
   | PlayerFlush
   | StartCapture
   | StopCapture
+  | OffscreenPing
   | StatusUpdate
   | SubtitleUpdate
   | SubtitleFinal
   | SubtitleTranslation
   | SubtitleTokens
   | MetricsUpdate
-  | BackendError;
+  | BackendError
+) & { tabId?: number };
 
 export const DEFAULT_SERVER_URL = 'ws://127.0.0.1:8770/stream';

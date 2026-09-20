@@ -1,8 +1,6 @@
 """Supported subtitle languages, shared by providers and the wire protocol."""
 
-from typing import Literal
-
-TargetLanguage = Literal["es", "en"]
+from youjp.contract import TargetLanguage
 NLLB_TARGETS: dict[TargetLanguage, str] = {"es": "spa_Latn", "en": "eng_Latn"}
 
 

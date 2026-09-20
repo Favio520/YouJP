@@ -33,6 +33,9 @@ from youjp.pipeline.streaming import FinalUpdate
 from youjp.pipeline.translate import MtWorker, TranslationJob
 from youjp.ws.codec import FrameDecodeError, decode_frame
 from youjp.ws.protocol import (
+    APP_VERSION,
+    PROTOCOL_VERSION,
+    ProtocolMismatch,
     ControlFlush,
     ErrorMessage,
     MetricsTick,
@@ -162,7 +165,7 @@ def _warn_if_vram_tight() -> None:
         )
 
 
-app = FastAPI(title="youjp", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="youjp", version=APP_VERSION, lifespan=lifespan)
 
 
 @app.get("/health")
@@ -170,7 +173,12 @@ async def health() -> dict:
     state: AppState = app.state.youjp
     gpu = read_gpu()
     return {
+        "service": "youjp",
+        "app_version": APP_VERSION,
+        "protocol_version": PROTOCOL_VERSION,
         "status": "ok",
+        "mt_provider": state.translator.name,
+        "dictionary_loaded": state.dictionary is not None,
         "asr_model": state.settings.asr_model,
         "device": state.settings.asr_device,
         "compute_type": state.settings.asr_compute_type,
@@ -234,6 +242,12 @@ async def stream(ws: WebSocket) -> None:
 
             try:
                 message = parse_client_message(raw)
+            except ProtocolMismatch as exc:
+                await ws.send_text(ErrorMessage(
+                    code="protocol_mismatch", message=str(exc), fatal=True,
+                ).model_dump_json())
+                await ws.close(code=1002, reason="Incompatible YouJP protocol")
+                break
             except ValidationError as exc:
                 log.warning("[%s] mensaje invalido: %s", session_id, exc)
                 emitter(ErrorMessage(code="bad_message", message=exc.json()))
@@ -291,6 +305,8 @@ async def stream(ws: WebSocket) -> None:
                 )
                 emitter(
                     SessionReady(
+                        app_version=APP_VERSION,
+                        protocol_version=PROTOCOL_VERSION,
                         session_id=session_id,
                         asr_model=settings.asr_model,
                         device=settings.asr_device,

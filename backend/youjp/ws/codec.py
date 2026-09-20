@@ -27,14 +27,11 @@ import struct
 import numpy as np
 
 from youjp.audio.types import AudioFrame
+from youjp.contract import AUDIO_VERSION, FLAG_DISCONTINUITY, FLAG_LIVE, MAGIC
 
-MAGIC = 0xA5
-VERSION = 1
+VERSION = AUDIO_VERSION
 HEADER = struct.Struct("<BBBBIII")
 HEADER_SIZE = HEADER.size  # 16
-
-FLAG_LIVE = 1 << 0
-FLAG_DISCONTINUITY = 1 << 1
 
 _INT16_SCALE = 32767.0
 """Escala de conversion float32 <-> Int16, la misma en los dos sentidos.

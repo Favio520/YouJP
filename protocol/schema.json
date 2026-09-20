@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://youjp.local/protocol.schema.json",
+  "title": "YouJP WebSocket protocol",
+  "description": "Canonical text messages. Binary audio layout is versioned independently in x-youjp.",
+  "x-youjp": {
+    "protocol_version": 2,
+    "audio_version": 1,
+    "sample_rate": 16000,
+    "frame_ms": 100,
+    "header_size": 16,
+    "magic": 165,
+    "flag_live": 1,
+    "flag_discontinuity": 2
+  },
+  "oneOf": [{"$ref": "#/$defs/ClientMessage"}, {"$ref": "#/$defs/ServerMessage"}],
+  "$defs": {
+    "TargetLanguage": {"type": "string", "enum": ["es", "en"]},
+    "SensePayload": {
+      "type": "object",
+      "properties": {
+        "pos": {"type": "array", "items": {"type": "string"}, "default": []},
+        "glosses_es": {"type": "array", "items": {"type": "string"}, "default": []},
+        "glosses_en": {"type": "array", "items": {"type": "string"}, "default": []}
+      }
+    },
+    "DictPayload": {
+      "type": "object", "required": ["id", "headword"],
+      "properties": {
+        "id": {"type": "integer"}, "headword": {"type": "string"},
+        "readings": {"type": "array", "items": {"type": "string"}, "default": []},
+        "common": {"type": "boolean", "default": false},
+        "freq_rank": {"anyOf": [{"type": "integer"}, {"type": "null"}], "default": null},
+        "senses": {"type": "array", "items": {"$ref": "#/$defs/SensePayload"}, "default": []}
+      }
+    },
+    "Token": {
+      "type": "object", "required": ["i", "span", "surface", "lemma", "kana", "romaji"],
+      "properties": {
+        "i": {"type": "integer"},
+        "span": {"type": "array", "prefixItems": [{"type": "integer"}, {"type": "integer"}], "minItems": 2, "maxItems": 2},
+        "surface": {"type": "string"}, "lemma": {"type": "string"},
+        "kana": {"type": "string"}, "romaji": {"type": "string"},
+        "pos": {"type": "array", "items": {"type": "string"}, "default": []},
+        "pos_label": {"type": "string", "default": ""},
+        "chain": {"type": "array", "items": {"type": "string"}, "default": []},
+        "clickable": {"type": "boolean", "default": false},
+        "entry": {"anyOf": [{"$ref": "#/$defs/DictPayload"}, {"type": "null"}], "default": null}
+      }
+    },
+    "SessionStart": {
+      "type": "object", "required": ["type", "protocol_version"],
+      "properties": {
+        "type": {"const": "session.start", "default": "session.start"},
+        "protocol_version": {"type": "integer"},
+        "app_version": {"type": "string", "default": ""},
+        "video_id": {"type": "string", "default": ""},
+        "url": {"type": "string", "default": ""},
+        "is_live": {"type": "boolean", "default": false},
+        "media_time_ms": {"type": "integer", "default": 0},
+        "source": {"const": "ja", "default": "ja"},
+        "target": {"$ref": "#/$defs/TargetLanguage", "default": "es"},
+        "profile": {"type": "string", "default": "n4"}
+      }
+    },
+    "SessionStop": {"type": "object", "required": ["type"], "properties": {"type": {"const": "session.stop", "default": "session.stop"}}},
+    "SessionConfigure": {
+      "type": "object", "required": ["type", "target"],
+      "properties": {"type": {"const": "session.configure", "default": "session.configure"}, "target": {"$ref": "#/$defs/TargetLanguage"}}
+    },
+    "ControlFlush": {
+      "type": "object", "required": ["type"],
+      "properties": {
+        "type": {"const": "control.flush", "default": "control.flush"},
+        "reason": {"type": "string", "enum": ["seek", "pause", "rate", "manual"], "default": "manual"},
+        "media_time_ms": {"type": "integer", "default": 0}
+      }
+    },
+    "Ping": {"type": "object", "required": ["type"], "properties": {"type": {"const": "ping", "default": "ping"}, "t": {"type": "integer", "default": 0}}},
+    "SessionReady": {
+      "type": "object", "required": ["type", "session_id", "asr_model", "device", "compute_type", "sample_rate", "frame_ms", "protocol_version", "app_version"],
+      "properties": {
+        "type": {"const": "session.ready", "default": "session.ready"},
+        "session_id": {"type": "string"}, "asr_model": {"type": "string"},
+        "device": {"type": "string"}, "compute_type": {"type": "string"},
+        "sample_rate": {"type": "integer"}, "frame_ms": {"type": "integer"},
+        "protocol_version": {"type": "integer"}, "app_version": {"type": "string"},
+        "target": {"$ref": "#/$defs/TargetLanguage", "default": "es"}
+      }
+    },
+    "AsrPartial": {
+      "type": "object", "required": ["type", "committed", "tentative", "media_start_ms"],
+      "properties": {
+        "type": {"const": "asr.partial", "default": "asr.partial"},
+        "committed": {"type": "string"}, "tentative": {"type": "string"}, "media_start_ms": {"type": "integer"}
+      }
+    },
+    "AsrFinal": {
+      "type": "object", "required": ["type", "segment_id", "text", "media_start_ms", "media_end_ms", "reason", "latency_ms"],
+      "properties": {
+        "type": {"const": "asr.final", "default": "asr.final"},
+        "segment_id": {"type": "integer"}, "text": {"type": "string"},
+        "media_start_ms": {"type": "integer"}, "media_end_ms": {"type": "integer"},
+        "reason": {"type": "string"}, "latency_ms": {"type": "number"}
+      }
+    },
+    "MtFinal": {
+      "type": "object", "required": ["type", "segment_id", "text", "provider", "media_start_ms", "media_end_ms", "latency_ms"],
+      "properties": {
+        "type": {"const": "mt.final", "default": "mt.final"},
+        "segment_id": {"type": "integer"}, "text": {"type": "string"},
+        "target": {"$ref": "#/$defs/TargetLanguage", "default": "es"},
+        "text_es": {"type": "string", "default": ""}, "provider": {"type": "string"},
+        "media_start_ms": {"type": "integer"}, "media_end_ms": {"type": "integer"}, "latency_ms": {"type": "number"}
+      }
+    },
+    "NlpTokens": {
+      "type": "object", "required": ["type", "segment_id"],
+      "properties": {
+        "type": {"const": "nlp.tokens", "default": "nlp.tokens"}, "segment_id": {"type": "integer"},
+        "tokens": {"type": "array", "items": {"$ref": "#/$defs/Token"}, "default": []}, "analysis_ms": {"type": "number", "default": 0.0}
+      }
+    },
+    "MetricsTick": {
+      "type": "object", "required": ["type"],
+      "properties": {
+        "type": {"const": "metrics.tick", "default": "metrics.tick"},
+        "end_to_end_ms_p50": {"type": "number", "default": 0.0},
+        "end_to_end_ms_p95": {"type": "number", "default": 0.0},
+        "whisper_processing_ms_p50": {"type": "number", "default": 0.0},
+        "audio_buffer_ms": {"type": "number", "default": 0.0},
+        "dropped_audio_chunks": {"type": "integer", "default": 0},
+        "partial_transcripts": {"type": "integer", "default": 0},
+        "final_transcripts": {"type": "integer", "default": 0},
+        "passes": {"type": "integer", "default": 0},
+        "skipped_silent": {"type": "integer", "default": 0},
+        "rejected": {"type": "object", "additionalProperties": {"type": "integer"}, "default": {}},
+        "nlp_ms_p50": {"type": "number", "default": 0.0},
+        "translation_latency_ms_p50": {"type": "number", "default": 0.0},
+        "translations": {"type": "integer", "default": 0},
+        "dropped_translations": {"type": "integer", "default": 0},
+        "mt_provider": {"type": "string", "default": "none"},
+        "gpu_used_mb": {"type": "number", "default": 0.0},
+        "gpu_total_mb": {"type": "number", "default": 0.0},
+        "cpu_pct": {"type": "number", "default": 0.0},
+        "ram_mb": {"type": "number", "default": 0.0}
+      }
+    },
+    "ErrorMessage": {
+      "type": "object", "required": ["type", "code", "message"],
+      "properties": {
+        "type": {"const": "error", "default": "error"}, "code": {"type": "string"},
+        "message": {"type": "string"}, "fatal": {"type": "boolean", "default": false}
+      }
+    },
+    "Pong": {"type": "object", "required": ["type"], "properties": {"type": {"const": "pong", "default": "pong"}, "t": {"type": "integer", "default": 0}}},
+    "ClientMessage": {"oneOf": [
+      {"$ref": "#/$defs/SessionStart"}, {"$ref": "#/$defs/SessionStop"}, {"$ref": "#/$defs/SessionConfigure"}, {"$ref": "#/$defs/ControlFlush"}, {"$ref": "#/$defs/Ping"}
+    ]},
+    "ServerMessage": {"oneOf": [
+      {"$ref": "#/$defs/SessionReady"}, {"$ref": "#/$defs/AsrPartial"}, {"$ref": "#/$defs/AsrFinal"}, {"$ref": "#/$defs/MtFinal"}, {"$ref": "#/$defs/NlpTokens"}, {"$ref": "#/$defs/MetricsTick"}, {"$ref": "#/$defs/ErrorMessage"}, {"$ref": "#/$defs/Pong"}
+    ]}
+  }
+}

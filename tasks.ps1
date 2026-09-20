@@ -11,7 +11,7 @@
   .\tasks.ps1 doctor           # comprueba que todo esta en su sitio
 #>
 param(
-  [Parameter(Position = 0)][ValidateSet('setup', 'test', 'bench', 'gpu', 'doctor')]
+  [Parameter(Position = 0)][ValidateSet('setup', 'test', 'bench', 'gpu', 'doctor', 'app', 'install', 'contract')]
   [string]$Task = 'doctor',
   [switch]$Fast,
   [string]$Model
@@ -97,6 +97,9 @@ function Invoke-Doctor {
 }
 
 switch ($Task) {
+  'app' { & (Join-Path $Root 'scripts/windows/YouJP.ps1') }
+  'install' { & (Join-Path $Root 'scripts/windows/Setup.ps1') }
+  'contract' { uv run --project $Backend python (Join-Path $Root 'scripts/generate_contract.py') }
   'setup'  { Invoke-Setup }
   'test'   { Invoke-Test }
   'bench'  { Invoke-Bench }

@@ -32,3 +32,4 @@ dist/
 
 # Entorno local
 .env
+/.youjp/

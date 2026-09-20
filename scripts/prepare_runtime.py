@@ -1,0 +1,98 @@
+"""Prepare effective runtime settings/resources for the Windows assistant."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import sys
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "backend"))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--skip-dictionary", action="store_true")
+    args = parser.parse_args()
+    from youjp.config import get_settings
+    from youjp.contract import APP_VERSION
+    from youjp.asr.engine import WhisperEngine
+    import fetch_models
+
+    settings = get_settings()
+    print(f"Configuracion efectiva: {settings.asr_model} / {settings.asr_device}; traduccion {settings.mt_provider}", flush=True)
+    if not settings.vad_model.exists():
+        # Reuse download helper, respecting a custom configured models folder.
+        fetch_models.MODELS = settings.vad_model.parent
+        downloaded = fetch_models.fetch_silero()
+        if downloaded != settings.vad_model:
+            settings.vad_model.write_bytes(downloaded.read_bytes())
+    engine = WhisperEngine(settings)
+    try:
+        engine.load()
+        engine.warmup()
+    finally:
+        engine.unload()
+
+    if settings.mt_provider == "llm":
+        print("Preparando Ollama y el modelo de traduccion...", flush=True)
+        try:
+            request = urllib.request.Request(
+                settings.llm_url.rstrip("/") + "/api/pull",
+                data=json.dumps({"model": settings.llm_model, "stream": True}).encode(),
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(request, timeout=120) as response:
+                last_status = ""
+                for line in response:
+                    result = json.loads(line)
+                    if result.get("error"):
+                        raise RuntimeError(result["error"])
+                    status = result.get("status", "")
+                    if status != last_status:
+                        print(status, flush=True)
+                        last_status = status
+        except (OSError, ValueError) as exc:
+            raise RuntimeError("No se pudo preparar Ollama. Abre Ollama o elige NLLB/Solo japones en el asistente. Si tienes .env, revisa YOUJP_MT_PROVIDER.") from exc
+    elif settings.mt_provider == "nllb":
+        from youjp.mt import build_provider
+        provider = build_provider(settings)
+        try:
+            provider.load()
+            provider.warmup()
+        finally:
+            provider.unload()
+
+    if not args.skip_dictionary and not settings.dict_db.exists():
+        import fetch_dicts
+        from youjp.dict.build_db import build
+        fetch_dicts.RAW = settings.data_dir / "raw"
+        # The downloader parses argv, so don't leak our --skip-dictionary.
+        previous = sys.argv
+        sys.argv = ["fetch_dicts.py"]
+        try:
+            if fetch_dicts.main() != 0:
+                raise RuntimeError("No se pudieron descargar los diccionarios")
+        finally:
+            sys.argv = previous
+        settings.dict_db.parent.mkdir(parents=True, exist_ok=True)
+        pending = settings.dict_db.with_suffix(".building.sqlite3")
+        conn = sqlite3.connect(pending)
+        try:
+            raw = fetch_dicts.RAW
+            build(conn, raw / "jmdict-spa.json", raw / "jmdict-eng.json", raw / "kanjidic2.json")
+        finally:
+            conn.close()
+        pending.replace(settings.dict_db)
+
+    runtime = ROOT / ".youjp" / "runtime.json"
+    runtime.parent.mkdir(parents=True, exist_ok=True)
+    runtime.write_text(json.dumps({"port": settings.port, "app_version": APP_VERSION,
+        "asr_device": settings.asr_device, "mt_provider": settings.mt_provider}, indent=2), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()

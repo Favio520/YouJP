@@ -12,7 +12,7 @@ import youjp.main as server
 from youjp.config import Settings
 from youjp.mt.base import Translation
 from youjp.obs.metrics import MetricsCollector
-from youjp.ws.protocol import AsrFinal
+from youjp.ws.protocol import APP_VERSION, PROTOCOL_VERSION, AsrFinal
 
 
 class Translator:
@@ -100,7 +100,7 @@ def audio(ws):
 def test_live_target_switch_and_invalid_target_recovery(client):
     test_client, state, _ = client
     with test_client.websocket_connect("/stream") as ws:
-        ws.send_json({"type": "session.start", "target": "es"})
+        ws.send_json({"type": "session.start", "target": "es", "protocol_version": PROTOCOL_VERSION})
         assert ws.receive_json()["target"] == "es"
         audio(ws)
         assert ws.receive_json()["type"] == "asr.final"
@@ -124,13 +124,45 @@ def test_repeated_start_cancels_ticker_and_stops_off_loop(client):
     test_client, state, tickers = client
     with test_client.websocket_connect("/stream") as ws:
         for target in ["es", "en", "es"]:
-            ws.send_json({"type": "session.start", "target": target})
+            ws.send_json({"type": "session.start", "target": target, "protocol_version": PROTOCOL_VERSION})
             ready = ws.receive_json()
             assert ready["type"] == "session.ready"
             assert ready["target"] == target
+            assert ready["protocol_version"] == PROTOCOL_VERSION
+            assert ready["app_version"] == APP_VERSION
         ws.send_json({"type": "session.stop"})
     assert tickers["max"] == 1
     assert tickers["active"] == 0
     assert state.sessions == 0
     assert len(FakeAsr.stopped) == 3
     assert all("portal" not in thread for thread in FakeAsr.stopped)
+
+
+@pytest.mark.parametrize("fields", [{}, {"protocol_version": 1}, {"protocol_version": 999}])
+def test_incompatible_handshake_closes_without_allocating_workers(client, fields):
+    from starlette.websockets import WebSocketDisconnect
+    test_client, state, tickers = client
+    with test_client.websocket_connect("/stream") as ws:
+        ws.send_json({"type": "session.start", **fields})
+        error = ws.receive_json()
+        assert error["code"] == "protocol_mismatch"
+        assert error["fatal"] is True
+        with pytest.raises(WebSocketDisconnect) as closed:
+            ws.receive_json()
+        assert closed.value.code == 1002
+    assert state.sessions == 0
+    assert tickers["max"] == 0
+    assert not FakeAsr.stopped
+
+
+def test_health_identifies_version_and_actual_capabilities(client, monkeypatch):
+    test_client, state, _ = client
+    state.engine = SimpleNamespace(is_loaded=True, word_timestamps=True)
+    state.dictionary = None
+    monkeypatch.setattr(server, "read_gpu", lambda: None)
+    health = test_client.get('/health').json()
+    assert health['service'] == 'youjp'
+    assert health['app_version'] == APP_VERSION
+    assert health['protocol_version'] == PROTOCOL_VERSION
+    assert health['mt_provider'] == 'test'
+    assert health['dictionary_loaded'] is False

@@ -130,8 +130,8 @@ Los detalles, decisiones y resultados reproducibles están en
 - Windows 10 u 11.
 - Chrome o Edge basado en Chromium 116 o posterior.
 - GPU NVIDIA y un driver reciente para la experiencia en tiempo real.
-- `uv` para el entorno Python.
-- Node.js y npm para compilar la extensión.
+- `uv` para el entorno Python (el asistente lo prepara automáticamente).
+- Node.js y npm para compilar la extensión (el asistente los prepara automáticamente).
 - FFmpeg solo si quieres preparar muestras para el banco de pruebas.
 - Ollama solo si quieres usar la traducción Qwen local.
 
@@ -139,6 +139,48 @@ La configuración probada es una RTX 2060 de 6 GB. El backend puede arrancar con
 CPU y modelos pequeños, pero la latencia en directo puede ser demasiado alta.
 
 ## Instalación rápida
+
+### Asistente de Windows (recomendado)
+
+Descarga o clona el proyecto en una carpeta permanente y abre **`YouJP.cmd`**
+con doble clic. No necesitas instalar Python ni Node.js previamente.
+
+1. Pulsa **Preparar / actualizar**. El asistente detecta la GPU, prepara Python
+   3.12, descarga los modelos y diccionarios y compila la extensión. La primera
+   instalación requiere Internet, varios GB libres y puede tardar varios minutos.
+2. Pulsa **Iniciar** y espera a que el estado muestre **Listo**.
+3. Pulsa **Carpeta extensión**. En `chrome://extensions` (o `edge://extensions`),
+   activa el modo de desarrollador y carga esa carpeta como extensión descomprimida.
+4. Abre un vídeo japonés de YouTube y pulsa el icono de YouJP.
+
+Cerrar la ventana la deja en la bandeja del sistema. **Detener** libera el backend;
+**Salir y detener**, desde la bandeja, cierra también el panel. Solo se detiene el
+proceso iniciado por ese panel; un backend abierto en otra terminal se controla
+desde esa terminal. **Ver registros** abre los archivos de instalación y arranque.
+
+El modo automático usa GPU si detecta al menos 2 GB de VRAM libre; de lo contrario,
+selecciona `small` en CPU y solo japonés. La traducción automática utiliza Ollama
+si ya está instalado y hay margen de VRAM, o NLLB en GPU/CPU según el espacio libre.
+Puedes elegir el modo manualmente. Ollama es opcional y no se instala automáticamente.
+El asistente prepara su modelo si seleccionas Ollama y el servicio ya está abierto.
+
+La configuración generada queda en `.youjp/launcher.env`; tu `.env` y las variables
+de entorno tienen prioridad. Las herramientas portables y los registros se guardan
+en `.youjp/`, ignorada por Git. No se modifica el PATH global ni la política de
+ejecución global de PowerShell. El asistente está dirigido a Windows x64.
+
+Para actualizar: detén el backend, actualiza los archivos del proyecto, ejecuta
+**Preparar / actualizar**, inicia de nuevo y pulsa **Recargar** en la extensión.
+Desde la versión 1.3.0 ambos extremos verifican el protocolo: los clientes antiguos
+reciben un aviso explícito para actualizar.
+
+También puedes inspeccionar el plan sin descargar ni instalar nada:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/Setup.ps1 -Plan
+```
+
+Los pasos siguientes conservan la instalación manual para desarrollo.
 
 ### 1. Clonar y preparar el backend
 
@@ -226,6 +268,13 @@ Al activar la extensión:
 - la traducción y los tokens aparecen cuando terminan sus procesos;
 - al pulsar una palabra se abre su tarjeta de análisis;
 - al pulsar una frase del historial, YouTube vuelve a ese momento.
+
+Si el backend se cae o reinicia, la captura mantiene el sonido y muestra
+**reconectando**. Los reintentos esperan 1, 2, 4, 8, 16 y hasta 30 segundos entre
+conexiones. Al recuperarse retoma la posición actual y el idioma seleccionado;
+conserva el historial y descarta el audio del intervalo desconectado. No intenta
+retranscribir ese intervalo. Puedes cancelar los reintentos con el icono de YouJP.
+Un protocolo incompatible detiene la captura y pide actualizar ambos componentes.
 
 ### Atajos
 
@@ -333,6 +382,26 @@ npm run build
 Durante el desarrollo, `npm run dev` inicia un Chrome separado con recarga en
 caliente y abre YouTube automáticamente.
 
+### Protocolo y versión compartidos
+
+`VERSION` es la fuente de la versión de aplicación. `protocol/schema.json` define
+los mensajes y las versiones del protocolo de sesión y del formato binario de audio.
+Los modelos de Pydantic y los tipos de TypeScript se generan desde ese JSON Schema:
+
+```powershell
+cd backend
+uv run python ../scripts/generate_contract.py         # regenerar después de editar
+uv run python ../scripts/generate_contract.py --check # detectar archivos desfasados
+cd ..
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/Test-Launcher.ps1
+```
+
+La suite de Python verifica que los archivos generados y los metadatos de los
+paquetes coincidan. No edites manualmente `contract.py`,
+`src/generated/protocol.ts` ni `_version.py`. La versión de aplicación puede variar
+entre releases compatibles; la versión del protocolo debe coincidir exactamente.
+El formato binario sigue en v1 y el protocolo de sesión es v2.
+
 ## Estructura del proyecto
 
 ```text
@@ -385,7 +454,9 @@ YouJP/
 - [ ] Explicaciones contextuales con LLM local.
 - [ ] Vocabulario guardado y exportación a Anki.
 - [ ] Estadísticas de comprensión y repetición espaciada.
-- [ ] Instalación simplificada para usuarios no técnicos.
+- [x] Asistente de instalación e inicio para Windows con bandeja y estado.
+- [x] Reconexión automática y restauración segura de la sesión.
+- [x] Protocolo generado y versiones centralizadas.
 - [ ] Soporte para más navegadores y plataformas.
 
 ## Contribuir

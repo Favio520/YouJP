@@ -1,58 +1,37 @@
-/**
- * Documento offscreen: audio y WebSocket.
- *
- * Aquí vive todo lo que tiene que sobrevivir a la sesión, porque el service
- * worker se termina por inactividad y el content script muere en cada
- * navegación.
- */
-
-import {
-  DEFAULT_SERVER_URL,
-  type ExtensionMessage,
-  type StartCapture,
-} from '@/src/messages';
+/** Audio stays alive while a versioned WebSocket session reconnects. */
+import { DEFAULT_SERVER_URL, type ExtensionMessage, type StartCapture } from '@/src/messages';
 import { loadSettings, onSettingsChanged } from '@/src/settings';
+import { ReconnectingSession } from '@/src/connection';
 import {
-  buildFrame,
-  FLAG_DISCONTINUITY,
-  FLAG_LIVE,
-  FRAME_MS,
-  FRAME_SAMPLES,
-  SAMPLE_RATE,
-  type ServerMessage,
-  type TargetLanguage,
-  type SessionStart,
+  APP_VERSION, PROTOCOL_VERSION, buildFrame, FLAG_DISCONTINUITY, FLAG_LIVE,
+  FRAME_MS, FRAME_SAMPLES, SAMPLE_RATE, type ServerMessage, type TargetLanguage,
 } from '@/src/protocol';
 
 interface Capture {
   tabId: number;
+  params: StartCapture;
   stream: MediaStream;
-  /** Contexto a 16 kHz que alimenta al worklet. */
   asrCtx: AudioContext;
-  /** Contexto a la frecuencia nativa que devuelve el sonido al usuario. */
   playbackCtx: AudioContext;
   node: AudioWorkletNode;
-  ws: WebSocket;
+  connection: ReconnectingSession;
   startedAt: number;
   seq: number;
   mediaTimeMs: number;
-  isLive: boolean;
+  paused: boolean;
+  rate: number;
   pendingDiscontinuity: boolean;
   target: TargetLanguage;
+  nextSegment: number;
+  segments: Map<number, number>;
 }
 
 let current: Capture | null = null;
 let captureCommands: Promise<void> = Promise.resolve();
 
-function report(message: ExtensionMessage): void {
-  chrome.runtime.sendMessage(message).catch(() => {
-    // El service worker puede estar dormido; volverá a arrancar solo.
-  });
+function report(message: ExtensionMessage, tabId = current?.tabId): void {
+  chrome.runtime.sendMessage({ ...message, tabId }).catch(() => {});
 }
-
-// ---------------------------------------------------------------------------
-// audio
-// ---------------------------------------------------------------------------
 
 async function openStream(streamId: string): Promise<MediaStream> {
   // Las restricciones `mandatory` de tabCapture no están en los tipos estándar
@@ -118,197 +97,112 @@ async function buildGraph(stream: MediaStream, onFrame: (pcm: ArrayBuffer) => vo
   }
 }
 
-// ---------------------------------------------------------------------------
-// transporte
-// ---------------------------------------------------------------------------
 
-function openSocket(url: string, params: StartCapture, target: TargetLanguage): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(url);
-    ws.binaryType = 'arraybuffer';
-    let opened = false;
-    const timeout = setTimeout(() => {
-      reject(new Error(`Tiempo de conexión agotado: ${url}`));
-      ws.close();
-    }, 8000);
-
-    ws.addEventListener('open', () => {
-      clearTimeout(timeout);
-      opened = true;
-      ws.send(
-        JSON.stringify({
-          type: 'session.start',
-          video_id: params.videoId,
-          url: params.url,
-          is_live: params.isLive,
-          media_time_ms: Math.round(params.mediaTimeMs),
-          source: 'ja',
-          target,
-          profile: 'n4',
-        } satisfies SessionStart),
-      );
-      resolve(ws);
-    });
-
-    ws.addEventListener('message', (event) => {
-      if (typeof event.data !== 'string') return;
-      let message: ServerMessage;
-      try {
-        message = JSON.parse(event.data) as ServerMessage;
-        if (!message || typeof message.type !== 'string') return;
-      } catch {
-        console.warn('[youjp] mensaje JSON inválido del servidor');
-        return;
-      }
-      switch (message.type) {
-        case 'session.ready':
-          report({
-            type: 'status',
-            status: 'running',
-            model: `${message.asr_model} · ${message.device}/${message.compute_type}`,
-          });
-          break;
-        case 'asr.partial':
-          report({ type: 'subtitle.partial', payload: message });
-          break;
-        case 'asr.final':
-          report({ type: 'subtitle.final', payload: message });
-          break;
-        case 'mt.final':
-          report({ type: 'subtitle.translation', payload: message });
-          break;
-        case 'nlp.tokens':
-          report({ type: 'subtitle.tokens', payload: message });
-          break;
-        case 'metrics.tick':
-          report({ type: 'metrics', payload: message });
-          break;
-        case 'error':
-          report({ type: 'backend.error', payload: message });
-          break;
-      }
-    });
-
-    ws.addEventListener('error', () => {
-      clearTimeout(timeout);
-      reject(
-        new Error(
-          `No se pudo conectar con ${url}. ¿Está arrancado el backend? ` +
-            '(cd backend && uv run uvicorn youjp.main:app --port 8770)',
-        ),
-      );
-    });
-
-    ws.addEventListener('close', () => {
-      clearTimeout(timeout);
-      if (!opened) reject(new Error(`Se cerró la conexión con ${url}`));
-      if (current?.ws === ws) {
-        report({ type: 'status', status: 'error', detail: 'Conexión perdida. Reinicia la captura con el icono de YouJP.' });
-      }
-    });
-  });
+function forward(capture: Capture, message: ServerMessage): void {
+  if (current !== capture) return;
+  if (message.type === 'asr.final') {
+    if (!capture.segments.has(message.segment_id)) {
+      capture.segments.set(message.segment_id, ++capture.nextSegment);
+      // Only recent lines are retained by the UI; bound the mapping too.
+      if (capture.segments.size > 512) capture.segments.delete(capture.segments.keys().next().value!);
+    }
+  }
+  if (message.type === 'asr.final' || message.type === 'mt.final' || message.type === 'nlp.tokens') {
+    const id = capture.segments.get(message.segment_id);
+    if (id === undefined) return;
+    message = { ...message, segment_id: id };
+  }
+  switch (message.type) {
+    case 'asr.partial': report({ type: 'subtitle.partial', payload: message }); break;
+    case 'asr.final': report({ type: 'subtitle.final', payload: message }); break;
+    case 'mt.final': report({ type: 'subtitle.translation', payload: message }); break;
+    case 'nlp.tokens': report({ type: 'subtitle.tokens', payload: message }); break;
+    case 'metrics.tick': report({ type: 'metrics', payload: message }); break;
+    case 'error': report({ type: 'backend.error', payload: message }); break;
+  }
 }
-
-// ---------------------------------------------------------------------------
-// ciclo de captura
-// ---------------------------------------------------------------------------
 
 async function start(params: StartCapture): Promise<void> {
   await stop();
-  report({ type: 'status', status: 'connecting' });
-
+  report({ type: 'status', status: 'connecting' }, params.tabId);
+  const settings = await loadSettings();
   const stream = await openStream(params.streamId);
-  let capture: Capture;
-
-  const onFrame = (pcm: ArrayBuffer) => {
-    if (!capture || capture.ws.readyState !== WebSocket.OPEN) return;
-
-    // Esperar a que se vacíe el socket sería peor que descartar: el audio viejo
-    // ya no sirve y la cola nunca se recupera. Con localhost no debería ocurrir.
-    if (capture.ws.bufferedAmount > 1_000_000) return;
-
-    let flags = capture.isLive ? FLAG_LIVE : 0;
-    if (capture.pendingDiscontinuity) {
-      flags |= FLAG_DISCONTINUITY;
-      capture.pendingDiscontinuity = false;
-    }
-
-    capture.ws.send(
-      buildFrame(pcm, {
-        seq: capture.seq,
-        // El tiempo del reproductor lo mantiene al día el content script. Se
-        // avanza entre avisos con el propio ritmo de las tramas, que es exacto.
-        mediaTimeMs: capture.mediaTimeMs,
-        captureMs: performance.now() - capture.startedAt,
-        flags,
-      }),
-    );
-    capture.seq += 1;
-    capture.mediaTimeMs += FRAME_MS;
-  };
-
+  let capture: Capture | undefined;
   let graph: Awaited<ReturnType<typeof buildGraph>>;
   try {
-    graph = await buildGraph(stream, onFrame);
+    graph = await buildGraph(stream, (pcm) => {
+      if (!capture || current !== capture || capture.paused || Math.abs(capture.rate - 1) > 0.01) return;
+      const flags = (capture.params.isLive ? FLAG_LIVE : 0) |
+        (capture.pendingDiscontinuity ? FLAG_DISCONTINUITY : 0);
+      const sent = capture.connection.send(buildFrame(pcm, {
+        seq: capture.seq, mediaTimeMs: capture.mediaTimeMs,
+        captureMs: performance.now() - capture.startedAt, flags,
+      }));
+      capture.pendingDiscontinuity = !sent;
+      if (sent) capture.seq += 1;
+      // Advance even offline: old audio is deliberately discarded.
+      capture.mediaTimeMs += FRAME_MS;
+    });
   } catch (error) {
     stream.getTracks().forEach((track) => track.stop());
-    throw error;
-  }
-  const { asrCtx, playbackCtx, node } = graph;
-  const settings = await loadSettings();
-  let ws: WebSocket;
-  try {
-    ws = await openSocket(params.serverUrl || DEFAULT_SERVER_URL, params, settings.targetLanguage);
-  } catch (error) {
-    node.port.onmessage = null;
-    node.disconnect();
-    stream.getTracks().forEach((track) => track.stop());
-    await Promise.all([asrCtx.close().catch(() => {}), playbackCtx.close().catch(() => {})]);
     throw error;
   }
 
+  const connection = new ReconnectingSession({
+    url: params.serverUrl || DEFAULT_SERVER_URL,
+    handshake: () => ({
+      type: 'session.start', app_version: APP_VERSION, protocol_version: PROTOCOL_VERSION,
+      video_id: capture!.params.videoId, url: capture!.params.url,
+      is_live: capture!.params.isLive, media_time_ms: Math.round(capture!.mediaTimeMs),
+      source: 'ja', target: capture!.target, profile: 'n4',
+    }),
+    onReady: (message) => {
+      if (!capture || current !== capture) return;
+      capture.seq = 0;
+      capture.startedAt = performance.now();
+      capture.pendingDiscontinuity = true;
+      capture.segments.clear();
+      // Apply settings changed while the handshake was in flight.
+      connection.send({ type: 'session.configure', target: capture.target });
+      report({ type: 'status', status: 'running',
+        model: message.asr_model + ' · ' + message.device + '/' + message.compute_type });
+    },
+    onMessage: (message) => { if (capture) forward(capture, message); },
+    onRetry: (attempt, delayMs) => {
+      if (capture && current === capture) {
+        capture.pendingDiscontinuity = true;
+        report({ type: 'status', status: 'reconnecting',
+          detail: 'Intento ' + attempt + ' en ' + delayMs / 1000 + ' s. Puedes detener la captura con el icono.' });
+      }
+    },
+    onFatal: (detail) => {
+      if (capture && current === capture) {
+        current = null;
+        void release(capture).then(() => report({ type: 'status', status: 'error', detail }, params.tabId));
+      }
+    },
+  });
   capture = {
-    tabId: params.tabId,
-    stream,
-    asrCtx,
-    playbackCtx,
-    node,
-    ws,
-    startedAt: performance.now(),
-    seq: 0,
-    mediaTimeMs: params.mediaTimeMs,
-    isLive: params.isLive,
-    pendingDiscontinuity: false,
-    target: settings.targetLanguage,
+    ...graph, tabId: params.tabId, params, stream, connection,
+    startedAt: performance.now(), seq: 0, mediaTimeMs: params.mediaTimeMs,
+    paused: false, rate: 1, pendingDiscontinuity: true,
+    target: settings.targetLanguage, nextSegment: 0, segments: new Map(),
   };
   current = capture;
-  // Settings may have changed while the socket was connecting.
-  updateTarget((await loadSettings()).targetLanguage);
+  const latest = await loadSettings();
+  capture.target = latest.targetLanguage;
+  connection.start();
 }
 
 function updateTarget(target: TargetLanguage): void {
-  if (current?.ws.readyState === WebSocket.OPEN && current.target !== target) {
-    current.ws.send(JSON.stringify({ type: 'session.configure', target }));
-    current.target = target;
-  }
+  if (!current || current.target === target) return;
+  current.target = target;
+  current.connection.send({ type: 'session.configure', target });
 }
-
 onSettingsChanged((settings) => updateTarget(settings.targetLanguage));
 
-async function stop(): Promise<void> {
-  const capture = current;
-  current = null;
-  if (!capture) return;
-
-  try {
-    if (capture.ws.readyState === WebSocket.OPEN) {
-      capture.ws.send(JSON.stringify({ type: 'session.stop' }));
-    }
-    capture.ws.close();
-  } catch {
-    /* el socket ya estaba cerrado */
-  }
-
+async function release(capture: Capture): Promise<void> {
+  capture.connection.stop();
   capture.node.port.onmessage = null;
   capture.node.disconnect();
   capture.stream.getTracks().forEach((track) => track.stop());
@@ -316,49 +210,47 @@ async function stop(): Promise<void> {
     capture.asrCtx.close().catch(() => {}),
     capture.playbackCtx.close().catch(() => {}),
   ]);
-  report({ type: 'status', status: 'idle' });
 }
 
-// ---------------------------------------------------------------------------
-// mensajes
-// ---------------------------------------------------------------------------
+async function stop(): Promise<void> {
+  const capture = current;
+  current = null;
+  if (!capture) return;
+  await release(capture);
+  report({ type: 'status', status: 'idle' }, capture.tabId);
+}
 
-chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender) => {
+chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, respond) => {
+  if (message.type === 'offscreen.ping') {
+    respond({ ready: true });
+    return true;
+  }
   if ((message.type === 'player.tick' || message.type === 'player.flush') &&
       sender.tab?.id !== current?.tabId) return;
   switch (message.type) {
     case 'capture.start':
-      captureCommands = captureCommands.then(() => start(message)).catch((error) => {
-        console.error('[youjp] fallo al iniciar la captura', error);
-        report({ type: 'status', status: 'error', detail: String(error.message ?? error) });
+      captureCommands = captureCommands.then(() => start(message)).catch(async (error) => {
+        await stop();
+        report({ type: 'status', status: 'error', detail: String(error.message ?? error) }, message.tabId);
       });
       break;
-
     case 'capture.stop':
-      captureCommands = captureCommands.then(stop).catch((error) => {
-        console.error('[youjp] fallo al parar la captura', error);
-      });
+      captureCommands = captureCommands.then(stop).catch(console.error);
       break;
-
     case 'player.tick':
-      // Reancla el reloj del vídeo. Entre avisos, las tramas avanzan solas.
-      if (current) current.mediaTimeMs = message.mediaTimeMs;
-      break;
-
-    case 'player.flush':
-      if (current?.ws.readyState === WebSocket.OPEN) {
+      if (current) {
         current.mediaTimeMs = message.mediaTimeMs;
-        // Las dos mitades del mismo aviso: el mensaje descarta el buffer del
-        // backend cuanto antes, y la bandera marca la primera trama nueva. El
-        // reanclaje temporal lo hace la trama, no el mensaje.
+        current.paused = message.paused;
+        current.rate = message.rate;
+        current.params.videoId = message.videoId;
+      }
+      break;
+    case 'player.flush':
+      if (current) {
+        current.mediaTimeMs = message.mediaTimeMs;
         current.pendingDiscontinuity = true;
-        current.ws.send(
-          JSON.stringify({
-            type: 'control.flush',
-            reason: message.reason,
-            media_time_ms: Math.round(message.mediaTimeMs),
-          }),
-        );
+        current.connection.send({ type: 'control.flush', reason: message.reason,
+          media_time_ms: Math.round(message.mediaTimeMs) });
       }
       break;
   }

@@ -8,6 +8,8 @@ import pytest
 from pydantic import ValidationError
 
 from youjp.ws.protocol import (
+    PROTOCOL_VERSION,
+    ProtocolMismatch,
     AsrFinal,
     AsrPartial,
     ControlFlush,
@@ -19,7 +21,7 @@ from youjp.ws.protocol import (
 
 
 def test_session_start_con_valores_por_defecto():
-    msg = parse_client_message('{"type": "session.start"}')
+    msg = parse_client_message(json.dumps({"type": "session.start", "protocol_version": PROTOCOL_VERSION}))
     assert isinstance(msg, SessionStart)
     assert msg.source == "ja"
     assert msg.target == "es"
@@ -29,6 +31,7 @@ def test_session_start_con_valores_por_defecto():
 def test_session_start_completo():
     raw = json.dumps({
         "type": "session.start", "video_id": "I79zm6cIoNM", "is_live": True,
+        "protocol_version": PROTOCOL_VERSION,
         "media_time_ms": 1_117_000, "profile": "n3",
     })
     msg = parse_client_message(raw)
@@ -81,3 +84,14 @@ def test_el_japones_sobrevive_a_la_serializacion():
         reason="punctuation", latency_ms=0.0,
     )
     assert json.loads(final.model_dump_json())["text"] == texto
+
+
+@pytest.mark.parametrize("version", [None, 1, 999, "2", True, 2.0])
+def test_incompatible_protocols_are_explicit(version):
+    with pytest.raises(ProtocolMismatch):
+        parse_client_message(json.dumps({"type": "session.start", "protocol_version": version}))
+
+
+def test_legacy_start_requires_upgrade():
+    with pytest.raises(ProtocolMismatch, match="Actualiza"):
+        parse_client_message('{"type":"session.start"}')
