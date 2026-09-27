@@ -70,7 +70,7 @@ class MtWorker:
 
     def stop(self, timeout: float = 10.0) -> None:
         self._stopped.set()
-        # A full queue must not turn a bounded join into an unbounded wait.
+        # Una cola llena no debe convertir una espera limitada en infinita.
         with self._lock:
             self._generation += 1
             self._clear_queue()

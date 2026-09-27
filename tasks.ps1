@@ -25,7 +25,7 @@ function Invoke-Setup {
   Push-Location $Backend
   try {
     Write-Host '==> entorno de Python' -ForegroundColor Cyan
-    uv sync --extra cuda
+    uv sync --extra cuda --extra nllb
     Write-Host '==> modelos' -ForegroundColor Cyan
     uv run python ../scripts/fetch_models.py --whisper large-v3-turbo
   } finally { Pop-Location }

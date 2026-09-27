@@ -7,12 +7,19 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
 
 import youjp.main as server
 from youjp.config import Settings
 from youjp.mt.base import Translation
 from youjp.obs.metrics import MetricsCollector
 from youjp.ws.protocol import APP_VERSION, PROTOCOL_VERSION, AsrFinal
+
+EXTENSION_ORIGIN = "chrome-extension://" + "a" * 32
+
+
+def extension_socket(client):
+    return client.websocket_connect("/stream", headers={"origin": EXTENSION_ORIGIN})
 
 
 class Translator:
@@ -37,7 +44,7 @@ class FakeAsr:
 
     def stop(self):
         self.stopped.append(threading.current_thread().name)
-        # An old worker can still finish after replacement. Its emitter must be closed.
+        # Un trabajador anterior puede acabar tarde: su emisor debe estar cerrado.
         self.emit(AsrFinal(segment_id=99, text="stale", media_start_ms=0,
                            media_end_ms=1, reason="stop", latency_ms=0))
 
@@ -85,7 +92,7 @@ def client(monkeypatch):
             tickers["active"] -= 1
 
     monkeypatch.setattr(server, "_metrics_ticker", ticker)
-    # No context-manager lifespan: heavy resources above are replaced explicitly.
+    # Sin lifespan: los recursos pesados ya se han sustituido explícitamente.
     test_client = TestClient(server.app)
     try:
         yield test_client, state, tickers
@@ -99,7 +106,7 @@ def audio(ws):
 
 def test_live_target_switch_and_invalid_target_recovery(client):
     test_client, state, _ = client
-    with test_client.websocket_connect("/stream") as ws:
+    with extension_socket(test_client) as ws:
         ws.send_json({"type": "session.start", "target": "es", "protocol_version": PROTOCOL_VERSION})
         assert ws.receive_json()["target"] == "es"
         audio(ws)
@@ -122,7 +129,7 @@ def test_live_target_switch_and_invalid_target_recovery(client):
 
 def test_repeated_start_cancels_ticker_and_stops_off_loop(client):
     test_client, state, tickers = client
-    with test_client.websocket_connect("/stream") as ws:
+    with extension_socket(test_client) as ws:
         for target in ["es", "en", "es"]:
             ws.send_json({"type": "session.start", "target": target, "protocol_version": PROTOCOL_VERSION})
             ready = ws.receive_json()
@@ -140,9 +147,8 @@ def test_repeated_start_cancels_ticker_and_stops_off_loop(client):
 
 @pytest.mark.parametrize("fields", [{}, {"protocol_version": 1}, {"protocol_version": 999}])
 def test_incompatible_handshake_closes_without_allocating_workers(client, fields):
-    from starlette.websockets import WebSocketDisconnect
     test_client, state, tickers = client
-    with test_client.websocket_connect("/stream") as ws:
+    with extension_socket(test_client) as ws:
         ws.send_json({"type": "session.start", **fields})
         error = ws.receive_json()
         assert error["code"] == "protocol_mismatch"
@@ -150,6 +156,20 @@ def test_incompatible_handshake_closes_without_allocating_workers(client, fields
         with pytest.raises(WebSocketDisconnect) as closed:
             ws.receive_json()
         assert closed.value.code == 1002
+    assert state.sessions == 0
+    assert tickers["max"] == 0
+    assert not FakeAsr.stopped
+
+
+@pytest.mark.parametrize("origin", [None, "null", "https://example.com", "http://127.0.0.1:8770",
+                                     "chrome-extension://not-an-id", EXTENSION_ORIGIN + "/extra"])
+def test_stream_rejects_untrusted_origins_before_allocating_workers(client, origin):
+    test_client, state, tickers = client
+    headers = {} if origin is None else {"origin": origin}
+    with test_client.websocket_connect("/stream", headers=headers) as ws:
+        with pytest.raises(WebSocketDisconnect) as closed:
+            ws.receive_text()
+    assert closed.value.code == 1008
     assert state.sessions == 0
     assert tickers["max"] == 0
     assert not FakeAsr.stopped

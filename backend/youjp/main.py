@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import re
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -53,6 +54,12 @@ log = logging.getLogger(__name__)
 
 METRICS_INTERVAL_S = 2.0
 OUTBOX_SIZE = 512
+EXTENSION_ORIGIN = re.compile(r"chrome-extension://[a-p]{32}\Z")
+
+
+def _trusted_origin(origin: str | None) -> bool:
+    """Solo una extensión de Chrome puede iniciar sesiones desde el navegador."""
+    return origin is not None and EXTENSION_ORIGIN.fullmatch(origin) is not None
 
 
 class AppState:
@@ -200,6 +207,12 @@ async def health() -> dict:
 async def stream(ws: WebSocket) -> None:
     state: AppState = app.state.youjp
     settings = state.settings
+    if not _trusted_origin(ws.headers.get("origin")):
+        # Cerrar antes de accept() produce HTTP 403 y oculta el código 1008 al
+        # cliente. Aceptamos y cerramos sin crear tareas ni cargar trabajadores.
+        await ws.accept()
+        await ws.close(code=1008, reason="Origen no permitido")
+        return
     await ws.accept()
 
     session_id = uuid.uuid4().hex[:8]
@@ -254,19 +267,11 @@ async def stream(ws: WebSocket) -> None:
                 continue
 
             if isinstance(message, SessionStart):
-                # Invalidate late results before replacing a session (segment IDs restart).
+                # Invalidar resultados tardíos antes de reemplazar la sesión:
+                # los identificadores de segmento vuelven a empezar.
                 emitter.close()
-                if ticker is not None:
-                    ticker.cancel()
-                    with contextlib.suppress(asyncio.CancelledError):
-                        await ticker
-                    ticker = None
-                if worker is not None:
-                    await asyncio.to_thread(worker.stop)
-                if mt is not None:
-                    await asyncio.to_thread(mt.stop)
-                if nlp is not None:
-                    await asyncio.to_thread(nlp.stop)
+                await _stop_session(ticker, worker, mt, nlp)
+                ticker = worker = mt = nlp = None
 
                 while not outbox.empty():
                     outbox.get_nowait()
@@ -344,18 +349,27 @@ async def stream(ws: WebSocket) -> None:
     finally:
         emitter.close()
         state.sessions -= 1
-        for task in (ticker, sender):
-            if task is not None:
-                task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await task
-        if worker is not None:
-            await asyncio.to_thread(worker.stop)
-        if mt is not None:
-            await asyncio.to_thread(mt.stop)
-        if nlp is not None:
-            await asyncio.to_thread(nlp.stop)
+        sender.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await sender
+        await _stop_session(ticker, worker, mt, nlp)
         log.info("[%s] sesion cerrada", session_id)
+
+
+async def _stop_session(
+    ticker: asyncio.Task | None,
+    worker: AsrWorker | None,
+    mt: MtWorker | None,
+    nlp: NlpWorker | None,
+) -> None:
+    """Detiene las tareas y trabajadores de una sesión en el mismo orden."""
+    if ticker is not None:
+        ticker.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await ticker
+    for item in (worker, mt, nlp):
+        if item is not None:
+            await asyncio.to_thread(item.stop)
 
 
 def _fan_out(mt: MtWorker, nlp: NlpWorker):

@@ -27,13 +27,13 @@ dependencies = [
     "psutil>=6.0",
     # Salida legible del banco de pruebas en consola.
     "rich>=13.9",
-    "transformers>=5.17.0",
     "sudachipy>=0.6.11",
     "sudachidict-core>=20260723",
     "pykakasi>=2.3.0",
 ]
 
 [project.optional-dependencies]
+nllb = ["transformers>=5.17.0"]
 # Bibliotecas CUDA para CTranslate2 en Windows. Se instalan como ruedas de pip:
 # no hace falta el CUDA Toolkit completo, solo el driver de NVIDIA.
 # youjp.cuda_setup anade sus carpetas al path de DLLs al arrancar.
@@ -47,6 +47,8 @@ dev = [
     "pillow>=12.3.0",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
+    "httpx2>=2.13",
+    "ruff>=0.13",
 ]
 
 [build-system]
@@ -62,6 +64,9 @@ path = "youjp/_version.py"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 
 [tool.uv]
 # Las ruedas de CUDA pesan ~1 GB; se instalan explicitamente con el extra "cuda".

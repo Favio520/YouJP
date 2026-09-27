@@ -117,7 +117,10 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool, language:
              "latencies": [], "mt_latencies": [], "nlp_ms": [], "last_metrics": None}
 
     console.rule(f"[bold]{path.name}[/bold]  {len(audio) / 16_000:.1f} s")
-    async with websockets.connect(url, max_size=None) as ws:
+    # El cliente de pruebas declara un origen de extensión para ejercitar la
+    # misma ruta protegida; las páginas web no pueden falsificar Origin.
+    origin = "chrome-extension://" + "a" * 32
+    async with websockets.connect(url, max_size=None, origin=origin) as ws:
         await ws.send(json.dumps({
             "type": "session.start",
             "app_version": APP_VERSION,

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 import threading
-import time
 from dataclasses import dataclass
 
 log = logging.getLogger(__name__)

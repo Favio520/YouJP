@@ -118,8 +118,8 @@ class AsrWorker:
             return True
         except queue.Full:
             try:
-                # Do not dequeue/reinsert a flush: that would move it behind
-                # post-seek audio and reset the new timeline too late.
+                # No sacar y reinsertar un flush: quedaría detrás del audio
+                # posterior al salto y reiniciaría tarde la nueva posición.
                 if self._pending_flush is None:
                     self._queue.get_nowait()
                     self._queue.put_nowait(frame)
@@ -140,7 +140,7 @@ class AsrWorker:
         """
         with self._control_lock:
             if not self._stopped.is_set():
-                # All queued audio predates this control message and is obsolete.
+                # Todo el audio en cola precede al control y ya no sirve.
                 self._pending_flush = ("flush", media_time_ms)
                 self._replace_pending(self._pending_flush)
 
