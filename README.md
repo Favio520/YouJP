@@ -1,509 +1,372 @@
-<div align="center">
+# youjp
 
-# YouJP
+Subtítulos japoneses en tiempo real sobre YouTube, con análisis lingüístico local
+y explicaciones adaptadas a nivel JLPT N4–N3.
 
-### Subtítulos japoneses en tiempo real para YouTube
+El audio de la pestaña se captura, se transcribe con Whisper, se analiza con
+Sudachi y JMdict y se traduce al español. Todo en local: la única pieza opcional
+que sale de la máquina es la descarga inicial de modelos.
 
-Captura el audio de la pestaña, lo transcribe localmente, lo traduce al español o inglés
-y convierte cada línea en una herramienta para estudiar japonés.
+La revisión de arquitectura completa está en [`docs/arquitectura.html`](docs/arquitectura.html).
 
-<p>
-  <img src="https://img.shields.io/badge/status-experimental-orange" alt="Estado experimental">
-  <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4" alt="Windows 10/11">
-  <img src="https://img.shields.io/badge/Python-3.12-3776AB" alt="Python 3.12">
-  <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4" alt="Chrome Manifest V3">
-  <img src="https://img.shields.io/badge/processing-local-success" alt="Procesamiento local">
-</p>
+## Estado
 
-<p>
-  <a href="https://github.com/Favio520/YouJP/issues">Reportar un problema</a>
-  ·
-  <a href="docs/arquitectura.html">Arquitectura</a>
-</p>
+El servidor y la extensión ya funcionan. La fase 0 dejó un banco de pruebas
+reproducible para medir latencia, RTF y VRAM; la traducción y los subtítulos en
+tiempo real están implementados. El análisis de palabras sigue en pruebas.
 
-</div>
+| Fase | Contenido | Estado |
+|---|---|---|
+| 0 | Banco de pruebas y línea base de medidas | **cerrada** |
+| 1 | MVP: audio de la pestaña → japonés en pantalla | **cerrada** |
+| 2 | Sudachi + JMdict + tokens clicables | **en pruebas** |
+| 3 | Traducción al español | **cerrada** |
 
-> [!WARNING]
-> YouJP está en desarrollo activo. Actualmente está optimizado para Windows,
-> Chrome/Edge y GPU NVIDIA. El audio y los modelos se procesan localmente; la
-> descarga inicial de modelos y diccionarios requiere conexión a Internet.
+## Resultados de la Fase 0
 
-## Qué es YouJP
+Medido el 14-09-2026 en la máquina objetivo (RTX 2060 6 GB, faster-whisper 1.2.1,
+CTranslate2 4.8.2) con la GPU en reposo. Detalle en [`docs/adr/`](docs/adr/).
 
-YouJP es una extensión de navegador con un backend local para seguir contenido
-japonés en YouTube sin depender de una pista de subtítulos existente.
+| Muestra | Latencia p50 | p95 | Whisper p50 | Frases | Descartes |
+|---|---|---|---|---|---|
+| Silencio digital, 45 s | — | — | — | **0** | 0 pasadas |
+| Ruido rosa, 45 s | — | — | — | **0** | 0 pasadas |
+| Narración de estudio | 1 440 ms | 3 951 ms | 362 ms | 11 | 5 / 94 |
+| Entrevistas en la calle | 1 666 ms | 2 673 ms | 440 ms | 14 | 3 / 94 |
+| Reportaje, tramo final | 1 421 ms | 2 065 ms | 382 ms | 11 | 5 / 92 |
+| Anime, escena de acción | 1 365 ms | 3 534 ms | 380 ms | 6 | 11 / 67 |
 
-El sistema muestra primero el japonés provisional, confirma las palabras cuando
-la transcripción se estabiliza y añade después la traducción y el análisis
-lingüístico. Puedes hacer clic en cualquier palabra para consultar su lectura,
-rōmaji, categoría gramatical, conjugación y acepciones de diccionario.
+VRAM: base del escritorio 1 181 MiB, pico total 2 496, atribuible al modelo
+**1 315 MiB** de 6 144. Los tres presupuestos de latencia del documento de
+arquitectura se cumplen. Sobre silencio y ruido, Whisper no llega a ejecutarse
+ni una vez.
 
-La idea es sencilla: convertir cualquier vídeo japonés —noticias, entrevistas,
-charlas o anime— en material de comprensión auditiva para estudiantes de nivel
-JLPT N4–N3.
+**El anime es otro régimen.** Produce 87 caracteres en 62 s frente a los ~290 del
+reportaje, y rechaza el 16 % de las pasadas frente al 3–5 % de las noticias. La
+transcripción es utilizable para subtitular, pero pierde detalle
+(お娘 por あの娘, フリーレ por フリーレン). A partir de la fase 2 habrá que
+marcar la confianza por token: una lectura mal segmentada enseña japonés
+incorrecto a quien todavía no puede detectarlo.
 
-## Funciones
+**Modelo elegido: `large-v3-turbo`.** Medido sobre tres tramos de 70 s de un
+reportaje de televisión japonesa (narración de estudio, entrevistas en la calle,
+voz sobre música).
 
-- **Subtítulos en vivo:** captura el audio de la pestaña mediante `tabCapture` y
-  envía PCM mono de 16 kHz al backend por WebSocket.
-- **Transcripción local:** faster-whisper con `large-v3-turbo`, VAD Silero,
-  LocalAgreement y segmentación de frases.
-- **Traducción japonés → español / inglés:** Qwen3-4B mediante Ollama como opción
-  principal; NLLB o traducción desactivada como alternativas.
-- **Análisis japonés:** Sudachi, JMdict y KANJIDIC2 para tokenización,
-  lecturas, rōmaji, categorías, conjugaciones y glosas.
-- **Palabras clicables:** abre una tarjeta contextual sin abandonar el vídeo.
-- **Furigana configurable:** desactivada, automática o sobre todos los kanji.
-- **Modo de estudio:** solo japonés, solo traducción o ambos idiomas.
-- **Historial de sesión:** conserva hasta 300 frases y permite volver al momento
-  exacto del vídeo con un clic.
-- **Overlay configurable:** posición arrastrable, tamaño, fondo, ancho, frases
-  anteriores y visibilidad del texto provisional.
-- **Métricas:** latencia, RTF, uso de VRAM, descartes y estado de la conexión.
-- **Privacidad local:** el flujo normal es navegador → backend local → modelos
-  locales. No se necesita una API de transcripción remota.
+| | large-v3-turbo | kotoba-whisper-v2.0-faster |
+|---|---|---|
+| Latencia p50 | **1 477 – 1 826 ms** | 1 514 – 3 276 ms |
+| Latencia p95 | **2 096 – 4 307 ms** | 4 359 – 7 301 ms |
+| Inferencia por pasada p50 | 408 – 482 ms | **317 – 338 ms** |
+| Parciales emitidos por muestra | **73 – 77** | 36 – 41 |
+| Pasadas que no emiten nada | **0** | 12 – 27 |
+| VRAM atribuible | ~1 600 MiB | ~1 400 MiB |
+| Marcas por palabra | **sí** | no — mata el proceso |
 
-## Cómo funciona
+Kotoba infiere más rápido y ocupa menos, pero en streaming pierde: su
+decodificador destilado de dos capas devuelve texto vacío en una de cada tres
+ventanas parciales, y como LocalAgreement necesita dos pasadas coincidentes para
+confirmar, cada vacío retrasa la frase entera. En calidad tampoco compensa —
+escribió 大人の**自首**室 («sala de entrega a la policía») donde turbo escribió
+大人の**自習**室 («sala de estudio»).
 
-```mermaid
-flowchart LR
-    A[YouTube] -->|tabCapture| B[Extensión Chrome]
-    B -->|PCM 16 kHz / 100 ms| C[WebSocket local]
-    C --> D[VAD Silero]
-    D --> E[Whisper]
-    E --> F[LocalAgreement]
-    F --> G[Segmentador]
-    G --> H[Traducción JA → ES / EN]
-    G --> I[Sudachi + JMdict]
-    H --> J[Overlay y paneles]
-    I --> J
-```
+- **Línea base del escritorio: 825–1 060 MiB** de VRAM, sin Chrome reproduciendo.
+- **`kotoba-whisper-v2.0-faster` no admite `word_timestamps`.** Lleva los
+  `alignment_heads` de large-v3 (capas 7 a 25) sobre un decodificador destilado de
+  2 capas; CTranslate2 indexa fuera de rango y el proceso muere con `0xC0000005`,
+  que no es una excepción de Python y no se puede capturar. Se detecta con una
+  sonda en subproceso, cacheada, y se cae a tiempos interpolados por carácter.
+- **Los filtros estadísticos contra alucinaciones no funcionan.** Sobre silencio
+  digital absoluto, turbo emite 「ご視聴ありがとうございました」 con
+  `no_speech_prob = 0,000` y `avg_logprob = −0,143`. El VAD es la única defensa
+  real; ver [ADR 0004](docs/adr/0004-el-vad-es-la-barrera.md).
+- **Los bucles de repetición hay que cortarlos en el decodificador.** Sobre la
+  apertura del reportaje (voz sobre música), turbo se enganchó repitiendo
+  「私はサンドルオンを使って、」 hasta agotar la ventana: inferencia de 8 s y
+  latencia p95 de 6,3 s. Con `no_repeat_ngram_size`, `repetition_penalty` y una
+  cota de `max_new_tokens`, el p95 de inferencia bajó de 1 688 a 571 ms.
 
-La extensión separa tres responsabilidades para no interrumpir el audio:
+- **El umbral de confianza sirve, pero no para lo que parecía.** `avg_logprob < −1,0`
+  rechaza 3–5 pasadas legítimas por muestra y no atrapa ni una alucinación, así que
+  parecía coste puro. Al aflojarlo a −2,5 los descartes bajan de 5 a 2 pero el p95
+  **empeora** de 3 951 a 7 811 ms: aceptar una pasada mala le da a LocalAgreement
+  una hipótesis con la que la siguiente no coincide, y la confirmación se retrasa
+  una ronda entera. Rechazar basura sale más barato que reconciliarla. Se queda
+  en −1,0.
 
-- **Service worker:** obtiene el permiso de captura y coordina los contextos.
-- **Documento offscreen:** mantiene el audio, el `AudioWorklet` y el WebSocket.
-- **Content script:** pinta el overlay y observa la posición del reproductor.
-
-En el backend, el receptor WebSocket nunca espera a Whisper. El audio entra en
-una cola acotada y el ASR corre en su propio hilo; los mensajes de `flush`, seek
-y parada viajan por la misma cola que las tramas para conservar el orden.
-
-## Estado actual
-
-| Área | Estado |
-|---|---|
-| Banco de pruebas de streaming | ✅ Implementado |
-| Captura de audio desde una pestaña | ✅ Implementado |
-| Subtítulos japoneses provisionales y confirmados | ✅ Implementado |
-| Traducción japonés → español / inglés | ✅ Implementado |
-| Tokens clicables y tarjeta de diccionario | ✅ Implementado |
-| Historial, seek y ajustes de legibilidad | ✅ Implementado |
-| Gramática explicada por reglas | 🚧 Planificado |
-| Explicaciones contextuales con LLM | 🚧 Planificado |
-| Vocabulario, estadísticas y SRS | 🚧 Planificado |
-
-## Rendimiento de referencia
-
-Mediciones realizadas el 14-09-2026 sobre una RTX 2060 de 6 GB, con el modelo
-`large-v3-turbo` y la GPU sin otra carga importante. Son cifras orientativas,
-no una garantía para cualquier hardware.
-
-| Tipo de audio | Latencia p50 | Latencia p95 |
-|---|---:|---:|
-| Narración de estudio | 1,44 s | 3,95 s |
-| Entrevistas | 1,67 s | 2,67 s |
-| Reportaje | 1,42 s | 2,07 s |
-| Anime / acción | 1,37 s | 3,53 s |
-
-El ASR atribuye aproximadamente 1,3 GiB de VRAM al modelo en la máquina de
-referencia. La traducción local puede reducir bastante el margen disponible,
-por lo que se recomienda cerrar juegos y aplicaciones que usen la GPU.
-
-Los detalles, decisiones y resultados reproducibles están en
-[`docs/adr/`](docs/adr/) y en el [documento de arquitectura](docs/arquitectura.html).
+> **Al reproducir estas cifras, cierra juegos y navegadores con aceleración.**
+> Con un juego abierto el pico de VRAM pasó de 2 496 a 5 392 MiB y la latencia p50
+> casi se duplicó. El banco detecta la contención y lo avisa, pero no puede
+> corregirla.
 
 ## Requisitos
 
-### Para usar la extensión
+- Windows 10/11 con GPU NVIDIA y driver reciente (**no** hace falta el CUDA Toolkit:
+  las bibliotecas llegan como ruedas de pip).
+- [`uv`](https://docs.astral.sh/uv/) para el entorno de Python.
+- `ffmpeg` en el `PATH`, para preparar las muestras de audio.
 
-- Windows 10 u 11.
-- Chrome o Edge basado en Chromium 116 o posterior.
-- GPU NVIDIA y un driver reciente para la experiencia en tiempo real.
-- `uv` para el entorno Python (el asistente lo prepara automáticamente).
-- Node.js y npm para compilar la extensión (el asistente los prepara automáticamente).
-- FFmpeg solo si quieres preparar muestras para el banco de pruebas.
-- Ollama solo si quieres usar la traducción Qwen local.
+## Puesta en marcha
 
-La configuración probada es una RTX 2060 de 6 GB. El backend puede arrancar con
-CPU y modelos pequeños, pero la latencia en directo puede ser demasiado alta.
+En Windows, abre `YouJP.cmd` desde la raíz del proyecto y pulsa **Preparar /
+actualizar** en el panel. Esa preparación instala el backend, construye la
+extensión y genera `YouJP.exe`. Después puedes abrir el ejecutable directamente
+o crearle un acceso directo: `YouJP.cmd` queda como entrada compatible.
+El proceso completo está en la [guía del lanzador](scripts/windows/README.md).
 
-## Instalación rápida
-
-### Asistente de Windows (recomendado)
-
-Descarga o clona el proyecto en una carpeta permanente y abre **`YouJP.cmd`**
-con doble clic. No necesitas instalar Python ni Node.js previamente.
-
-1. Pulsa **Preparar / actualizar**. El asistente detecta la GPU, prepara Python
-   3.12, descarga los modelos y diccionarios y compila la extensión. La primera
-   instalación requiere Internet, varios GB libres y puede tardar varios minutos.
-2. Pulsa **Iniciar** y espera a que el estado muestre **Listo**.
-3. Pulsa **Carpeta extensión**. En `chrome://extensions` (o `edge://extensions`),
-   activa el modo de desarrollador y carga esa carpeta como extensión descomprimida.
-4. Abre un vídeo japonés de YouTube y pulsa el icono de YouJP.
-
-Cerrar la ventana la deja en la bandeja del sistema. **Detener** libera el backend;
-**Salir y detener**, desde la bandeja, cierra también el panel. Solo se detiene el
-proceso iniciado por ese panel; un backend abierto en otra terminal se controla
-desde esa terminal. **Ver registros** abre los archivos de instalación y arranque.
-
-El modo automático usa GPU si detecta al menos 2 GB de VRAM libre; de lo contrario,
-selecciona `small` en CPU y solo japonés. La traducción automática utiliza Ollama
-si ya está instalado y hay margen de VRAM, o NLLB en GPU/CPU según el espacio libre.
-Puedes elegir el modo manualmente. Ollama es opcional y no se instala automáticamente.
-El asistente prepara su modelo si seleccionas Ollama y el servicio ya está abierto.
-
-La configuración generada queda en `.youjp/launcher.env`; tu `.env` y las variables
-de entorno tienen prioridad. Las herramientas portables y los registros se guardan
-en `.youjp/`, ignorada por Git. No se modifica el PATH global ni la política de
-ejecución global de PowerShell. El asistente está dirigido a Windows x64.
-
-Para actualizar: detén el backend, actualiza los archivos del proyecto, ejecuta
-**Preparar / actualizar**, inicia de nuevo y pulsa **Recargar** en la extensión.
-Desde la versión 1.3.0 ambos extremos verifican el protocolo: los clientes antiguos
-reciben un aviso explícito para actualizar.
-
-También puedes inspeccionar el plan sin descargar ni instalar nada:
+Para desarrollar y medir el motor por separado:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/Setup.ps1 -Plan
+.\tasks.ps1 setup       # entorno + bibliotecas CUDA + modelos
+.\tasks.ps1 doctor      # comprueba que todo está en su sitio
+.\tasks.ps1 test        # tests del backend
 ```
 
-Los pasos siguientes conservan la instalación manual para desarrollo.
-
-### 1. Clonar y preparar el backend
+Prepara una o varias muestras de audio japonés (60 segundos bastan) y lanza el banco:
 
 ```powershell
-git clone https://github.com/Favio520/YouJP.git
-cd YouJP
+# desde un fichero local
+.\scripts\prepare_sample.ps1 -Source "D:\clips\noticias.mp4" -Name noticias -Duration 60
 
-.\tasks.ps1 setup
-.\tasks.ps1 doctor
-.\tasks.ps1 test
+# o directamente desde YouTube (solo el tramo pedido, solo el audio)
+.\scripts\fetch_sample.ps1 -Url "https://youtu.be/XXXX" -Name noticias -Start 00:01:30 -Duration 60
+
+.\tasks.ps1 bench
 ```
 
-`setup` crea el entorno de `uv`, instala las bibliotecas CUDA y descarga el
-modelo ASR. `doctor` muestra qué herramientas, modelos y datos faltan.
+Conviene tener cinco muestras de tipos distintos, porque se comportan muy
+diferente: informativo (habla clara y pausada), conversación o charla, anime o
+drama (habla rápida y coloquial), un tramo con música de fondo, y un tramo de
+**silencio puro** — este último es la prueba que de verdad importa, porque es
+donde Whisper en japonés inventa frases.
 
-### 2. Preparar el diccionario
+## Diccionario
 
-Este paso es opcional. Sin la base de datos, la transcripción y la traducción
-siguen funcionando, pero las palabras no tendrán tarjetas de diccionario.
+Hay que construirlo una vez (unos 145 MB de descarga, 15 s de proceso):
 
 ```powershell
 cd backend
 uv run python ../scripts/fetch_dicts.py
 uv run python -m youjp.dict.build_db
-cd ..
 ```
 
-El proceso genera `data/youjp.sqlite3` con JMdict y KANJIDIC2. El archivo se
-ignora en Git porque se genera localmente.
+Deja `data/youjp.sqlite3` con 218 776 entradas de JMdict y 10 384 kanji de
+KANJIDIC2, 70 MB. Sin él, los subtítulos y la traducción siguen funcionando;
+solo se pierden las palabras clicables.
 
-### 3. Preparar la traducción
+Las glosas van en español cuando JMdict las tiene y en inglés cuando no,
+**marcadas como tales** en la tarjeta. La cobertura bruta en español es del 16 %
+de las entradas, pero medida sobre transcripciones reales sube al **88 % de las
+palabras que aparecen al hablar**: las entradas en español son justo las
+palabras comunes.
 
-La opción recomendada usa Qwen3-4B a través de Ollama:
+## Traducción
+
+El traductor por defecto es **Qwen3-4B-Instruct-2507 en GPU, vía Ollama**. Hay
+que descargarlo una vez:
 
 ```powershell
 ollama pull qwen3:4b-instruct-2507-q4_K_M
 ```
 
-Si tienes poca VRAM, puedes cambiar el proveedor antes de iniciar el backend:
+Contra lo previsto, un LLM pequeño resultó mejor que un traductor dedicado: NLLB
+acierta 2 de 6 frases y Qwen3-4B 5 de 6, y en GPU los dos tardan ~300 ms. El
+detalle y las alternativas están en
+[ADR 0003](docs/adr/0003-nmt-dedicado-frente-a-llm.md).
+
+**Cuidado con la VRAM.** Whisper y el traductor juntos dejan entre 400 y 900 MiB
+libres de 6 144 con el navegador abierto. Si va justo:
 
 ```powershell
-$env:YOUJP_MT_PROVIDER = 'nllb'   # menos VRAM, menor calidad medida
-# o
-$env:YOUJP_MT_PROVIDER = 'none'   # solo japonés
+$env:YOUJP_LLM_NUM_GPU = '0'        # traductor a CPU: libera 2,7 GB, 1-6 s por frase
+$env:YOUJP_MT_PROVIDER = 'nllb'     # traductor ligero: 1,5 GB menos, peor calidad
+$env:YOUJP_MT_PROVIDER = 'none'     # sin traducción
 ```
 
-### 4. Iniciar el backend
+Para una instalación manual con NLLB usa `uv sync --extra nllb` desde `backend`.
+El asistente de Windows instala ese extra para conservar la opción de cambiar
+de traductor; la instalación básica del backend no lo necesita.
 
-En una terminal:
+Los destinos de traducción se describen en el [ADR 0006](docs/adr/0006-destinos-de-traduccion.md).
+
+El servidor avisa al arrancar si queda poca VRAM, y también si Ollama tiene otros
+modelos residentes — es fácil dejarse uno cargado de una prueba anterior y
+perder 1,4 GB sin enterarse (`ollama stop <nombre>`).
+
+## Usar la extensión
+
+El panel de Windows ofrece **Carpeta extensión** para abrir el directorio que
+debes cargar en Chrome o Edge. Para hacerlo manualmente:
 
 ```powershell
+# 1. Arranca el backend y déjalo corriendo en una consola
 cd backend
 uv run uvicorn youjp.main:app --host 127.0.0.1 --port 8770
-```
 
-El servidor solo escucha en `127.0.0.1` por defecto.
-
-### 5. Compilar y cargar la extensión
-
-En otra terminal:
-
-```powershell
+# 2. En otra consola, desde la raíz del proyecto
 cd extension
-npm install
-npm run build
+npm ci
+npm run build          # deja el resultado en extension/.output/chrome-mv3
 ```
 
-Después, en Chrome o Edge:
+En Chrome o Edge: `chrome://extensions` → activa **Modo de desarrollador** →
+**Cargar descomprimida** → elige `extension/.output/chrome-mv3`.
 
-1. Abre `chrome://extensions`.
-2. Activa **Modo de desarrollador**.
-3. Pulsa **Cargar descomprimida**.
-4. Selecciona `extension/.output/chrome-mv3`.
-5. Abre un vídeo japonés de YouTube y pulsa el icono de YouJP.
+Abre un vídeo japonés de YouTube y **haz clic en el icono de la extensión**. Ese
+clic es obligatorio: `tabCapture` solo concede el permiso tras un gesto del
+usuario, y por eso la extensión no tiene popup — con popup, `action.onClicked`
+no se dispararía.
 
-El clic en el icono es necesario: Chrome solo concede el permiso de captura
-tras un gesto explícito del usuario.
+- El icono muestra `ON` mientras captura. Otro clic la detiene.
+- El texto blanco está confirmado y ya no cambiará; el gris en cursiva todavía
+  puede reescribirse.
+- **Clic en cualquier palabra** abre su tarjeta: lectura, rōmaji, categoría,
+  conjugación desglosada y acepciones de JMdict.
 
-## Uso
-
-Al activar la extensión:
-
-- el texto gris en cursiva es provisional y puede cambiar;
-- el texto blanco está confirmado;
-- la traducción y los tokens aparecen cuando terminan sus procesos;
-- al pulsar una palabra se abre su tarjeta de análisis;
-- al pulsar una frase del historial, YouTube vuelve a ese momento.
-
-Si el backend se cae o reinicia, la captura mantiene el sonido y muestra
-**reconectando**. Los reintentos esperan 1, 2, 4, 8, 16 y hasta 30 segundos entre
-conexiones. Al recuperarse retoma la posición actual y el idioma seleccionado;
-conserva el historial y descarta el audio del intervalo desconectado. No intenta
-retranscribir ese intervalo. Puedes cancelar los reintentos con el icono de YouJP.
-Un protocolo incompatible detiene la captura y pide actualizar ambos componentes.
-
-### Atajos
-
-| Atajo | Acción |
+| Atajo | |
 |---|---|
-| `Alt+S` | Abrir ajustes de subtítulos |
-| `Alt+H` | Abrir historial de sesión |
-| `Alt+M` | Abrir métricas |
-| `Esc` | Cerrar un panel abierto |
+| **Alt+S** | Ajustes de los subtítulos |
+| **Alt+H** | Historial de la sesión |
+| **Alt+M** | Panel de métricas |
+| **Esc** | Cerrar cualquier panel |
 
-### Ajustes principales
+Sobre los subtítulos aparecen tres botones al pasar el ratón: **⠿** para
+arrastrarlos a donde quieras (la posición se guarda en porcentaje, así que
+aguanta el cambio a pantalla completa), **☰** para el historial y **⚙** para los
+ajustes.
 
-- tamaño del japonés y de la traducción;
-- altura y anchura del overlay;
-- fondo suave, sólido o transparente;
-- número de frases anteriores;
-- mostrar u ocultar texto provisional;
-- furigana automática, completa o desactivada;
-- idioma de destino: español o inglés;
-- mostrar japonés, traducción o ambos idiomas;
-- posición libre del overlay y del panel de historial.
+### Historial
 
-### Cambiar entre español e inglés
+El overlay solo enseña la frase actual y unas pocas anteriores, porque lo
+contrario taparía el vídeo. El panel de historial (**Alt+H**) guarda las últimas
+300 frases con su traducción, y **cada línea lleva el vídeo a ese momento** al
+pulsarla — releer algo que pasó rápido, comprobar una traducción o volver a oír
+una frase.
 
-Abre los ajustes con **Alt+S** (o el botón **⚙**) y selecciona **Traducir al →
-Español / English**. El ajuste se guarda y se aplica a las próximas frases sin
-reiniciar la captura. Las frases ya traducidas conservan su idioma en el historial,
-identificadas con `ES` o `EN`; el overlay muestra la traducción del idioma elegido.
-Las definiciones de JMdict también siguen esa selección. Los controles y las
-etiquetas gramaticales de la interfaz siguen en español.
+### Ajustes de legibilidad
 
-La selección funciona con Ollama y NLLB; con `YOUJP_MT_PROVIDER=none` la traducción
-permanece desactivada. Tras actualizar esta versión, **reinicia el backend y recarga
-la extensión** para que ambos extremos reconozcan el selector.
+La rueda dentada sobre los subtítulos (o Alt+S) abre los ajustes, que se aplican
+**en vivo**: tamaño del japonés y del español, altura sobre el borde, ancho
+máximo, fondo, frases anteriores visibles y si se muestra el texto en curso.
+Se guardan y se mantienen entre sesiones.
 
-Detalles del protocolo y las decisiones de arquitectura:
-[traducción multilingüe](docs/adr/0004-translation-targets.md).
+Dos que cambian cómo se estudia, no solo cómo se ve:
+
+- **Furigana.** Por defecto en modo *automático*: solo aparece sobre las palabras
+  que JMdict no marca como comunes. Ponerla en todo es contraproducente pasado
+  cierto nivel — se acaba leyendo solo el kana y los kanji dejan de aprenderse.
+- **Idiomas.** *Solo japonés* oculta la traducción para practicar comprensión;
+  sigue estando ahí si cambias de opinión a mitad de frase.
+
+Durante el desarrollo, `npm run dev` levanta un Chrome aparte con recarga en
+caliente.
+
+### Si algo no funciona
+
+| Síntoma | Causa probable |
+|---|---|
+| «conectando con el backend…» y no avanza | El backend no está arrancado, o está en otro puerto. |
+| La pestaña se queda muda | No debería ocurrir: el audio se reinyecta en `offscreen/main.ts`. Si pasa, mira ahí. |
+| El audio suena apagado, como un teléfono | Alguien ha vuelto a juntar los dos contextos de audio en uno. El de reproducción tiene que ir a la frecuencia nativa; solo el del ASR va a 16 kHz. |
+| No aparece nada y el vídeo no es japonés | Normal: el VAD y los filtros descartan lo que no es habla japonesa. |
+| Nada tras un `seek` | Mira el log del backend, debe aparecer `flush del pipeline`. |
+
+Los tres contextos depuran por separado: el service worker y el offscreen en
+`chrome://extensions` → *service worker* / *offscreen*, y el content script en la
+consola de la propia pestaña de YouTube.
 
 ## Probar sin navegador
 
-El backend puede reproducirse con un WAV de 16 kHz mono. Esto permite depurar
-ASR, segmentación, traducción y protocolo sin abrir Chrome:
+El backend se puede ejercitar entero sin extensión, que es como se desarrolló:
 
 ```powershell
 cd backend
-uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav
-uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav --seek-at 20
-uv run python ../scripts/replay_client.py ../bench/samples/tu-muestra.wav --target en
+uv run python ../scripts/replay_client.py ../bench/samples/11-noticias-entrevista.wav
+uv run python ../scripts/replay_client.py <wav> --seek-at 20    # simula un salto
+```
+
+Hace exactamente lo que hace la extensión —abrir el WebSocket, anunciar la
+sesión y enviar PCM de 16 kHz en tramas de 100 ms al ritmo del reloj— pero
+leyendo de un fichero. Cuando algo falle, es la forma rápida de saber de qué
+lado está.
+
+Y para comprobar que los dos codecs siguen de acuerdo:
+
+```powershell
+cd backend
 uv run python ../scripts/check_frame_conformance.py
 ```
 
-Para crear una muestra desde un vídeo local:
+## Los dos modos del banco
 
 ```powershell
-.\scripts\prepare_sample.ps1 `
-  -Source "D:\clips\noticias.mp4" `
-  -Name noticias `
-  -Duration 60
+.\tasks.ps1 bench            # ritmo real: mide LATENCIA
+.\tasks.ps1 bench -Fast      # sin pacing: mide RTF
 ```
 
-Para medir el pipeline:
+- **Latencia** es lo que notarás al usarlo: milisegundos entre que se pronuncia
+  una frase y aparece en pantalla. Se mide en `speech_latency_ms`.
+- **RTF** (*real-time factor*) dice si el modelo aguanta el ritmo en esta
+  máquina. Un RTF de 0,3 significa que procesa 1 s de audio en 0,3 s. Por encima
+  de 1,0 el sistema se queda atrás y empieza a descartar pasadas.
+
+Cada ejecución escribe un JSON en `bench/results/`, con la configuración usada
+dentro, para que dos ejecuciones se puedan comparar sin adivinar qué cambió.
+
+## Comparar modelos
 
 ```powershell
-.\tasks.ps1 bench       # ritmo real: latencia
-.\tasks.ps1 bench -Fast # sin pacing: RTF
+.\tasks.ps1 bench -Model large-v3-turbo
+.\tasks.ps1 bench -Model kotoba-tech/kotoba-whisper-v2.0-faster
+.\tasks.ps1 bench -Model small
 ```
 
-Los resultados se guardan en `bench/results/`, que no se versiona.
+## Estructura
 
-## Configuración
+```
+backend/youjp/
+  audio/      captura, buffer circular, VAD
+  asr/        Whisper, LocalAgreement, segmentador, filtros de alucinación
+  pipeline/   el bucle que lo une todo
+  obs/        métricas, GPU, registro
+scripts/      descarga de modelos, preparación de muestras, banco de pruebas
+bench/        muestras de audio y resultados
+docs/         arquitectura y decisiones
+```
 
-Puedes copiar `.env.example` a `.env`. Todas las variables usan el prefijo
-`YOUJP_` y se corresponden con los campos de `backend/youjp/config.py`.
+## Problemas de Windows ya encontrados
 
-Ejemplos habituales:
+### Reserva de memoria del sistema (el importante)
+
+En el panel de control de NVIDIA, en **Administrar configuración 3D →
+Configuración del programa**, añade `python.exe` del entorno
+(`backend\.venv\Scripts\python.exe`) y pon **CUDA - Política de reserva de
+memoria del sistema** en *Preferir que no haya reserva de memoria del sistema*.
+
+Por defecto, cuando se agota la VRAM el controlador WDDM desborda a RAM del
+sistema sin avisar: no hay error, solo una inferencia entre 5 y 10 veces más
+lenta. Con este ajuste falla de forma ruidosa, que es lo que se quiere al
+depurar.
+
+### La descarga de modelos se queda a cero bytes
+
+El backend de almacenamiento *xet* de Hugging Face puede quedarse reconstruyendo
+en memoria sin escribir nada en disco durante mucho tiempo. Si `models/whisper`
+no crece, usa el descargador clásico, que escribe de forma incremental:
 
 ```powershell
-$env:YOUJP_ASR_MODEL = 'small'
-$env:YOUJP_ASR_DEVICE = 'cpu'
-$env:YOUJP_ASR_COMPUTE_TYPE = 'int8'
-$env:YOUJP_MIN_CHUNK_S = '0.8'
-$env:YOUJP_LOG_LEVEL = 'DEBUG'
+$env:HF_HUB_DISABLE_XET = '1'
+uv run python ../scripts/fetch_models.py --whisper large-v3-turbo
 ```
 
-Para la configuración completa consulta [`.env.example`](.env.example).
+### Los modelos ocupan el doble de lo esperado
 
-## Desarrollo
+Sin *modo de desarrollador* activado, Windows no permite enlaces simbólicos y la
+caché de Hugging Face copia cada fichero en lugar de enlazarlo. Un modelo de
+1,6 GB pasa a ocupar 3,2 GB. Se arregla activando **Configuración → Sistema →
+Para programadores → Modo de desarrollador**, o se ignora si sobra disco.
 
-### Backend
+## Licencias de terceros
 
-```powershell
-cd backend
-uv run pytest
-```
-
-### Extensión
-
-```powershell
-cd extension
-npm test
-npm run compile
-npm run build
-```
-
-Durante el desarrollo, `npm run dev` inicia un Chrome separado con recarga en
-caliente y abre YouTube automáticamente.
-
-### Protocolo y versión compartidos
-
-`VERSION` es la fuente de la versión de aplicación. `protocol/schema.json` define
-los mensajes y las versiones del protocolo de sesión y del formato binario de audio.
-Los modelos de Pydantic y los tipos de TypeScript se generan desde ese JSON Schema:
-
-```powershell
-cd backend
-uv run python ../scripts/generate_contract.py         # regenerar después de editar
-uv run python ../scripts/generate_contract.py --check # detectar archivos desfasados
-cd ..
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/Test-Launcher.ps1
-```
-
-La suite de Python verifica que los archivos generados y los metadatos de los
-paquetes coincidan. No edites manualmente `contract.py`,
-`src/generated/protocol.ts` ni `_version.py`. La versión de aplicación puede variar
-entre releases compatibles; la versión del protocolo debe coincidir exactamente.
-El formato binario sigue en v1 y el protocolo de sesión es v2.
-
-## Estructura del proyecto
-
-```text
-YouJP/
-├── backend/
-│   ├── youjp/audio/       # VAD, audio PCM y buffer circular
-│   ├── youjp/asr/         # Whisper, LocalAgreement y segmentación
-│   ├── youjp/dict/        # JMdict, KANJIDIC2 y base SQLite
-│   ├── youjp/nlp/         # Sudachi, rōmaji y etiquetas gramaticales
-│   ├── youjp/mt/          # Qwen/Ollama, NLLB y proveedor nulo
-│   ├── youjp/pipeline/    # Pipeline de streaming
-│   ├── youjp/ws/          # Protocolo y sesiones WebSocket
-│   └── tests/             # Pruebas unitarias e integración del backend
-├── extension/
-│   ├── entrypoints/       # Service worker, content script y offscreen
-│   ├── src/protocol.ts    # Codec binario y mensajes de servidor
-│   ├── src/ui/            # Overlay, historial, ajustes y tarjetas
-│   └── tests/             # Pruebas del codec de audio
-├── bench/                 # Muestras y resultados locales, ignorados en Git
-├── data/                  # Diccionario generado, ignorado en Git
-├── docs/                  # Arquitectura y ADRs
-├── models/                # Modelos descargados, ignorados en Git
-├── scripts/               # Preparación, descarga y benchmarking
-└── tasks.ps1              # Punto de entrada para tareas de Windows
-```
-
-## Limitaciones conocidas
-
-- La extensión está limitada actualmente a `youtube.com`.
-- Algunos sitios protegidos por DRM no exponen audio utilizable mediante
-  `tabCapture`; no es un problema específico del modelo.
-- El audio japonés con música, ruido o voces superpuestas puede producir más
-  descartes y latencia.
-- Whisper puede alucinar sobre silencio o música; el VAD es la primera barrera
-  y existen filtros adicionales contra repeticiones y frases conocidas.
-- ASR y traducción simultáneos pueden dejar poco margen en una GPU de 6 GB.
-- No hay todavía análisis gramatical explicativo, tarjetas Anki ni repetición
-  espaciada.
-- El proyecto no incluye modelos, audios ni la base de datos generada; se
-  descargan o construyen durante la instalación.
-
-## Roadmap
-
-- [x] Banco de pruebas y medición de latencia/VRAM.
-- [x] Captura de audio de pestaña con Manifest V3.
-- [x] Subtítulos japoneses en tiempo real.
-- [x] Traducción japonés → español / inglés.
-- [x] Análisis morfológico y tarjetas de palabras.
-- [ ] Reglas gramaticales orientadas a N4–N3.
-- [ ] Explicaciones contextuales con LLM local.
-- [ ] Vocabulario guardado y exportación a Anki.
-- [ ] Estadísticas de comprensión y repetición espaciada.
-- [x] Asistente de instalación e inicio para Windows con bandeja y estado.
-- [x] Reconexión automática y restauración segura de la sesión.
-- [x] Protocolo generado y versiones centralizadas.
-- [ ] Soporte para más navegadores y plataformas.
-
-## Contribuir
-
-Las contribuciones son bienvenidas. Antes de abrir un cambio grande:
-
-1. Abre un issue describiendo el problema o la propuesta.
-2. Explica cómo reproducirlo, si es un bug.
-3. Mantén separadas las partes de captura, ASR, traducción y UI.
-4. Añade o actualiza pruebas cuando cambies el protocolo o el pipeline.
-5. Ejecuta las pruebas del backend y la compilación de la extensión.
-
-Las decisiones que afectan a la arquitectura están documentadas como ADRs en
-[`docs/adr/`](docs/adr/).
-
-## Privacidad y datos
-
-En la configuración predeterminada, el audio de la pestaña se envía únicamente
-al backend local en `127.0.0.1`. La transcripción, el análisis y la traducción
-se ejecutan en la máquina del usuario. Las descargas iniciales incluyen modelos
-y diccionarios; los scripts de benchmarking también pueden descargar audio de
-YouTube si el usuario los ejecuta explícitamente.
-
-No subas a Git:
-
-- `.env` ni claves;
-- modelos de Whisper, NLLB u Ollama;
-- audios de terceros;
-- `data/*.sqlite3`;
-- resultados privados del banco de pruebas.
-
-## Datos y licencias de terceros
-
-Los datos de JMdict y KANJIDIC2 se descargan con los scripts del proyecto y
-deben conservar sus avisos de atribución. Las bibliotecas y modelos tienen sus
-propias licencias; revisa sus términos antes de redistribuir binarios o modelos.
-
-Fuentes principales:
-
-- [JMdict / EDRDG](https://www.edrdg.org/jmdict/j_jmdict.html)
-- [KANJIDIC2 / EDRDG](https://www.edrdg.org/wiki/index.php/KANJIDIC_Project)
-- [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
-- [SudachiPy](https://github.com/WorksApplications/SudachiPy)
-- [Ollama](https://ollama.com/)
-
-## Licencia
-
-La licencia del proyecto se añadirá antes de la primera release pública. Hasta
-que exista un archivo `LICENSE`, el código está disponible para inspección, pero
-no se concede permiso automático para redistribuirlo o crear derivados.
+JMdict y KANJIDIC2 son del [EDRDG](https://www.edrdg.org/) bajo CC BY-SA 4.0.
+Whisper es MIT, Sudachi Apache-2.0. Si en algún momento esto se distribuye,
+revisar la licencia no comercial de NLLB-200.

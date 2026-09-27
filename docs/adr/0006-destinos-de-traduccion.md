@@ -1,4 +1,4 @@
-# 0004 — Idioma de traducción por sesión y separación de presentación
+# 0006 — Idioma de traducción por sesión y separación de presentación
 
 Estado: implementado.
 
