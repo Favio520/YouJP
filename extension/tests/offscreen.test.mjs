@@ -74,7 +74,7 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
       if (parsed.type === 'session.start' && autoReady) {
         queueMicrotask(() => this.message({
           type: 'session.ready', protocol_version: readyVersion, app_version: '1.3.0',
-          session_id: 'session-' + sockets.length, sample_rate: 16000, frame_ms: 100,
+          session_id: `session-${sockets.length}`, sample_rate: 16000, frame_ms: 100,
           asr_model: 'test', device: 'cpu', compute_type: 'int8', target: parsed.target,
         }));
       }
@@ -303,7 +303,7 @@ test('backend fatal error closes capture without retrying', async () => {
 });
 
 for (const readyVersion of [1, 999, null]) {
-  test('incompatible server ' + readyVersion + ' releases audio and never retries', async () => {
+  test(`incompatible server ${readyVersion} releases audio and never retries`, async () => {
     const h = harness({ readyVersion });
     h.send(start);
     await waitFor(() => h.reports.some((m) => m.status === 'error'));

@@ -85,11 +85,6 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-.youjp-block--past .youjp-es {
-  font-size: calc(var(--youjp-es-size) * 0.72);
-  color: rgba(168, 197, 240, 0.45);
-}
-
 /* El español en un azul claro y no en blanco: con los dos idiomas del mismo
    color hay que leer para saber cuál es cuál, y el ojo tiene que poder saltar
    directo al que busca. */
@@ -103,6 +98,11 @@
     0 0 4px rgba(0, 0, 0, 0.95),
     0 2px 6px rgba(0, 0, 0, 0.85);
   overflow-wrap: anywhere;
+}
+
+.youjp-block--past .youjp-es {
+  font-size: calc(var(--youjp-es-size) * 0.72);
+  color: rgba(168, 197, 240, 0.45);
 }
 
 .youjp-committed {
@@ -213,10 +213,6 @@
   /* Sin esto, el cursor sobre una palabra durante el arrastre la resalta y
      parece que se va a abrir una tarjeta. */
   user-select: none;
-}
-
-.youjp-root--dragging .youjp-token {
-  pointer-events: none;
 }
 
 /* ------------------------------------------------------------ herramientas */
@@ -560,6 +556,10 @@
      reproductor; los tokens lo reactivan solo sobre sí mismos. */
   pointer-events: auto;
   transition: background-color 90ms ease;
+}
+
+.youjp-root--dragging .youjp-token {
+  pointer-events: none;
 }
 
 .youjp-token--plain {

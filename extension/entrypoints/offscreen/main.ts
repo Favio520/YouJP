@@ -1,4 +1,4 @@
-/** Audio stays alive while a versioned WebSocket session reconnects. */
+/** Conserva el audio mientras se reconecta la sesión WebSocket. */
 import { DEFAULT_SERVER_URL, type ExtensionMessage, type StartCapture } from '@/src/messages';
 import type { OverlaySettings } from '@/src/settings';
 import { ReconnectingSession } from '@/src/connection';
@@ -110,7 +110,10 @@ function forward(capture: Capture, message: ServerMessage): void {
     if (!capture.segments.has(message.segment_id)) {
       capture.segments.set(message.segment_id, ++capture.nextSegment);
       // La interfaz conserva pocas líneas; limitar también este índice.
-      if (capture.segments.size > 512) capture.segments.delete(capture.segments.keys().next().value!);
+      if (capture.segments.size > 512) {
+        const oldest = capture.segments.keys().next().value;
+        if (oldest !== undefined) capture.segments.delete(oldest);
+      }
     }
   }
   if (message.type === 'asr.final' || message.type === 'mt.final' || message.type === 'nlp.tokens') {
@@ -146,7 +149,7 @@ async function start(params: StartCapture): Promise<void> {
       }));
       capture.pendingDiscontinuity = !sent;
       if (sent) capture.seq += 1;
-      // Advance even offline: old audio is deliberately discarded.
+      // Avanzar también sin conexión: el audio anterior se descarta.
       capture.mediaTimeMs += FRAME_MS;
     });
   } catch (error) {
@@ -156,29 +159,32 @@ async function start(params: StartCapture): Promise<void> {
 
   const connection = new ReconnectingSession({
     url: params.serverUrl || DEFAULT_SERVER_URL,
-    handshake: () => ({
-      type: 'session.start', app_version: APP_VERSION, protocol_version: PROTOCOL_VERSION,
-      video_id: capture!.params.videoId, url: capture!.params.url,
-      is_live: capture!.params.isLive, media_time_ms: Math.round(capture!.mediaTimeMs),
-      source: 'ja', target: capture!.target, profile: 'n4',
-    }),
+    handshake: () => {
+      if (!capture) throw new Error('La captura no está disponible');
+      return {
+        type: 'session.start', app_version: APP_VERSION, protocol_version: PROTOCOL_VERSION,
+        video_id: capture.params.videoId, url: capture.params.url,
+        is_live: capture.params.isLive, media_time_ms: Math.round(capture.mediaTimeMs),
+        source: 'ja', target: capture.target, profile: 'n4',
+      };
+    },
     onReady: (message) => {
       if (!capture || current !== capture) return;
       capture.seq = 0;
       capture.startedAt = performance.now();
       capture.pendingDiscontinuity = true;
       capture.segments.clear();
-      // Apply settings changed while the handshake was in flight.
+      // Aplicar los ajustes cambiados mientras se iniciaba la sesión.
       connection.send({ type: 'session.configure', target: capture.target });
       report({ type: 'status', status: 'running',
-        model: message.asr_model + ' · ' + message.device + '/' + message.compute_type });
+        model: `${message.asr_model} · ${message.device}/${message.compute_type}` });
     },
     onMessage: (message) => { if (capture) forward(capture, message); },
     onRetry: (attempt, delayMs) => {
       if (capture && current === capture) {
         capture.pendingDiscontinuity = true;
         report({ type: 'status', status: 'reconnecting',
-          detail: 'Intento ' + attempt + ' en ' + delayMs / 1000 + ' s. Puedes detener la captura con el icono.' });
+          detail: `Intento ${attempt} en ${delayMs / 1000} s. Puedes detener la captura con el icono.` });
       }
     },
     onFatal: (detail) => {

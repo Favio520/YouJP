@@ -10,6 +10,7 @@
 import { defineBackground } from '#imports';
 import { DEFAULT_SERVER_URL, type ExtensionMessage } from '@/src/messages';
 import { loadSettings, onSettingsChanged } from '@/src/settings';
+import type { PlayerSnapshot } from '@/src/player';
 
 const OFFSCREEN_PATH = 'offscreen.html';
 
@@ -43,7 +44,7 @@ interface CaptureState {
 }
 
 let capture: CaptureState | null = null;
-// The service worker may sleep during a 30-second reconnect delay.
+// El service worker puede dormirse durante los 30 segundos de reconexión.
 const restored = chrome.storage.session.get('capture').then((state) => {
   capture = state.capture ?? null;
 });
@@ -88,8 +89,20 @@ async function ensureOffscreen(): Promise<void> {
  * En vez de pedirle al usuario que recuerde recargar la pestaña, se inyecta a
  * mano cuando no contesta.
  */
-async function ensureContentScript(tabId: number): Promise<any | null> {
-  const probe = () => askTab(tabId, { type: 'player.probe' } as never);
+function isPlayerSnapshot(value: unknown): value is PlayerSnapshot {
+  if (typeof value !== 'object' || value === null) return false;
+  const item = value as Record<string, unknown>;
+  return typeof item.videoId === 'string' && typeof item.mediaTimeMs === 'number' &&
+    typeof item.isLive === 'boolean' && typeof item.paused === 'boolean' &&
+    typeof item.rate === 'number';
+}
+
+async function ensureContentScript(tabId: number): Promise<PlayerSnapshot | null> {
+  const probe = async (): Promise<PlayerSnapshot> => {
+    const response: unknown = await chrome.tabs.sendMessage(tabId, { type: 'player.probe' });
+    if (!isPlayerSnapshot(response)) throw new Error('Respuesta no válida del reproductor');
+    return response;
+  };
 
   try {
     return await probe();
@@ -167,10 +180,6 @@ async function stopCapture(): Promise<void> {
   await chrome.offscreen.closeDocument().catch(() => {});
 }
 
-function askTab(tabId: number, message: unknown): Promise<any> {
-  return chrome.tabs.sendMessage(tabId, message);
-}
-
 export default defineBackground(() => {
   // El documento offscreen solo tiene chrome.runtime: el almacenamiento y
   // sus eventos se atienden aquí, también al despertar el service worker.
@@ -240,7 +249,7 @@ export default defineBackground(() => {
           await chrome.action.setBadgeText({ tabId,
             text: message.status === 'running' ? 'ON' : message.status === 'idle' ? '' : message.status === 'error' ? '!' : '...' });
           await chrome.action.setTitle({ tabId,
-            title: 'YouJP: ' + (message.detail || message.status) });
+            title: `YouJP: ${message.detail || message.status}` });
           if (message.status === 'error') {
             capture = null;
             await chrome.storage.session.remove('capture');

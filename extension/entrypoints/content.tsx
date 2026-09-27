@@ -20,8 +20,9 @@ export default defineContentScript({
   async main(ctx) {
     // El service worker pregunta por el estado del reproductor antes de
     // arrancar la captura, para que la sesión nazca con la posición correcta.
-    chrome.runtime.onMessage.addListener((message: any, _sender, respond) => {
-      if (message?.type === 'player.probe') {
+    chrome.runtime.onMessage.addListener((message: unknown, _sender, respond) => {
+      if (typeof message === 'object' && message !== null &&
+          'type' in message && message.type === 'player.probe') {
         respond(snapshot());
         return true;
       }

@@ -26,7 +26,7 @@ function harness({ capture = { tabId: 7, videoId: 'video' }, settings } = {}) {
     },
     runtime: {
       id: 'test',
-      getURL: (path) => 'chrome-extension://test/' + path,
+      getURL: (path) => `chrome-extension://test/${path}`,
       onMessage: { addListener: (fn) => { receive = fn; } },
       sendMessage: async (msg) => { broadcasts.push(msg); },
     },

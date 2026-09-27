@@ -10,7 +10,7 @@
     "build": "wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
-    "lint": "biome lint entrypoints src tests",
+    "lint": "biome lint entrypoints src tests --error-on-warnings",
     "test": "node --test \"tests/*.test.mjs\"",
     "postinstall": "wxt prepare"
   },
