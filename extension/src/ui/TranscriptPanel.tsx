@@ -86,7 +86,7 @@ export function TranscriptPanel({
       <div className="youjp-transcript-head" onMouseDown={empezar}>
         <span className="youjp-transcript-title">Historial · {lines.length} frases</span>
         {actual && (
-          <button
+          <button type="button"
             className="youjp-transcript-action"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onResetPosition}
@@ -95,7 +95,7 @@ export function TranscriptPanel({
             ⌖
           </button>
         )}
-        <button
+        <button type="button"
           className="youjp-transcript-action"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={onClose}
@@ -112,7 +112,7 @@ export function TranscriptPanel({
           </p>
         )}
         {lines.map((line) => (
-          <button
+          <button type="button"
             key={line.id}
             className="youjp-transcript-row"
             onClick={() => onSeek(line.mediaStartMs)}

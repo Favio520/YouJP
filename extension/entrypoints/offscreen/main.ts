@@ -1,6 +1,6 @@
 /** Audio stays alive while a versioned WebSocket session reconnects. */
 import { DEFAULT_SERVER_URL, type ExtensionMessage, type StartCapture } from '@/src/messages';
-import { loadSettings, onSettingsChanged } from '@/src/settings';
+import type { OverlaySettings } from '@/src/settings';
 import { ReconnectingSession } from '@/src/connection';
 import {
   APP_VERSION, PROTOCOL_VERSION, buildFrame, FLAG_DISCONTINUITY, FLAG_LIVE,
@@ -28,6 +28,12 @@ interface Capture {
 
 let current: Capture | null = null;
 let captureCommands: Promise<void> = Promise.resolve();
+
+// Los documentos offscreen solo pueden usar chrome.runtime, no chrome.storage.
+// El service worker lee y normaliza los ajustes guardados por el overlay.
+function loadCaptureSettings(): Promise<OverlaySettings> {
+  return chrome.runtime.sendMessage({ type: 'settings.get' } satisfies ExtensionMessage);
+}
 
 function report(message: ExtensionMessage, tabId = current?.tabId): void {
   chrome.runtime.sendMessage({ ...message, tabId }).catch(() => {});
@@ -103,7 +109,7 @@ function forward(capture: Capture, message: ServerMessage): void {
   if (message.type === 'asr.final') {
     if (!capture.segments.has(message.segment_id)) {
       capture.segments.set(message.segment_id, ++capture.nextSegment);
-      // Only recent lines are retained by the UI; bound the mapping too.
+      // La interfaz conserva pocas líneas; limitar también este índice.
       if (capture.segments.size > 512) capture.segments.delete(capture.segments.keys().next().value!);
     }
   }
@@ -125,7 +131,7 @@ function forward(capture: Capture, message: ServerMessage): void {
 async function start(params: StartCapture): Promise<void> {
   await stop();
   report({ type: 'status', status: 'connecting' }, params.tabId);
-  const settings = await loadSettings();
+  const settings = await loadCaptureSettings();
   const stream = await openStream(params.streamId);
   let capture: Capture | undefined;
   let graph: Awaited<ReturnType<typeof buildGraph>>;
@@ -144,7 +150,7 @@ async function start(params: StartCapture): Promise<void> {
       capture.mediaTimeMs += FRAME_MS;
     });
   } catch (error) {
-    stream.getTracks().forEach((track) => track.stop());
+    stream.getTracks().forEach((track) => { track.stop(); });
     throw error;
   }
 
@@ -189,7 +195,7 @@ async function start(params: StartCapture): Promise<void> {
     target: settings.targetLanguage, nextSegment: 0, segments: new Map(),
   };
   current = capture;
-  const latest = await loadSettings();
+  const latest = await loadCaptureSettings();
   capture.target = latest.targetLanguage;
   connection.start();
 }
@@ -199,13 +205,12 @@ function updateTarget(target: TargetLanguage): void {
   current.target = target;
   current.connection.send({ type: 'session.configure', target });
 }
-onSettingsChanged((settings) => updateTarget(settings.targetLanguage));
 
 async function release(capture: Capture): Promise<void> {
   capture.connection.stop();
   capture.node.port.onmessage = null;
   capture.node.disconnect();
-  capture.stream.getTracks().forEach((track) => track.stop());
+  capture.stream.getTracks().forEach((track) => { track.stop(); });
   await Promise.all([
     capture.asrCtx.close().catch(() => {}),
     capture.playbackCtx.close().catch(() => {}),
@@ -228,6 +233,9 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, respond
   if ((message.type === 'player.tick' || message.type === 'player.flush') &&
       sender.tab?.id !== current?.tabId) return;
   switch (message.type) {
+    case 'settings.changed':
+      updateTarget(message.settings.targetLanguage);
+      break;
     case 'capture.start':
       captureCommands = captureCommands.then(() => start(message)).catch(async (error) => {
         await stop();

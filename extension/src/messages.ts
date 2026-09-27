@@ -21,6 +21,7 @@ import type {
   NlpTokens,
   ServerError,
 } from './protocol';
+import type { OverlaySettings } from './settings';
 
 export type CaptureStatus =
   | 'idle'
@@ -67,6 +68,17 @@ export interface OffscreenPing {
   type: 'offscreen.ping';
 }
 
+/** offscreen -> service worker: responde con OverlaySettings desde storage */
+export interface GetSettings {
+  type: 'settings.get';
+}
+
+/** service worker -> offscreen: cambios de ajustes mientras captura */
+export interface SettingsChanged {
+  type: 'settings.changed';
+  settings: OverlaySettings;
+}
+
 /** offscreen -> service worker -> content script */
 export interface StatusUpdate {
   type: 'status';
@@ -111,6 +123,8 @@ export type ExtensionMessage = (
   | StartCapture
   | StopCapture
   | OffscreenPing
+  | GetSettings
+  | SettingsChanged
   | StatusUpdate
   | SubtitleUpdate
   | SubtitleFinal

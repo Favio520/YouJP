@@ -13,9 +13,9 @@ const source = buildSync({
 }).outputFiles[0].text;
 
 function harness({ target = 'en', socketFails = false, workletFails = false,
-    readyVersion = protocol.protocol_version, autoReady = true } = {}) {
+    readyVersion = protocol.protocol_version, autoReady = true, beforeWorkletReady } = {}) {
   const reports = [], sockets = [], contexts = [], tracks = [], nodes = [];
-  let listener, settingsListener, now = 0, timerId = 0;
+  let listener, now = 0, timerId = 0;
   const timers = new Map();
   const schedule = (fn, delay) => {
     const id = ++timerId;
@@ -24,20 +24,22 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
   };
   const chrome = {
     runtime: {
-      sendMessage: async (message) => { reports.push(message); },
+      sendMessage: async (message) => {
+        if (message.type === 'settings.get') return { targetLanguage: target };
+        reports.push(message);
+      },
       getURL: (path) => path,
       onMessage: { addListener: (fn) => { listener = fn; } },
-    },
-    storage: {
-      local: { get: async () => ({ overlaySettings: { targetLanguage: target } }) },
-      onChanged: { addListener: (fn) => { settingsListener = fn; } },
     },
   };
   class AudioContext {
     constructor() {
       this.closed = false;
       this.destination = {};
-      this.audioWorklet = { addModule: async () => { if (workletFails) throw new Error('worklet failed'); } };
+      this.audioWorklet = { addModule: async () => {
+        if (workletFails) throw new Error('worklet failed');
+        await beforeWorkletReady?.();
+      } };
       contexts.push(this);
     }
     createMediaStreamSource() { return { connect() {} }; }
@@ -97,7 +99,10 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
   return {
     reports, sockets, contexts, tracks, nodes, timers, send, ping,
     frame: () => nodes[0].port.onmessage({ data: new ArrayBuffer(3200) }),
-    change: (next) => { target = next; settingsListener({ overlaySettings: { newValue: { targetLanguage: next } } }, 'local'); },
+    change: (next) => {
+      target = next;
+      listener({ type: 'settings.changed', settings: { targetLanguage: next } }, { id: 'test' }, () => {});
+    },
     async advance(ms) {
       const until = now + ms;
       for (;;) {
@@ -119,7 +124,7 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
   };
 }
 
-test('offscreen announces when its message listener is ready', async () => {
+test('offscreen announces readiness with only chrome.runtime available', async () => {
   const h = harness();
   assert.equal((await h.ping()).ready, true);
 });
@@ -156,6 +161,27 @@ test('saved target and protocol reach handshake; settings reuse the socket', asy
     ws.message(final);
     ws.message({ type: 'mt.final', segment_id: 1, target: 'es', text: 'gato' });
     assert.equal(h.reports.at(-1).payload.text, 'gato');
+  } finally { await h.stop(); }
+});
+
+test('target changed while audio initializes is included in the handshake', async () => {
+  const h = harness({ beforeWorkletReady: () => h.change('es') });
+  try {
+    await started(h);
+    assert.equal(h.sockets[0].sent[0].target, 'es');
+  } finally { await h.stop(); }
+});
+
+test('target changed during handshake is applied once the backend is ready', async () => {
+  const h = harness({ autoReady: false });
+  try {
+    h.send(start);
+    await waitFor(() => h.sockets[0]?.sent.length > 0);
+    h.change('es');
+    h.sockets[0].message({ type: 'session.ready', protocol_version: protocol.protocol_version,
+      session_id: 'test', sample_rate: 16000, frame_ms: 100 });
+    assert.equal(h.sockets[0].sent.at(-1).type, 'session.configure');
+    assert.equal(h.sockets[0].sent.at(-1).target, 'es');
   } finally { await h.stop(); }
 });
 

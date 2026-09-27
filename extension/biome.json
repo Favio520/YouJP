@@ -1,0 +1,14 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+	"formatter": { "enabled": false },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"a11y": { "noStaticElementInteractions": "off" },
+			"correctness": { "useExhaustiveDependencies": "off" },
+			"suspicious": { "noArrayIndexKey": "off" }
+		}
+	},
+	"assist": { "enabled": false }
+}

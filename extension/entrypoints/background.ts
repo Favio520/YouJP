@@ -9,6 +9,7 @@
 
 import { defineBackground } from '#imports';
 import { DEFAULT_SERVER_URL, type ExtensionMessage } from '@/src/messages';
+import { loadSettings, onSettingsChanged } from '@/src/settings';
 
 const OFFSCREEN_PATH = 'offscreen.html';
 
@@ -171,6 +172,13 @@ function askTab(tabId: number, message: unknown): Promise<any> {
 }
 
 export default defineBackground(() => {
+  // El documento offscreen solo tiene chrome.runtime: el almacenamiento y
+  // sus eventos se atienden aquí, también al despertar el service worker.
+  onSettingsChanged((settings) => {
+    chrome.runtime.sendMessage({ type: 'settings.changed', settings } satisfies ExtensionMessage)
+      .catch(() => {});
+  });
+
   chrome.action.onClicked.addListener(async (tab) => {
     try {
       await restored;
@@ -205,10 +213,16 @@ export default defineBackground(() => {
   });
 
   // Encaminamiento offscreen -> pestaña. El offscreen no tiene chrome.tabs.
-  chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender) => {
+  chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, respond) => {
     // Los content scripts siempre tienen sender.tab. Edge puede omitir
     // sender.url para documentos offscreen, así que no dependemos de esa URL.
     if (sender.id !== chrome.runtime.id || sender.tab) return;
+    // Se solicitan antes de que exista una captura activa y después de montar
+    // el audio, para recoger los cambios hechos durante el arranque.
+    if (message.type === 'settings.get') {
+      void loadSettings().then(respond);
+      return true;
+    }
     void restored.then(async () => {
       if (!capture || message.tabId !== capture.tabId) return;
       const tabId = capture.tabId;

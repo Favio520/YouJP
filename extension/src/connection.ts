@@ -12,7 +12,7 @@ interface Options {
   onFatal: (detail: string) => void;
 }
 
-/** Owns exactly one socket and its timers. Audio is never queued for replay. */
+/** Mantiene un solo socket y sus temporizadores. El audio no se reenvía. */
 export class ReconnectingSession {
   private socket: WebSocket | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -65,7 +65,7 @@ export class ReconnectingSession {
     const old = this.socket;
     this.socket = null;
     old?.close();
-    // Infinite retries while capture is active; stop cancels immediately.
+    // Reintenta mientras siga la captura; stop cancela de inmediato.
     const delay = Math.min(1000 * 2 ** Math.min(this.attempts++, 5), 30_000);
     this.options.onRetry(this.attempts, delay);
     this.timer = setTimeout(() => this.connect(), delay);
@@ -94,7 +94,7 @@ export class ReconnectingSession {
     this.socket = ws;
     ws.binaryType = 'arraybuffer';
     const active = () => !this.stopped && this.socket === ws;
-    // The deadline includes session.ready, not just TCP/WebSocket open.
+    // El plazo incluye session.ready, además de la apertura del socket.
     this.timer = setTimeout(() => { if (active()) this.retry(); }, 10_000);
     ws.addEventListener('open', () => {
       if (!active()) return;

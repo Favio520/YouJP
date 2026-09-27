@@ -10,6 +10,7 @@
     "build": "wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
+    "lint": "biome lint entrypoints src tests",
     "test": "node --test \"tests/*.test.mjs\"",
     "postinstall": "wxt prepare"
   },
@@ -19,6 +20,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
     "@types/chrome": "^0.0.300",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

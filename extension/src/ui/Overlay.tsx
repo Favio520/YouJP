@@ -301,7 +301,7 @@ export function Overlay() {
         {/* El asa está separada del subtítulo a propósito: el subtítulo está
             lleno de palabras pulsables y arrastrarlo por ahí abriría tarjetas
             al azar. */}
-        <button
+        <button type="button"
           className="youjp-tool youjp-grip"
           onMouseDown={empezar}
           title="Arrastrar para mover los subtítulos"
@@ -309,7 +309,7 @@ export function Overlay() {
         >
           ⠿
         </button>
-        <button
+        <button type="button"
           className="youjp-tool"
           onClick={() => setShowTranscript((value) => !value)}
           title={`Historial de la sesión · ${history.length} frases (Alt+H)`}
@@ -317,7 +317,7 @@ export function Overlay() {
         >
           ☰
         </button>
-        <button
+        <button type="button"
           className="youjp-tool"
           onClick={() => setShowSettings((value) => !value)}
           title="Ajustes de subtítulos (Alt+S)"

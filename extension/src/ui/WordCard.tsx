@@ -39,7 +39,7 @@ export function WordCard({ token, target, onClose }: Props) {
 
   return (
     <div className="youjp-card" role="dialog" aria-label={`Definición de ${entry.headword}`}>
-      <button className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
+      <button type="button" className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
         ×
       </button>
 

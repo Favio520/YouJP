@@ -69,7 +69,7 @@ function Choice<T extends string>({
   return (
     <div className="youjp-choice">
       {options.map(([key, label, hint]) => (
-        <button
+        <button type="button"
           key={key}
           className={key === value ? 'youjp-choice-btn youjp-choice-btn--on' : 'youjp-choice-btn'}
           onClick={() => onPick(key)}
@@ -87,7 +87,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
     <div className="youjp-settings" role="dialog" aria-label="Ajustes de subtítulos">
       <div className="youjp-settings-head">
         <span>Ajustes</span>
-        <button className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
+        <button type="button" className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
           ×
         </button>
       </div>
@@ -119,7 +119,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
 
         {settings.position ? (
           <Row label="Posición" hint="colocada a mano">
-            <button className="youjp-reset" onClick={() => onChange({ position: null })}>
+            <button type="button" className="youjp-reset" onClick={() => onChange({ position: null })}>
               Volver abajo y centrado
             </button>
           </Row>
@@ -189,7 +189,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           </label>
         </Row>
 
-        <button className="youjp-reset" onClick={() => onChange(DEFAULT_SETTINGS)}>
+        <button type="button" className="youjp-reset" onClick={() => onChange(DEFAULT_SETTINGS)}>
           Restablecer
         </button>
       </div>

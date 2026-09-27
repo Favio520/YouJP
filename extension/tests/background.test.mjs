@@ -10,16 +10,20 @@ const source = buildSync({
   alias: { '@': fileURLToPath(new URL('..', import.meta.url)) },
 }).outputFiles[0].text;
 
-function harness() {
-  let receive, removed;
+function harness({ capture = { tabId: 7, videoId: 'video' }, settings } = {}) {
+  let receive, removed, settingsListener;
   let closes = 0;
   const routed = [], broadcasts = [], badges = [];
-  const state = { capture: { tabId: 7, videoId: 'video' } };
+  const state = { capture };
   const chrome = {
-    storage: { session: {
-      get: async () => state,
-      remove: async (key) => { delete state[key]; },
-    } },
+    storage: {
+      session: {
+        get: async () => state,
+        remove: async (key) => { delete state[key]; },
+      },
+      local: { get: async () => ({ overlaySettings: settings }) },
+      onChanged: { addListener: (fn) => { settingsListener = fn; } },
+    },
     runtime: {
       id: 'test',
       getURL: (path) => 'chrome-extension://test/' + path,
@@ -41,8 +45,30 @@ function harness() {
   runInNewContext(source, { chrome, console, module: { exports: {} },
     require: () => ({ defineBackground: (main) => main() }) });
   return { state, routed, broadcasts, badges, get closes() { return closes; },
+    change: (...args) => settingsListener(...args),
     receive: (...args) => receive(...args), remove: (id) => removed(id) };
 }
+
+test('offscreen can request saved settings before capture starts', async () => {
+  for (const [stored, expected] of [[{ targetLanguage: 'en', esSize: 30 }, 'en'], [undefined, 'es']]) {
+    const h = harness({ capture: null, settings: stored });
+    const settings = await new Promise((resolve) => {
+      assert.equal(h.receive({ type: 'settings.get' }, { id: 'test' }, resolve), true);
+    });
+    assert.equal(settings.targetLanguage, expected);
+    if (stored) assert.equal(settings.translationSize, 30);
+  }
+});
+
+test('service worker relays normalized setting changes through runtime messages', async () => {
+  const h = harness();
+  const changes = { overlaySettings: { newValue: { targetLanguage: 'en' } } };
+  h.change(changes, 'sync');
+  assert.equal(h.broadcasts.length, 0);
+  h.change(changes, 'local');
+  assert.equal(h.broadcasts[0].type, 'settings.changed');
+  assert.equal(h.broadcasts[0].settings.targetLanguage, 'en');
+});
 
 test('a restarted service worker restores routing and ignores other senders/tabs', async () => {
   const h = harness();

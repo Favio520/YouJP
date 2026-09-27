@@ -66,7 +66,7 @@ export function Subtitle({ text, tokens, furigana, selectedIndex, onSelect }: Pr
         }
 
         return (
-          <button
+          <button type="button"
             key={token.i}
             className={
               selectedIndex === token.i ? 'youjp-token youjp-token--active' : 'youjp-token'
