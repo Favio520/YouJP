@@ -2,7 +2,11 @@ name: CI
 
 on:
   push:
+    branches: [master]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   checks:
@@ -35,3 +39,14 @@ jobs:
         run: npm test --prefix extension
       - name: Comparar tramas Python y TypeScript
         run: uv run --locked --project backend python scripts/check_frame_conformance.py
+
+  launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compilar lanzador e iconos
+        shell: cmd
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File scripts\windows\Build-Launcher.ps1
+      - name: Probar lanzador
+        shell: cmd
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File scripts\windows\Test-Launcher.ps1
