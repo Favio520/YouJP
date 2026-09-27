@@ -1,4 +1,4 @@
-<# Re-runnable Windows setup. -Plan only detects hardware and prints the plan. #>
+<# Instalación repetible de Windows. -Plan solo detecta el equipo y muestra el plan. #>
 param(
     [ValidateSet('Auto', 'cuda', 'cpu')][string]$Device = 'Auto',
     [ValidateSet('Auto', 'llm', 'nllb', 'none')][string]$Translation = 'Auto',
@@ -42,15 +42,18 @@ try {
         if (-not (Test-Path -LiteralPath $uvPath)) { throw 'No se encontro uv despues de instalarlo.' }
     }
     Invoke-YouJPCommand -Exe $uvPath -Arguments @('python', 'install', '3.12')
-    # This file only supplies defaults. Never rewrite a user's .env.
+    # Este archivo solo aporta valores iniciales; no reescribir el .env del usuario.
     $lines = @('# Generado por el asistente. .env y las variables del entorno tienen prioridad.')
     foreach ($key in $profile.Keys) { $lines += "$key=$($profile[$key])" }
     [IO.File]::WriteAllLines((Join-Path $script:RuntimeDir 'launcher.env'), $lines, [Text.UTF8Encoding]::new($false))
     Push-Location (Join-Path $script:ProjectRoot 'backend')
     try {
         $syncArgs = @('sync', '--locked', '--inexact', '--no-dev', '--python', '3.12')
-        # Include CUDA libraries when a GPU exists, even if .env overrides Auto.
+        # Incluir CUDA si hay GPU, incluso si .env sustituye el perfil automático.
         if ($hardware.GPU -or $Device -eq 'cuda') { $syncArgs += @('--extra', 'cuda') }
+        # .env y las variables pueden cambiar el perfil automático después.
+        # Incluir NLLB siempre conserva esa opción en el asistente.
+        $syncArgs += @('--extra', 'nllb')
         Invoke-YouJPCommand -Exe $uvPath -Arguments $syncArgs
         $python = Join-Path $script:ProjectRoot 'backend/.venv/Scripts/python.exe'
         $prepareArgs = @('-u', (Join-Path $script:ProjectRoot 'scripts/prepare_runtime.py'))
@@ -90,7 +93,10 @@ try {
         Invoke-YouJPCommand -Exe $npm -Arguments @('ci', '--no-audit', '--no-fund')
         Invoke-YouJPCommand -Exe $npm -Arguments @('run', 'build')
     } finally { Pop-Location }
-    # Written last: failed/partial installations must not look ready to launch.
+    if (-not (Test-Path -LiteralPath (Join-Path $script:ProjectRoot 'YouJP.exe'))) {
+        Invoke-YouJPCommand -Exe $script:PowerShellExe -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-STA', '-File', (Join-Path $PSScriptRoot 'Build-Launcher.ps1'), '-SkipIcons')
+    }
+    # Escribir al final: una instalación incompleta no debe parecer lista.
     [IO.File]::WriteAllText((Join-Path $script:RuntimeDir 'installed-version'), (Get-YouJPVersion))
     Write-Output 'Listo. Inicia el backend y carga extension/.output/chrome-mv3 desde chrome://extensions.'
     $setupSucceeded = $true

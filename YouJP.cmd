@@ -1,2 +1,6 @@
 @echo off
+if exist "%~dp0YouJP.exe" (
+    start "" "%~dp0YouJP.exe"
+    exit /b
+)
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -STA -WindowStyle Hidden -File "%~dp0scripts\windows\YouJP.ps1"

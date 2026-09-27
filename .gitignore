@@ -33,3 +33,5 @@ dist/
 # Entorno local
 .env
 /.youjp/
+# Native entry point, rebuilt by scripts/windows/Build-Launcher.ps1
+/YouJP.exe

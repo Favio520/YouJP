@@ -1,5 +1,6 @@
-<# Offline smoke/decision tests: no downloads, installations or backend launches. #>
+<# Pruebas aisladas de decisiones: sin descargas, instalación ni backend. #>
 . (Join-Path $PSScriptRoot 'Common.ps1')
+. (Join-Path $PSScriptRoot 'LauncherState.ps1')
 function Assert($Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
@@ -27,6 +28,27 @@ Assert (Test-YouJPHealth $health) 'Current backend should be ready'
 $health.protocol_version = 999
 Assert (-not (Test-YouJPHealth $health)) 'Incompatible backend must not be ready'
 
+$view = Get-YouJPPanelState -Installed $true -Checked $false
+Assert (-not $view.CanAct -and -not $view.CanSetup) 'First health check must finish before starting or installing'
+$view = Get-YouJPPanelState -Installed $false -Checked $true
+Assert ($view.Action -eq 'settings' -and $view.CanSetup) 'First run must lead to preparation'
+$view = Get-YouJPPanelState -Installed $true -Checked $true
+Assert ($view.Action -eq 'start' -and -not $view.CanStop) 'Idle installation can start, not stop'
+$view = Get-YouJPPanelState -Installed $true -Checked $true -Owned $true
+Assert ($view.Kind -eq 'starting' -and $view.Busy -and $view.CanStop -and -not $view.CanAct) 'Loading models must prevent a duplicate start'
+$view = Get-YouJPPanelState -Ready $true -Checked $true
+Assert ($view.Kind -eq 'ready' -and $view.Action -eq 'youtube' -and -not $view.CanStop -and -not $view.CanSetup) 'External backend can be used, but not stopped or updated'
+$view = Get-YouJPPanelState -Ready $true -Owned $true -Checked $true -Sessions 1
+Assert ($view.Kind -eq 'capturing' -and $view.CanStop) 'A live browser connection must differ from backend ready'
+$view = Get-YouJPPanelState -Ready $true -Owned $true -Stopping $true -Checked $true
+Assert ($view.Kind -eq 'stopping' -and -not $view.CanStop -and -not $view.CanAct) 'Stopping must override a stale ready response'
+$view = Get-YouJPPanelState -SettingUp $true -Checked $true
+Assert ($view.Kind -eq 'setup' -and -not $view.CanSetup -and -not $view.CanAct) 'Setup must lock conflicting actions'
+$view = Get-YouJPPanelState -Conflict $true -Checked $true
+Assert ($view.Action -eq 'activity' -and -not $view.CanSetup) 'An incompatible service must not allow installing over it'
+$view = Get-YouJPPanelState -Installed $true -Checked $true -Failure 'Model failed'
+Assert ($view.Kind -eq 'error' -and $view.Detail -eq 'Model failed' -and $view.Action -eq 'start') 'Failure details and retry must remain available'
+
 foreach ($file in (Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.ps1')) {
     $tokens = $null
     $parseErrors = $null
@@ -34,4 +56,10 @@ foreach ($file in (Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.ps1')) {
     Assert ($parseErrors.Count -eq 0) "Invalid PowerShell syntax: $($file.Name)"
 }
 Invoke-YouJPCommand -Exe $script:PowerShellExe -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-STA', '-File', (Join-Path $PSScriptRoot 'YouJP.ps1'), '-SmokeTest')
+$nativeLauncher = Join-Path $script:ProjectRoot 'YouJP.exe'
+if (Test-Path -LiteralPath $nativeLauncher) {
+    $nativeTest = Start-Process -FilePath $nativeLauncher -ArgumentList '--smoke-test' -WindowStyle Hidden -Wait -PassThru
+    Assert ($nativeTest.ExitCode -eq 0) 'Native launcher must load the controller and render all WPF pages'
+    $nativeTest.Dispose()
+}
 Write-Output 'OK: perfiles de hardware, precedencia, compatibilidad, sintaxis y panel.'
