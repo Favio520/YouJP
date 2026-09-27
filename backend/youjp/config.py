@@ -20,6 +20,7 @@ from youjp.contract import FRAME_MS, SAMPLE_RATE
 
 # backend/youjp/config.py -> backend/youjp -> backend -> raiz del repo
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_ALLOWED_EXTENSION_IDS = "maigpfdicmnmilihmhnfalbcchkpobab"
 
 
 class Settings(BaseSettings):
@@ -223,6 +224,9 @@ class Settings(BaseSettings):
     # --- servidor ----------------------------------------------------------
     host: str = "127.0.0.1"
     port: int = 8770
+    allowed_extension_ids: str = DEFAULT_ALLOWED_EXTENSION_IDS
+    """IDs de extensión separados por comas. Vacío acepta cualquier extensión
+    válida durante el desarrollo; el valor predeterminado es el ID del manifest."""
 
     # --- diagnostico -------------------------------------------------------
     log_level: str = "INFO"

@@ -3,6 +3,8 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
+    // Clave pública de desarrollo: conserva el mismo ID al reconstruir la extensión.
+    key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvGLB8JzzzwlvtVygDzRgukCvhm9ScEurTbTIV3pYmHVwp7Wj52YUxkf7w/9G8ZIJmVzIG1AU5FSwYQN2F0ffNz36oQzUdwqA6RpljqHvK4k3Y6TcVxn2ps5uLUSlneO8XuyebDMAW8zY+i/EwQZXWFehPs+EQZyxJUL1QH8FC6qdL+VVNQRzly9qDHp0mwUvlAl5kA8Lq+y/cDsBd5qCBlrDeJWE6HJdv3u73nDUEtGDoPOGrSATqBo51jSgM2nO17sFawNUcN3XK9B+J+QZQNIHXXGofPtP0tTOD3wMNqdaMEHgLFn83zju0thlX/0EyiglOm3TJ74qjRcTsAUA9QIDAQAB',
     name: 'youjp — subtítulos japoneses',
     description:
       'Captura el audio de una pestaña de YouTube y muestra subtítulos japoneses en tiempo real.',

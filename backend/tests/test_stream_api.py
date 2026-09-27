@@ -10,16 +10,17 @@ from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
 import youjp.main as server
-from youjp.config import Settings
+from youjp.config import DEFAULT_ALLOWED_EXTENSION_IDS, Settings
 from youjp.mt.base import Translation
 from youjp.obs.metrics import MetricsCollector
 from youjp.ws.protocol import APP_VERSION, PROTOCOL_VERSION, AsrFinal
 
-EXTENSION_ORIGIN = "chrome-extension://" + "a" * 32
+EXTENSION_ORIGIN = f"chrome-extension://{DEFAULT_ALLOWED_EXTENSION_IDS}"
 
 
 def extension_socket(client):
-    return client.websocket_connect("/stream", headers={"origin": EXTENSION_ORIGIN})
+    return client.websocket_connect("/stream", headers={"origin": EXTENSION_ORIGIN,
+                                                         "host": "127.0.0.1:8770"})
 
 
 class Translator:
@@ -75,7 +76,8 @@ class FakeNlp:
 
 @pytest.fixture
 def client(monkeypatch):
-    state = SimpleNamespace(settings=Settings(_env_file=None), translator=Translator(),
+    state = SimpleNamespace(settings=Settings(_env_file=None,
+                                             allowed_extension_ids=DEFAULT_ALLOWED_EXTENSION_IDS), translator=Translator(),
                             engine=None, new_vad=lambda: None, new_analyzer=lambda: None, sessions=0)
     monkeypatch.setattr(server.app.state, "youjp", state, raising=False)
     monkeypatch.setattr(server, "AsrWorker", FakeAsr)
@@ -93,7 +95,7 @@ def client(monkeypatch):
 
     monkeypatch.setattr(server, "_metrics_ticker", ticker)
     # Sin lifespan: los recursos pesados ya se han sustituido explícitamente.
-    test_client = TestClient(server.app)
+    test_client = TestClient(server.app, base_url="http://127.0.0.1:8770")
     try:
         yield test_client, state, tickers
     finally:
@@ -162,10 +164,13 @@ def test_incompatible_handshake_closes_without_allocating_workers(client, fields
 
 
 @pytest.mark.parametrize("origin", [None, "null", "https://example.com", "http://127.0.0.1:8770",
-                                     "chrome-extension://not-an-id", EXTENSION_ORIGIN + "/extra"])
+                                     "chrome-extension://not-an-id", EXTENSION_ORIGIN + "/extra",
+                                     "chrome-extension://" + "b" * 32])
 def test_stream_rejects_untrusted_origins_before_allocating_workers(client, origin):
     test_client, state, tickers = client
-    headers = {} if origin is None else {"origin": origin}
+    headers = {"host": "127.0.0.1:8770"}
+    if origin is not None:
+        headers["origin"] = origin
     with test_client.websocket_connect("/stream", headers=headers) as ws:
         with pytest.raises(WebSocketDisconnect) as closed:
             ws.receive_text()
@@ -173,6 +178,35 @@ def test_stream_rejects_untrusted_origins_before_allocating_workers(client, orig
     assert state.sessions == 0
     assert tickers["max"] == 0
     assert not FakeAsr.stopped
+
+
+def test_stream_allows_configured_ids_and_explicit_development_fallback(client):
+    test_client, state, _ = client
+    other_origin = "chrome-extension://" + "b" * 32
+    state.settings = state.settings.model_copy(update={"allowed_extension_ids": "b" * 32})
+    with test_client.websocket_connect("/stream", headers={"origin": other_origin,
+                                                           "host": "127.0.0.1:8770"}) as ws:
+        ws.send_json({"type": "ping", "t": 7})
+        assert ws.receive_json() == {"type": "pong", "t": 7}
+        ws.send_json({"type": "session.stop"})
+    with extension_socket(test_client) as ws:
+        with pytest.raises(WebSocketDisconnect) as closed:
+            ws.receive_text()
+        assert closed.value.code == 1008
+
+    state.settings = state.settings.model_copy(update={"allowed_extension_ids": ""})
+    with test_client.websocket_connect("/stream", headers={"origin": other_origin,
+                                                           "host": "127.0.0.1:8770"}) as ws:
+        ws.send_json({"type": "ping", "t": 8})
+        assert ws.receive_json() == {"type": "pong", "t": 8}
+        ws.send_json({"type": "session.stop"})
+    assert state.sessions == 0
+
+
+def test_origin_list_fails_closed_when_malformed():
+    other_origin = "chrome-extension://" + "b" * 32
+    assert server._trusted_origin(other_origin, f"{DEFAULT_ALLOWED_EXTENSION_IDS}, {'b' * 32}")
+    assert not server._trusted_origin(other_origin, " , ")
 
 
 def test_health_identifies_version_and_actual_capabilities(client, monkeypatch):
@@ -186,3 +220,5 @@ def test_health_identifies_version_and_actual_capabilities(client, monkeypatch):
     assert health['protocol_version'] == PROTOCOL_VERSION
     assert health['mt_provider'] == 'test'
     assert health['dictionary_loaded'] is False
+    assert test_client.get('/health', headers={"host": "localhost:8770"}).status_code == 200
+    assert test_client.get('/health', headers={"host": "attacker.example:8770"}).status_code == 400

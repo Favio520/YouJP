@@ -211,6 +211,13 @@ npm run build          # deja el resultado en extension/.output/chrome-mv3
 En Chrome o Edge: `chrome://extensions` → activa **Modo de desarrollador** →
 **Cargar descomprimida** → elige `extension/.output/chrome-mv3`.
 
+La extensión usa un ID fijo (`maigpfdicmnmilihmhnfalbcchkpobab`) y el backend
+solo acepta ese origen por defecto. Si tenías una versión anterior cargada con
+otro ID, quítala de `chrome://extensions`, carga de nuevo la carpeta compilada
+y reinicia el backend. Para otro ID, configura `YOUJP_ALLOWED_EXTENSION_IDS`
+con uno o varios IDs separados por comas; dejarlo vacío admite cualquier
+extensión válida únicamente durante el desarrollo.
+
 Abre un vídeo japonés de YouTube y **haz clic en el icono de la extensión**. Ese
 clic es obligatorio: `tabCapture` solo concede el permiso tras un gesto del
 usuario, y por eso la extensión no tiene popup — con popup, `action.onClicked`

@@ -20,6 +20,7 @@ from contextlib import asynccontextmanager
 import psutil
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from youjp.asr.engine import WhisperEngine
 from youjp.audio.vad import SileroVAD
@@ -57,9 +58,14 @@ OUTBOX_SIZE = 512
 EXTENSION_ORIGIN = re.compile(r"chrome-extension://[a-p]{32}\Z")
 
 
-def _trusted_origin(origin: str | None) -> bool:
-    """Solo una extensión de Chrome puede iniciar sesiones desde el navegador."""
-    return origin is not None and EXTENSION_ORIGIN.fullmatch(origin) is not None
+def _trusted_origin(origin: str | None, allowed_ids: str) -> bool:
+    """Acepta el ID configurado; la lista vacía habilita otros IDs de desarrollo."""
+    if origin is None or EXTENSION_ORIGIN.fullmatch(origin) is None:
+        return False
+    if not allowed_ids.strip():
+        return True
+    ids = {item.strip() for item in allowed_ids.split(",") if item.strip()}
+    return origin.removeprefix("chrome-extension://") in ids
 
 
 class AppState:
@@ -173,6 +179,7 @@ def _warn_if_vram_tight() -> None:
 
 
 app = FastAPI(title="youjp", version=APP_VERSION, lifespan=lifespan)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"], www_redirect=False)
 
 
 @app.get("/health")
@@ -207,7 +214,7 @@ async def health() -> dict:
 async def stream(ws: WebSocket) -> None:
     state: AppState = app.state.youjp
     settings = state.settings
-    if not _trusted_origin(ws.headers.get("origin")):
+    if not _trusted_origin(ws.headers.get("origin"), settings.allowed_extension_ids):
         # Cerrar antes de accept() produce HTTP 403 y oculta el código 1008 al
         # cliente. Aceptamos y cerramos sin crear tareas ni cargar trabajadores.
         await ws.accept()

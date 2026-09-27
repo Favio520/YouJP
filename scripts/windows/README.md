@@ -12,6 +12,8 @@ esa ventana. Un motor iniciado desde otra aplicación nunca se termina desde aqu
 
 El archivo `.cmd` queda como entrada compatible para instalaciones que todavía
 no tienen el ejecutable. Preparar / actualizar lo genera si falta.
+Al actualizar desde una extensión anterior con otro ID, elimínala en
+`chrome://extensions`, carga de nuevo la carpeta compilada y reinicia el backend.
 
 ## Desarrollo
 
