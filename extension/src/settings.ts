@@ -19,6 +19,7 @@ export interface OverlaySettings {
   /** Tamaño del japonés en píxeles a 1080p; escala con el ancho del vídeo. */
   jaSize: number;
   translationSize: number;
+  settingsLanguage: 'es' | 'en';
   targetLanguage: TargetLanguage;
   /** Distancia desde el borde inferior del reproductor, en píxeles. */
   bottom: number;
@@ -50,6 +51,7 @@ export interface OverlaySettings {
 export const DEFAULT_SETTINGS: OverlaySettings = {
   jaSize: 28,
   translationSize: 21,
+  settingsLanguage: 'es',
   targetLanguage: 'es',
   bottom: 72,
   width: 86,
@@ -77,6 +79,7 @@ export function normalizeSettings(value: unknown): OverlaySettings {
     ...current,
     translationSize: typeof stored.translationSize === 'number'
       ? stored.translationSize : typeof esSize === 'number' ? esSize : DEFAULT_SETTINGS.translationSize,
+    settingsLanguage: stored.settingsLanguage === 'en' ? 'en' : 'es',
     targetLanguage: stored.targetLanguage === 'en' ? 'en' : 'es',
     languages: stored.languages === 'es' || stored.languages === 'translation'
       ? 'translation' : stored.languages === 'ja' ? 'ja' : 'both',

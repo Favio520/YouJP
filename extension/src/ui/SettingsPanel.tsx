@@ -45,6 +45,48 @@ const TARGETS: Array<[TargetLanguage, string, string]> = [
   ['en', 'English', 'Japanese → English'],
 ];
 
+const ENGLISH: Record<string, string> = {
+  "No": "Off",
+  "Sin anotaciones de lectura": "No reading annotations",
+  "Automática": "Automatic",
+  "Solo en palabras poco frecuentes: así los kanji comunes se siguen aprendiendo": "Only uncommon words, so you can keep practicing familiar kanji",
+  "Siempre": "Always",
+  "En todos los kanji": "All kanji",
+  "Ninguno": "None",
+  "Solo contorno; deja ver todo el vídeo": "Outline only; keeps the video visible",
+  "Suave": "Soft",
+  "Banda difuminada bajo el texto": "Soft band behind the text",
+  "Sólido": "Solid",
+  "Máximo contraste sobre fondos claros o con mucho movimiento": "Maximum contrast on bright or busy backgrounds",
+  "Ambos": "Both",
+  "Solo japonés": "Japanese only",
+  "Para practicar comprensión sin la muleta": "Practice comprehension without translation",
+  "Solo traducción": "Translation only",
+  "Español": "Spanish",
+  "Japonés → español": "Japanese → Spanish",
+  "Ajustes de subtítulos": "Subtitle settings",
+  "Ajustes": "Settings",
+  "Cerrar": "Close",
+  "Tamaño del japonés": "Japanese text size",
+  "Tamaño de la traducción": "Translation text size",
+  "Texto del historial": "History text size",
+  "Posición": "Position",
+  "colocada a mano": "manually positioned",
+  "Volver abajo y centrado": "Reset to bottom center",
+  "Altura sobre el borde": "Distance from bottom",
+  "Ancho máximo": "Maximum width",
+  "Fondo": "Background",
+  "Traducir al": "Translate into",
+  "Se aplica a las próximas frases; el historial conserva su idioma original.": "Applies to new sentences; history keeps its original language.",
+  "Mostrar": "Show",
+  "Frases anteriores": "Previous sentences",
+  "Texto en curso": "Partial text",
+  "La cola gris que aún puede cambiar": "The gray text that may still change",
+  "Visible": "Visible",
+  "Oculto": "Hidden",
+  "Restablecer": "Reset"
+};
+
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="youjp-setting">
@@ -83,17 +125,24 @@ function Choice<T extends string>({
 }
 
 export function SettingsPanel({ settings, onChange, onClose }: Props) {
+  const t = (es: string, en: string) => settings.settingsLanguage === 'en' ? en : es;
+  const translateOptions = <T extends string>(options: Array<[T, string, string]>): Array<[T, string, string]> =>
+    options.map(([value, label, hint]) => [value, t(label, ENGLISH[label] ?? label), t(hint, ENGLISH[hint] ?? hint)]);
   return (
-    <div className="youjp-settings" role="dialog" aria-label="Ajustes de subtítulos">
+    <div className="youjp-settings" role="dialog" aria-label={t('Ajustes de subtítulos', 'Subtitle settings')}>
       <div className="youjp-settings-head">
-        <span>Ajustes</span>
-        <button type="button" className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
+        <span>{t('Ajustes', 'Settings')}</span>
+        <button type="button" className="youjp-card-close" onClick={onClose} aria-label={t('Cerrar', 'Close')}>
           ×
         </button>
       </div>
 
       <div className="youjp-settings-body">
-        <Row label="Tamaño del japonés" hint={`${settings.jaSize} px`}>
+        <Row label={t('Idioma de los ajustes', 'Settings language')}>
+          <Choice options={[[ 'es', 'Español', '' ], [ 'en', 'English', '' ]]}
+            value={settings.settingsLanguage} onPick={(v) => onChange({ settingsLanguage: v })} />
+        </Row>
+        <Row label={t('Tamaño del japonés', 'Japanese text size')} hint={`${settings.jaSize} px`}>
           <input
             id="youjp-ja-size"
             type="range"
@@ -105,7 +154,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           />
         </Row>
 
-        <Row label="Tamaño de la traducción" hint={`${settings.translationSize} px`}>
+        <Row label={t('Tamaño de la traducción', 'Translation text size')} hint={`${settings.translationSize} px`}>
           <input
             id="youjp-es-size"
             type="range"
@@ -118,13 +167,13 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         </Row>
 
         {settings.position ? (
-          <Row label="Posición" hint="colocada a mano">
+          <Row label={t('Posición', 'Position')} hint={t('colocada a mano', 'manually positioned')}>
             <button type="button" className="youjp-reset" onClick={() => onChange({ position: null })}>
-              Volver abajo y centrado
+              {t('Volver abajo y centrado', 'Reset to bottom center')}
             </button>
           </Row>
         ) : (
-          <Row label="Altura sobre el borde" hint={`${settings.bottom} px`}>
+          <Row label={t('Altura sobre el borde', 'Distance from bottom')} hint={`${settings.bottom} px`}>
             <input
               id="youjp-bottom"
               type="range"
@@ -137,7 +186,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           </Row>
         )}
 
-        <Row label="Ancho máximo" hint={`${settings.width} %`}>
+        <Row label={t('Ancho máximo', 'Maximum width')} hint={`${settings.width} %`}>
           <input
             id="youjp-width"
             type="range"
@@ -150,22 +199,22 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         </Row>
 
         <Row label="Furigana">
-          <Choice options={FURIGANA} value={settings.furigana} onPick={(v) => onChange({ furigana: v })} />
+          <Choice options={translateOptions(FURIGANA)} value={settings.furigana} onPick={(v) => onChange({ furigana: v })} />
         </Row>
 
-        <Row label="Fondo">
-          <Choice options={BACKDROP} value={settings.backdrop} onPick={(v) => onChange({ backdrop: v })} />
+        <Row label={t('Fondo', 'Background')}>
+          <Choice options={translateOptions(BACKDROP)} value={settings.backdrop} onPick={(v) => onChange({ backdrop: v })} />
         </Row>
 
-        <Row label="Traducir al" hint="Se aplica a las próximas frases; el historial conserva su idioma original.">
-          <Choice options={TARGETS} value={settings.targetLanguage} onPick={(v) => onChange({ targetLanguage: v })} />
+        <Row label={t('Traducir al', 'Translate into')} hint={t('Se aplica a las próximas frases; el historial conserva su idioma original.', 'Applies to new sentences; history keeps its original language.')}>
+          <Choice options={translateOptions(TARGETS)} value={settings.targetLanguage} onPick={(v) => onChange({ targetLanguage: v })} />
         </Row>
 
-        <Row label="Mostrar">
-          <Choice options={LANGUAGES} value={settings.languages} onPick={(v) => onChange({ languages: v })} />
+        <Row label={t('Mostrar', 'Show')}>
+          <Choice options={translateOptions(LANGUAGES)} value={settings.languages} onPick={(v) => onChange({ languages: v })} />
         </Row>
 
-        <Row label="Frases anteriores" hint={String(settings.history)}>
+        <Row label={t('Frases anteriores', 'Previous sentences')} hint={String(settings.history)}>
           <input
             id="youjp-history"
             type="range"
@@ -177,7 +226,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           />
         </Row>
 
-        <Row label="Texto en curso" hint="La cola gris que aún puede cambiar">
+        <Row label={t('Texto en curso', 'Partial text')} hint={t('La cola gris que aún puede cambiar', 'The gray text that may still change')}>
           <label className="youjp-switch">
             <input
               id="youjp-tentative"
@@ -185,12 +234,12 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
               checked={settings.showTentative}
               onChange={(e) => onChange({ showTentative: e.target.checked })}
             />
-            <span>{settings.showTentative ? 'Visible' : 'Oculto'}</span>
+            <span>{settings.showTentative ? t('Visible', 'Visible') : t('Oculto', 'Hidden')}</span>
           </label>
         </Row>
 
-        <button type="button" className="youjp-reset" onClick={() => onChange(DEFAULT_SETTINGS)}>
-          Restablecer
+        <button type="button" className="youjp-reset" onClick={() => onChange({ ...DEFAULT_SETTINGS, settingsLanguage: settings.settingsLanguage })}>
+          {t('Restablecer', 'Reset')}
         </button>
       </div>
     </div>
