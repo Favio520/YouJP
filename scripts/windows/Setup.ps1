@@ -1,4 +1,4 @@
-<# Instalación repetible de Windows. -Plan solo detecta el equipo y muestra el plan. #>
+﻿<# Instalación repetible de Windows. -Plan solo detecta el equipo y muestra el plan. #>
 param(
     [ValidateSet('Auto', 'cuda', 'cpu')][string]$Device = 'Auto',
     [ValidateSet('Auto', 'llm', 'nllb', 'none')][string]$Translation = 'Auto',
@@ -20,6 +20,8 @@ $setupSucceeded = $false
 try {
     $setupLock = [IO.File]::Open((Join-Path $script:RuntimeDir 'setup.lock'), 'OpenOrCreate', 'ReadWrite', 'None')
     $config = Get-YouJPRuntime
+    try { $config = Get-YouJPEffectiveRuntime }
+    catch { Write-Output 'No se pudo consultar el entorno actual. Se comprobara el ultimo puerto registrado antes de repararlo.' }
     $listener = Get-NetTCPConnection -LocalPort $config.port -State Listen -ErrorAction SilentlyContinue
     if ($listener) { throw "Deten el servidor del puerto $($config.port) antes de instalar o actualizar." }
     [IO.File]::WriteAllText((Join-Path $script:RuntimeDir 'installed-version'), '')
@@ -54,6 +56,8 @@ try {
         # .env y las variables pueden cambiar el perfil automático después.
         # Incluir NLLB siempre conserva esa opción en el asistente.
         $syncArgs += @('--extra', 'nllb')
+        # OCR local en CPU para traducir regiones de la pestaña.
+        $syncArgs += @('--extra', 'ocr')
         Invoke-YouJPCommand -Exe $uvPath -Arguments $syncArgs
         $python = Join-Path $script:ProjectRoot 'backend/.venv/Scripts/python.exe'
         $prepareArgs = @('-u', (Join-Path $script:ProjectRoot 'scripts/prepare_runtime.py'))

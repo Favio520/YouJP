@@ -1,38 +1,39 @@
 <DrawingImage xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
   <DrawingImage.Drawing>
     <DrawingGroup>
-      <GeometryDrawing Brush="#263D37" Geometry="M 48,4 L 208,4 Q 252,4 252,48 L 252,208 Q 252,252 208,252 L 48,252 Q 4,252 4,208 L 4,48 Q 4,4 48,4 Z"/>
-      <!-- A friendly T. rex in profile. Large shapes stay clear in the tray. -->
-      <GeometryDrawing Brush="#E38B5E" Geometry="M 52,118 Q 45,114 42,121 L 38,139 L 69,141 Z M 45,152 Q 37,151 37,159 L 40,178 L 71,168 Z M 52,188 Q 44,190 48,198 L 62,216 L 84,192 Z"/>
-      <GeometryDrawing Brush="#91B475" Geometry="M 69,117 C 65,76 96,51 132,51 C 162,51 177,63 181,82 L 202,82 Q 226,82 228,105 L 228,125 Q 228,148 204,151 L 160,154 Q 158,184 181,204 Q 188,215 178,221 L 94,222 Q 61,221 60,190 L 60,147 Q 60,129 69,117 Z"/>
-      <GeometryDrawing Brush="#C8D69E" Geometry="M 118,144 Q 139,151 160,154 Q 158,184 181,204 Q 188,215 178,221 L 139,222 Q 123,211 118,194 Q 111,174 118,144 Z"/>
-      <GeometryDrawing Brush="#AAC58B" Geometry="M 175,98 L 204,98 Q 216,98 216,111 L 216,120 Q 216,126 209,126 L 177,126 Q 166,121 166,112 Q 166,102 175,98 Z"/>
+      <GeometryDrawing Brush="#263028" Geometry="M 48,4 L 208,4 Q 252,4 252,48 L 252,208 Q 252,252 208,252 L 48,252 Q 4,252 4,208 L 4,48 Q 4,4 48,4 Z"/>
+      <!-- Compact version of the sakura mascot, legible in the Windows tray. -->
+      <GeometryDrawing Brush="#C37E73" Geometry="M 52,118 Q 45,114 42,121 L 38,139 L 69,141 Z M 45,152 Q 37,151 37,159 L 40,178 L 71,168 Z M 52,188 Q 44,190 48,198 L 62,216 L 84,192 Z"/>
+      <GeometryDrawing Brush="#8EAE73" Geometry="M 69,117 C 65,76 96,51 132,51 C 162,51 177,63 181,82 L 202,82 Q 226,82 228,105 L 228,125 Q 228,148 204,151 L 160,154 Q 158,184 181,204 Q 188,215 178,221 L 94,222 Q 61,221 60,190 L 60,147 Q 60,129 69,117 Z"/>
+      <GeometryDrawing Brush="#DCE1B2" Geometry="M 118,144 Q 139,151 160,154 Q 158,184 181,204 Q 188,215 178,221 L 139,222 Q 123,211 118,194 Q 111,174 118,144 Z"/>
+      <GeometryDrawing Brush="#B0C596" Geometry="M 175,98 L 204,98 Q 216,98 216,111 L 216,120 Q 216,126 209,126 L 177,126 Q 166,121 166,112 Q 166,102 175,98 Z"/>
+      <GeometryDrawing Brush="#A9BDCA" Geometry="M 72,171 Q 93,160 116,165 L 130,194 L 145,169 Q 165,163 180,176 L 197,220 L 67,220 Z"/>
+      <GeometryDrawing Brush="#DCE7E5" Geometry="M 109,166 L 130,194 L 145,169 L 130,177 Z"/>
       <GeometryDrawing Brush="#FAF3DF">
         <GeometryDrawing.Geometry><EllipseGeometry Center="147,99" RadiusX="13" RadiusY="16"/></GeometryDrawing.Geometry>
       </GeometryDrawing>
-      <GeometryDrawing Brush="#263D37">
+      <GeometryDrawing Brush="#17202A">
         <GeometryDrawing.Geometry><EllipseGeometry Center="151,101" RadiusX="7" RadiusY="10"/></GeometryDrawing.Geometry>
       </GeometryDrawing>
       <GeometryDrawing Brush="#FAF3DF">
         <GeometryDrawing.Geometry><EllipseGeometry Center="153,97" RadiusX="2.5" RadiusY="3"/></GeometryDrawing.Geometry>
       </GeometryDrawing>
-      <GeometryDrawing Brush="#436443">
+      <GeometryDrawing Brush="#477A3E">
         <GeometryDrawing.Geometry><EllipseGeometry Center="207,108" RadiusX="3.5" RadiusY="4"/></GeometryDrawing.Geometry>
       </GeometryDrawing>
       <GeometryDrawing Brush="#FAF3DF" Geometry="M 187,139 L 193,151 L 200,139 Z"/>
       <GeometryDrawing Geometry="M 158,132 Q 174,146 210,137">
-        <GeometryDrawing.Pen><Pen Brush="#436443" Thickness="5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+        <GeometryDrawing.Pen><Pen Brush="#203026" Thickness="5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
       </GeometryDrawing>
-      <!-- Cream headband and one prominent orange ear cup. -->
+      <!-- Black headphones with a small blossom mark. -->
       <GeometryDrawing Geometry="M 60,133 L 60,105 C 60,31 159,26 183,78">
-        <GeometryDrawing.Pen><Pen Brush="#FAF3DF" Thickness="13" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+        <GeometryDrawing.Pen><Pen Brush="#17202A" Thickness="16" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
       </GeometryDrawing>
-      <GeometryDrawing Brush="#263D37" Geometry="M 67,110 L 78,110 Q 99,110 99,131 L 99,151 Q 99,172 78,172 L 67,172 Q 48,172 48,151 L 48,132 Q 48,110 67,110 Z"/>
-      <GeometryDrawing Brush="#FAF3DF" Geometry="M 65,115 L 77,115 Q 91,115 91,130 L 91,152 Q 91,167 77,167 L 65,167 Q 52,167 52,152 L 52,131 Q 52,115 65,115 Z"/>
-      <GeometryDrawing Brush="#DE8050" Geometry="M 64,123 L 76,123 Q 84,123 84,132 L 84,151 Q 84,159 76,159 L 64,159 Q 60,159 60,152 L 60,131 Q 60,123 64,123 Z"/>
-      <GeometryDrawing Geometry="M 72,132 L 72,151">
-        <GeometryDrawing.Pen><Pen Brush="#B15E38" Thickness="4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-      </GeometryDrawing>
+      <GeometryDrawing Brush="#111823" Geometry="M 67,110 L 78,110 Q 99,110 99,131 L 99,151 Q 99,172 78,172 L 67,172 Q 48,172 48,151 L 48,132 Q 48,110 67,110 Z"/>
+      <GeometryDrawing Brush="#8792A4" Geometry="M 65,115 L 77,115 Q 91,115 91,130 L 91,152 Q 91,167 77,167 L 65,167 Q 52,167 52,152 L 52,131 Q 52,115 65,115 Z"/>
+      <GeometryDrawing Brush="#111823" Geometry="M 64,123 L 76,123 Q 84,123 84,132 L 84,151 Q 84,159 76,159 L 64,159 Q 60,159 60,152 L 60,131 Q 60,123 64,123 Z"/>
+      <GeometryDrawing Brush="#FFE7EF" Geometry="M 69,139 Q 61,132 66,128 Q 71,126 73,137 Q 76,126 82,129 Q 86,134 77,140 Q 86,140 84,148 Q 80,153 74,145 Q 70,154 64,150 Q 60,145 69,139 Z"/>
+      <GeometryDrawing Brush="#D980A6"><GeometryDrawing.Geometry><EllipseGeometry Center="73,141" RadiusX="3" RadiusY="3"/></GeometryDrawing.Geometry></GeometryDrawing>
     </DrawingGroup>
   </DrawingImage.Drawing>
 </DrawingImage>

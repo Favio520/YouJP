@@ -1,18 +1,17 @@
-# Generar el dinosaurio compartido por la app y la extensión.
+﻿# Emblema vectorial de YouJP para Windows.
 . (Join-Path $PSScriptRoot 'Common.ps1')
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
 $assetDir = Join-Path $PSScriptRoot 'assets'
-$reader = [Xml.XmlNodeReader]::new([xml][IO.File]::ReadAllText((Join-Path $assetDir 'AppIcon.xaml')))
+$reader = [Xml.XmlNodeReader]::new([xml][IO.File]::ReadAllText((Join-Path $assetDir 'BrandLogo.xaml')))
 try { $drawing = [Windows.Markup.XamlReader]::Load($reader) } finally { $reader.Close() }
 $frames = @()
-$extensionSizes = @(16, 32, 48, 96, 128)
-$extensionIcons = Join-Path $script:ProjectRoot 'extension/public/icon'
 foreach ($size in @(16, 20, 24, 32, 40, 48, 64, 96, 128, 256)) {
     $visual = [Windows.Media.DrawingVisual]::new()
     $context = $visual.RenderOpen()
-    $context.DrawImage($drawing, [Windows.Rect]::new(0, 0, $size, $size))
+    $sourceImage = $drawing
+    $context.DrawImage($sourceImage, [Windows.Rect]::new(0, 0, $size, $size))
     $context.Close()
     $bitmap = [Windows.Media.Imaging.RenderTargetBitmap]::new($size, $size, 96, 96, [Windows.Media.PixelFormats]::Pbgra32)
     $bitmap.Render($visual)
@@ -22,11 +21,10 @@ foreach ($size in @(16, 20, 24, 32, 40, 48, 64, 96, 128, 256)) {
     $encoder.Save($stream)
     $bytes = $stream.ToArray()
     $frames += [pscustomobject]@{ Size = $size; Bytes = $bytes }
-    if ($size -eq 256) { [IO.File]::WriteAllBytes((Join-Path $assetDir 'app-icon.png'), $bytes) }
-    if ($size -in $extensionSizes) { [IO.File]::WriteAllBytes((Join-Path $extensionIcons "$size.png"), $bytes) }
+    if ($size -eq 256) { [IO.File]::WriteAllBytes((Join-Path $assetDir 'app-logo.png'), $bytes) }
     $stream.Dispose()
 }
-$iconPath = Join-Path $assetDir 'youjp.ico'
+$iconPath = Join-Path $assetDir 'youjp-logo.ico'
 $icon = [IO.BinaryWriter]::new([IO.File]::Create($iconPath))
 try {
     $icon.Write([uint16]0); $icon.Write([uint16]1); $icon.Write([uint16]$frames.Count)
@@ -41,4 +39,4 @@ try {
     }
     foreach ($frame in $frames) { $icon.Write([byte[]]$frame.Bytes) }
 } finally { $icon.Dispose() }
-Write-Output 'Iconos de dinosaurio listos para Windows y la extension.'
+Write-Output 'Emblema de YouJP listo para Windows.'

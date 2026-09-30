@@ -13,7 +13,8 @@ const source = buildSync({
 }).outputFiles[0].text;
 
 function harness({ target = 'en', socketFails = false, workletFails = false,
-    readyVersion = protocol.protocol_version, autoReady = true, beforeWorkletReady } = {}) {
+    readyVersion = protocol.protocol_version, autoReady = true, beforeWorkletReady,
+    beforeStreamReady } = {}) {
   const reports = [], sockets = [], contexts = [], tracks = [], nodes = [];
   let listener, now = 0, timerId = 0;
   const timers = new Map();
@@ -24,6 +25,7 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
   };
   const chrome = {
     runtime: {
+      id: 'maigpfdicmnmilihmhnfalbcchkpobab',
       sendMessage: async (message) => {
         if (message.type === 'settings.get') return { targetLanguage: target };
         reports.push(message);
@@ -44,9 +46,10 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
     }
     createMediaStreamSource() { return { connect() {} }; }
     async close() { this.closed = true; }
+    async resume() { this.resumed = true; }
   }
   class AudioWorkletNode {
-    constructor() { this.port = {}; nodes.push(this); }
+    constructor() { this.port = { messages: [], postMessage(message) { this.messages.push(message); } }; nodes.push(this); }
     connect() {}
     disconnect() { this.disconnected = true; }
   }
@@ -87,21 +90,27 @@ function harness({ target = 'en', socketFails = false, workletFails = false,
     setTimeout: schedule, clearTimeout: (id) => timers.delete(id), Date: FakeDate,
     performance: { now: () => now }, console: { error() {}, warn() {} },
     navigator: { mediaDevices: { getUserMedia: async () => {
-      const track = { stopped: false, stop() { this.stopped = true; } };
+      await beforeStreamReady?.();
+      const track = { stopped: false, handlers: {}, stop() { this.stopped = true; },
+        addEventListener(type, handler) { this.handlers[type] = handler; } };
       tracks.push(track);
       return { getTracks: () => [track] };
     } } },
   });
-  const send = (message, tabId = 7) => listener(message, { tab: { id: tabId } }, () => {});
+  const send = (message, tabId = 7) => listener(message, {
+    id: chrome.runtime.id,
+    ...(message.type.startsWith('player.') ? { tab: { id: tabId } } : {}),
+  }, () => {});
   const ping = () => new Promise((resolve) => {
-    listener({ type: 'offscreen.ping' }, { id: 'test' }, resolve);
+    listener({ type: 'offscreen.ping' }, { id: chrome.runtime.id }, resolve);
   });
   return {
     reports, sockets, contexts, tracks, nodes, timers, send, ping,
+    receive: (...args) => listener(...args),
     frame: () => nodes[0].port.onmessage({ data: new ArrayBuffer(3200) }),
     change: (next) => {
       target = next;
-      listener({ type: 'settings.changed', settings: { targetLanguage: next } }, { id: 'test' }, () => {});
+      listener({ type: 'settings.changed', settings: { targetLanguage: next } }, { id: chrome.runtime.id }, () => {});
     },
     async advance(ms) {
       const until = now + ms;
@@ -189,15 +198,16 @@ test('other tabs cannot move the clock; paused or accelerated audio is not sent'
   const h = harness();
   try {
     await started(h);
-    h.send({ type: 'player.tick', mediaTimeMs: 99999, paused: false, rate: 1 }, 8);
+    h.send({ type: 'player.tick', mediaTimeMs: 99999, paused: false, rate: 1, videoId: 'video' }, 8);
     h.send({ type: 'player.flush', reason: 'seek', mediaTimeMs: 99999 }, 8);
     h.frame();
     const frame = new DataView(h.sockets[0].sent.at(-1));
     assert.equal(frame.getUint32(8, true), 1200);
     h.send({ type: 'player.flush', reason: 'seek', mediaTimeMs: 5000 });
     assert.equal(h.sockets[0].sent.at(-1).type, 'control.flush');
+    assert.equal(h.nodes[0].port.messages.at(-1).type, 'reset');
     for (const state of [{ paused: true, rate: 1 }, { paused: false, rate: 1.5 }]) {
-      h.send({ type: 'player.tick', mediaTimeMs: 5000, ...state });
+      h.send({ type: 'player.tick', mediaTimeMs: 5000, videoId: 'video', ...state });
       const before = h.sockets[0].sent.length;
       h.frame();
       assert.equal(h.sockets[0].sent.length, before);
@@ -302,6 +312,22 @@ test('backend fatal error closes capture without retrying', async () => {
   assert.equal(h.timers.size, 0);
 });
 
+test('rejected origin explains the extension ID and never retries', async () => {
+  const h = harness({ autoReady: false });
+  h.send(start);
+  await waitFor(() => h.sockets[0]?.sent.length > 0);
+  h.sockets[0].readyState = 3;
+  h.sockets[0].emit('close', { code: 1008 });
+  await waitFor(() => h.reports.some((m) => m.status === 'error'));
+  const { detail } = h.reports.at(-1);
+  assert.match(detail, /maigpfdicmnmilihmhnfalbcchkpobab/);
+  assert.match(detail, /YOUJP_ALLOWED_EXTENSION_IDS/);
+  assert.ok(h.tracks.every((track) => track.stopped));
+  assert.equal(h.timers.size, 0);
+  await h.advance(120_000);
+  assert.equal(h.sockets.length, 1);
+});
+
 for (const readyVersion of [1, 999, null]) {
   test(`incompatible server ${readyVersion} releases audio and never retries`, async () => {
     const h = harness({ readyVersion });
@@ -322,4 +348,87 @@ test('worklet failure releases both contexts and captured audio', async () => {
   assert.ok(h.tracks.every((track) => track.stopped));
   assert.ok(h.contexts.every((ctx) => ctx.closed));
   assert.equal(h.timers.size, 0);
+});
+
+test('initial paused state blocks audio before the first player tick', async () => {
+  const h = harness();
+  try {
+    h.send({ ...start, paused: true, rate: 1 });
+    await waitFor(() => h.reports.some((r) => r.status === 'running'));
+    assert.ok(h.contexts.every((ctx) => ctx.resumed));
+    const before = h.sockets[0].sent.length;
+    h.frame();
+    assert.equal(h.sockets[0].sent.length, before);
+  } finally { await h.stop(); }
+});
+
+test('stop during getUserMedia discards its late stream without starting audio or reconnects', async () => {
+  let resolveStream;
+  let opening = false;
+  const pending = new Promise((resolve) => { resolveStream = resolve; });
+  const h = harness({ beforeStreamReady: () => { opening = true; return pending; } });
+  h.send(start);
+  await waitFor(() => opening);
+  h.send({ type: 'capture.stop' });
+  resolveStream();
+  await waitFor(() => h.tracks.length === 1 && h.tracks[0].stopped);
+  assert.equal(h.sockets.length, 0);
+  assert.equal(h.contexts.length, 0);
+  assert.equal(h.timers.size, 0);
+});
+
+test('stop during worklet startup releases audio without opening a socket', async () => {
+  let resolveWorklet;
+  const pending = new Promise((resolve) => { resolveWorklet = resolve; });
+  const h = harness({ beforeWorkletReady: () => pending });
+  h.send(start);
+  await waitFor(() => h.contexts.length === 2);
+  h.send({ type: 'capture.stop' });
+  resolveWorklet();
+  await waitFor(() => h.contexts.every((ctx) => ctx.closed));
+  assert.ok(h.tracks.every((track) => track.stopped));
+  assert.equal(h.sockets.length, 0);
+  assert.equal(h.timers.size, 0);
+});
+
+for (const failure of ['ended', 'processor']) {
+  test(`${failure} failure releases resources and reports the lost capture`, async () => {
+    const h = harness();
+    await started(h);
+    if (failure === 'ended') h.tracks[0].handlers.ended();
+    else h.nodes[0].onprocessorerror();
+    await waitFor(() => h.reports.some((r) => r.status === 'error'));
+    assert.ok(h.contexts.every((ctx) => ctx.closed));
+    assert.ok(h.tracks.every((track) => track.stopped));
+    assert.equal(h.timers.size, 0);
+  });
+}
+
+test('content scripts and other extensions cannot start or stop capture', async () => {
+  const h = harness();
+  await started(h);
+  h.receive({ type: 'capture.stop' }, { id: 'other-extension' }, () => {});
+  h.receive({ type: 'capture.stop' }, { id: 'maigpfdicmnmilihmhnfalbcchkpobab', tab: { id: 7 } }, () => {});
+  await new Promise(setImmediate);
+  assert.ok(h.contexts.every((ctx) => !ctx.closed));
+  await h.stop();
+});
+
+test('video change flushes old audio and adopts live state for new frames', async () => {
+  const h = harness();
+  try {
+    await started(h);
+    const ws = h.sockets[0];
+    ws.message(final);
+    h.send({ type: 'player.tick', mediaTimeMs: 0, paused: false, rate: 1, videoId: 'next', isLive: true });
+    assert.equal(ws.sent.at(-1).type, 'control.flush');
+    assert.equal(h.nodes[0].port.messages.at(-1).type, 'reset');
+    const before = h.reports.length;
+    ws.message({ type: 'mt.final', segment_id: 1, text: 'old video', target: 'es' });
+    assert.equal(h.reports.length, before);
+    h.frame();
+    const frame = new DataView(ws.sent.at(-1));
+    assert.equal(frame.getUint8(2) & 3, 3);
+    assert.equal(frame.getUint32(8, true), 0);
+  } finally { await h.stop(); }
 });

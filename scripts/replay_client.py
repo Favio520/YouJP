@@ -120,9 +120,7 @@ async def run(path: Path, url: str, seek_at: float | None, live: bool, language:
     console.rule(f"[bold]{path.name}[/bold]  {len(audio) / 16_000:.1f} s")
     # El cliente de pruebas declara un origen de extensión para ejercitar la
     # misma ruta protegida; las páginas web no pueden falsificar Origin.
-    configured_ids = get_settings().allowed_extension_ids
-    extension_id = next((item.strip() for item in configured_ids.split(",") if item.strip()),
-                        DEFAULT_ALLOWED_EXTENSION_IDS)
+    extension_id = min(get_settings().extension_ids, default=DEFAULT_ALLOWED_EXTENSION_IDS)
     origin = f"chrome-extension://{extension_id}"
     async with websockets.connect(url, max_size=None, origin=origin) as ws:
         await ws.send(json.dumps({

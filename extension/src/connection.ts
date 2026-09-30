@@ -24,11 +24,16 @@ export class ReconnectingSession {
 
   constructor(private readonly options: Options) {}
 
-  start(): void { this.connect(); }
+  start(): void {
+    if (this.socket || this.timer !== undefined || this.stopped) return;
+    this.connect();
+  }
 
   private clearTimers(): void {
     clearTimeout(this.timer);
     clearTimeout(this.heartbeat);
+    this.timer = undefined;
+    this.heartbeat = undefined;
   }
 
   stop(): void {
@@ -68,6 +73,7 @@ export class ReconnectingSession {
     // Reintenta mientras siga la captura; stop cancela de inmediato.
     const delay = Math.min(1000 * 2 ** Math.min(this.attempts++, 5), 30_000);
     this.options.onRetry(this.attempts, delay);
+    if (this.stopped) return;
     this.timer = setTimeout(() => this.connect(), delay);
   }
 
@@ -104,8 +110,12 @@ export class ReconnectingSession {
     ws.addEventListener('error', () => { if (active()) this.retry(); });
     ws.addEventListener('close', (event) => {
       if (!active()) return;
-      if (event.code === 1002 || event.code === 1008) {
+      if (event.code === 1002) {
         this.fatal('El backend rechazó la sesión. Actualiza YouJP y recarga la extensión.');
+      } else if (event.code === 1008) {
+        // Origen no permitido: no es cuestión de versiones sino del ID de la extensión.
+        this.fatal(`El backend no reconoce esta extensión (ID ${chrome.runtime.id}). ` +
+          'Carga la versión compilada de YouJP o añade este ID a YOUJP_ALLOWED_EXTENSION_IDS.');
       } else this.retry();
     });
     ws.addEventListener('message', (event) => {
@@ -130,7 +140,7 @@ export class ReconnectingSession {
         this.ready = true;
         this.attempts = 0;
         this.options.onReady(message);
-        this.pulse();
+        if (active() && this.ready) this.pulse();
       } else if (this.ready) this.options.onMessage(message);
     });
   }

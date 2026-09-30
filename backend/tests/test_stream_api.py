@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 from starlette.websockets import WebSocketDisconnect
 
 import youjp.main as server
@@ -147,6 +148,64 @@ def test_repeated_start_cancels_ticker_and_stops_off_loop(client):
     assert all("portal" not in thread for thread in FakeAsr.stopped)
 
 
+def test_session_stop_closes_the_socket(client):
+    test_client, state, _ = client
+    with extension_socket(test_client) as ws:
+        ws.send_json({"type": "session.stop"})
+        with pytest.raises(WebSocketDisconnect) as closed:
+            ws.receive_json()
+        assert closed.value.code == 1000
+    assert state.sessions == 0
+
+
+def test_failed_session_start_closes_the_socket(client):
+    test_client, state, _ = client
+
+    def unavailable_vad():
+        raise FileNotFoundError("missing VAD model")
+
+    state.new_vad = unavailable_vad
+    with extension_socket(test_client) as ws:
+        ws.send_json({"type": "session.start", "protocol_version": PROTOCOL_VERSION})
+        with pytest.raises(WebSocketDisconnect) as closed:
+            ws.receive_json()
+        assert closed.value.code == 1011
+    assert state.sessions == 0
+
+
+def test_failed_sender_does_not_leave_receive_and_session_alive(client):
+    _, state, _ = client
+
+    class BrokenSocket:
+        headers = {"origin": EXTENSION_ORIGIN}
+        client = "test"
+        closed = False
+
+        async def accept(self):
+            pass
+
+        async def receive(self):
+            if not hasattr(self, "received"):
+                self.received = True
+                return {"type": "websocket.receive", "text": '{"type":"ping","t":1}'}
+            await asyncio.Event().wait()
+
+        async def send_text(self, _):
+            raise OSError("connection broken")
+
+        async def close(self, **kwargs):
+            self.closed = True
+
+    socket = BrokenSocket()
+
+    async def run():
+        await asyncio.wait_for(server.stream(socket), timeout=2)
+
+    asyncio.run(run())
+    assert socket.closed
+    assert state.sessions == 0
+
+
 @pytest.mark.parametrize("fields", [{}, {"protocol_version": 1}, {"protocol_version": 999}])
 def test_incompatible_handshake_closes_without_allocating_workers(client, fields):
     test_client, state, tickers = client
@@ -203,10 +262,40 @@ def test_stream_allows_configured_ids_and_explicit_development_fallback(client):
     assert state.sessions == 0
 
 
-def test_origin_list_fails_closed_when_malformed():
-    other_origin = "chrome-extension://" + "b" * 32
-    assert server._trusted_origin(other_origin, f"{DEFAULT_ALLOWED_EXTENSION_IDS}, {'b' * 32}")
-    assert not server._trusted_origin(other_origin, " , ")
+def test_rejected_origin_is_logged_without_raw_newlines(client, caplog):
+    test_client, _, _ = client
+    with caplog.at_level("WARNING", logger="youjp.main"):
+        with test_client.websocket_connect("/stream", headers={"origin": "https://evil.example",
+                                                               "host": "127.0.0.1:8770"}) as ws:
+            with pytest.raises(WebSocketDisconnect):
+                ws.receive_text()
+    [record] = [r for r in caplog.records if "rechazada" in r.getMessage()]
+    assert "'https://evil.example'" in record.getMessage()
+    assert "YOUJP_ALLOWED_EXTENSION_IDS" in record.getMessage()
+
+
+def test_extension_ids_are_normalized_at_startup():
+    settings = Settings(_env_file=None, allowed_extension_ids=f" {DEFAULT_ALLOWED_EXTENSION_IDS} , {'b' * 32} ,")
+    assert settings.allowed_extension_ids == f"{DEFAULT_ALLOWED_EXTENSION_IDS},{'b' * 32}"
+    assert settings.extension_ids == {DEFAULT_ALLOWED_EXTENSION_IDS, "b" * 32}
+    assert server._trusted_origin("chrome-extension://" + "b" * 32, settings.extension_ids)
+    assert Settings(_env_file=None, allowed_extension_ids="  ").extension_ids == frozenset()
+
+
+@pytest.mark.parametrize("value", [" , ", "abc", "q" * 32, DEFAULT_ALLOWED_EXTENSION_IDS.upper(),
+                                   f"{DEFAULT_ALLOWED_EXTENSION_IDS},chrome-extension://{'b' * 32}"])
+def test_malformed_extension_ids_fail_at_startup(value):
+    with pytest.raises(ValidationError, match="YOUJP_ALLOWED_EXTENSION_IDS"):
+        Settings(_env_file=None, allowed_extension_ids=value)
+
+
+@pytest.mark.parametrize(("host", "expected"), [
+    ("127.0.0.1", ["127.0.0.1", "localhost"]),
+    ("0.0.0.0", ["127.0.0.1", "localhost"]),
+    ("192.168.1.20", ["127.0.0.1", "localhost", "192.168.1.20"]),
+])
+def test_trusted_hosts_follow_listen_address(host, expected):
+    assert Settings(_env_file=None, host=host).trusted_hosts == expected
 
 
 def test_health_identifies_version_and_actual_capabilities(client, monkeypatch):

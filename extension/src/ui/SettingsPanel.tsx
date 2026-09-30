@@ -13,6 +13,7 @@ import type {
   LanguageMode,
   OverlaySettings,
 } from '../settings';
+import { uiText } from '../i18n';
 import { DEFAULT_SETTINGS } from '../settings';
 import type { TargetLanguage } from '../protocol';
 
@@ -45,47 +46,6 @@ const TARGETS: Array<[TargetLanguage, string, string]> = [
   ['en', 'English', 'Japanese → English'],
 ];
 
-const ENGLISH: Record<string, string> = {
-  "No": "Off",
-  "Sin anotaciones de lectura": "No reading annotations",
-  "Automática": "Automatic",
-  "Solo en palabras poco frecuentes: así los kanji comunes se siguen aprendiendo": "Only uncommon words, so you can keep practicing familiar kanji",
-  "Siempre": "Always",
-  "En todos los kanji": "All kanji",
-  "Ninguno": "None",
-  "Solo contorno; deja ver todo el vídeo": "Outline only; keeps the video visible",
-  "Suave": "Soft",
-  "Banda difuminada bajo el texto": "Soft band behind the text",
-  "Sólido": "Solid",
-  "Máximo contraste sobre fondos claros o con mucho movimiento": "Maximum contrast on bright or busy backgrounds",
-  "Ambos": "Both",
-  "Solo japonés": "Japanese only",
-  "Para practicar comprensión sin la muleta": "Practice comprehension without translation",
-  "Solo traducción": "Translation only",
-  "Español": "Spanish",
-  "Japonés → español": "Japanese → Spanish",
-  "Ajustes de subtítulos": "Subtitle settings",
-  "Ajustes": "Settings",
-  "Cerrar": "Close",
-  "Tamaño del japonés": "Japanese text size",
-  "Tamaño de la traducción": "Translation text size",
-  "Texto del historial": "History text size",
-  "Posición": "Position",
-  "colocada a mano": "manually positioned",
-  "Volver abajo y centrado": "Reset to bottom center",
-  "Altura sobre el borde": "Distance from bottom",
-  "Ancho máximo": "Maximum width",
-  "Fondo": "Background",
-  "Traducir al": "Translate into",
-  "Se aplica a las próximas frases; el historial conserva su idioma original.": "Applies to new sentences; history keeps its original language.",
-  "Mostrar": "Show",
-  "Frases anteriores": "Previous sentences",
-  "Texto en curso": "Partial text",
-  "La cola gris que aún puede cambiar": "The gray text that may still change",
-  "Visible": "Visible",
-  "Oculto": "Hidden",
-  "Restablecer": "Reset"
-};
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -125,9 +85,9 @@ function Choice<T extends string>({
 }
 
 export function SettingsPanel({ settings, onChange, onClose }: Props) {
-  const t = (es: string, en: string) => settings.settingsLanguage === 'en' ? en : es;
+  const t = (es: string, en?: string) => uiText(settings.settingsLanguage, es, en);
   const translateOptions = <T extends string>(options: Array<[T, string, string]>): Array<[T, string, string]> =>
-    options.map(([value, label, hint]) => [value, t(label, ENGLISH[label] ?? label), t(hint, ENGLISH[hint] ?? hint)]);
+    options.map(([value, label, hint]) => [value, t(label), t(hint)]);
   return (
     <div className="youjp-settings" role="dialog" aria-label={t('Ajustes de subtítulos', 'Subtitle settings')}>
       <div className="youjp-settings-head">
@@ -138,7 +98,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
       </div>
 
       <div className="youjp-settings-body">
-        <Row label={t('Idioma de los ajustes', 'Settings language')}>
+        <Row label={t('Idioma de la interfaz', 'Interface language')}>
           <Choice options={[[ 'es', 'Español', '' ], [ 'en', 'English', '' ]]}
             value={settings.settingsLanguage} onPick={(v) => onChange({ settingsLanguage: v })} />
         </Row>
@@ -163,6 +123,18 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
             step={1}
             value={settings.translationSize}
             onChange={(e) => onChange({ translationSize: Number(e.target.value) })}
+          />
+        </Row>
+
+        <Row label={t('Texto del historial', 'History text size')} hint={`${settings.transcriptSize} px`}>
+          <input
+            id="youjp-transcript-size"
+            type="range"
+            min={12}
+            max={32}
+            step={1}
+            value={settings.transcriptSize}
+            onChange={(e) => onChange({ transcriptSize: Number(e.target.value) })}
           />
         </Row>
 
@@ -241,6 +213,10 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         <button type="button" className="youjp-reset" onClick={() => onChange({ ...DEFAULT_SETTINGS, settingsLanguage: settings.settingsLanguage })}>
           {t('Restablecer', 'Reset')}
         </button>
+        <p className="youjp-capture-hint">
+          {t('Texto dentro de imágenes:', 'Text in images:')} <kbd>Alt</kbd> + <kbd>{t('Mayús', 'Shift')}</kbd> + <kbd>S</kbd>
+          {' '}{t('para seleccionar y traducir una zona visible.', 'to select and translate a visible region.')}
+        </p>
       </div>
     </div>
   );

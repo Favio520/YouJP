@@ -130,3 +130,14 @@ test('usa la misma escala que el backend', () => {
   feed(p, 1, QUANTUM * 13, () => 1.0);
   assert.equal(frames[0][0], 32767);
 });
+
+test('flush discards incomplete audio from before a seek or video change', () => {
+  const { Processor, frames } = loadProcessor();
+  const p = new Processor({ processorOptions: { frameSamples: FRAME } });
+  feed(p, 1, QUANTUM * 10, () => 1.0);
+  assert.equal(frames.length, 0);
+  p.port.onmessage({ data: { type: 'reset' } });
+  feed(p, 1, QUANTUM * 13, () => 0.0);
+  assert.equal(frames.length, 1);
+  assert.ok(frames[0].every((sample) => sample === 0));
+});

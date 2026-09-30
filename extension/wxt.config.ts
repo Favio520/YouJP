@@ -4,7 +4,9 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
     // Clave pública de desarrollo: conserva el mismo ID al reconstruir la extensión.
-    key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvGLB8JzzzwlvtVygDzRgukCvhm9ScEurTbTIV3pYmHVwp7Wj52YUxkf7w/9G8ZIJmVzIG1AU5FSwYQN2F0ffNz36oQzUdwqA6RpljqHvK4k3Y6TcVxn2ps5uLUSlneO8XuyebDMAW8zY+i/EwQZXWFehPs+EQZyxJUL1QH8FC6qdL+VVNQRzly9qDHp0mwUvlAl5kA8Lq+y/cDsBd5qCBlrDeJWE6HJdv3u73nDUEtGDoPOGrSATqBo51jSgM2nO17sFawNUcN3XK9B+J+QZQNIHXXGofPtP0tTOD3wMNqdaMEHgLFn83zju0thlX/0EyiglOm3TJ74qjRcTsAUA9QIDAQAB',
+    // Las tiendas asignan su propio ID y no aceptan este campo: YOUJP_STORE_BUILD=1
+    // lo omite, y el ID de la tienda se añade a YOUJP_ALLOWED_EXTENSION_IDS.
+    key: process.env.YOUJP_STORE_BUILD ? undefined : 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvGLB8JzzzwlvtVygDzRgukCvhm9ScEurTbTIV3pYmHVwp7Wj52YUxkf7w/9G8ZIJmVzIG1AU5FSwYQN2F0ffNz36oQzUdwqA6RpljqHvK4k3Y6TcVxn2ps5uLUSlneO8XuyebDMAW8zY+i/EwQZXWFehPs+EQZyxJUL1QH8FC6qdL+VVNQRzly9qDHp0mwUvlAl5kA8Lq+y/cDsBd5qCBlrDeJWE6HJdv3u73nDUEtGDoPOGrSATqBo51jSgM2nO17sFawNUcN3XK9B+J+QZQNIHXXGofPtP0tTOD3wMNqdaMEHgLFn83zju0thlX/0EyiglOm3TJ74qjRcTsAUA9QIDAQAB',
     name: 'youjp — subtítulos japoneses',
     description:
       'Captura el audio de una pestaña de YouTube y muestra subtítulos japoneses en tiempo real.',
@@ -19,6 +21,8 @@ export default defineConfig({
       // que se ve.
       'scripting',
       'storage',
+      // El atajo de captura concede acceso temporal a la pestaña visible.
+      'activeTab',
     ],
     host_permissions: [
       'https://www.youtube.com/*',
@@ -28,7 +32,7 @@ export default defineConfig({
     action: {
       // Sin default_popup a proposito: con popup, action.onClicked no se
       // dispara, y ese clic es el gesto de usuario que habilita tabCapture.
-      default_title: 'Activar subtítulos japoneses',
+      default_title: 'YouJP: subtítulos en YouTube · recorte en otras páginas',
       // Chrome usaría el bloque `icons` como respaldo, pero declararlo aquí
       // evita depender de ese comportamiento implícito.
       default_icon: {
@@ -36,6 +40,12 @@ export default defineConfig({
         32: 'icon/32.png',
         48: 'icon/48.png',
         128: 'icon/128.png',
+      },
+    },
+    commands: {
+      'translate-selection': {
+        suggested_key: { default: 'Alt+Shift+S' },
+        description: 'Seleccionar una zona de la pestaña para traducir japonés',
       },
     },
   },

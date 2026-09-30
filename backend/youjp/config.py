@@ -10,17 +10,20 @@ o con un fichero ``.env`` en la raiz del repositorio. Ejemplo::
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from youjp.contract import FRAME_MS, SAMPLE_RATE
 
 # backend/youjp/config.py -> backend/youjp -> backend -> raiz del repo
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ALLOWED_EXTENSION_IDS = "maigpfdicmnmilihmhnfalbcchkpobab"
+EXTENSION_ID = re.compile(r"[a-p]{32}")
+WILDCARD_HOSTS = frozenset({"0.0.0.0", "::", ""})
 
 
 class Settings(BaseSettings):
@@ -226,7 +229,44 @@ class Settings(BaseSettings):
     port: int = 8770
     allowed_extension_ids: str = DEFAULT_ALLOWED_EXTENSION_IDS
     """IDs de extensión separados por comas. Vacío acepta cualquier extensión
-    válida durante el desarrollo; el valor predeterminado es el ID del manifest."""
+    válida durante el desarrollo; el valor predeterminado es el ID del manifest.
+
+    Se valida al arrancar: una errata aquí no debe convertirse en sesiones
+    rechazadas sin explicación, sino en un error claro antes de cargar modelos."""
+
+    @field_validator("allowed_extension_ids")
+    @classmethod
+    def _check_extension_ids(cls, value: str) -> str:
+        if not value.strip():
+            return ""
+        ids = [item.strip() for item in value.split(",") if item.strip()]
+        if not ids:
+            raise ValueError("YOUJP_ALLOWED_EXTENSION_IDS no contiene ningún ID")
+        invalid = [item for item in ids if EXTENSION_ID.fullmatch(item) is None]
+        if invalid:
+            raise ValueError(
+                f"IDs de extensión no válidos en YOUJP_ALLOWED_EXTENSION_IDS: {', '.join(invalid)}. "
+                "Un ID de Chrome tiene 32 letras entre la a y la p; se ve en chrome://extensions."
+            )
+        return ",".join(ids)
+
+    @property
+    def extension_ids(self) -> frozenset[str]:
+        """IDs permitidos. Vacío significa cualquier extensión (desarrollo)."""
+        return frozenset(item for item in self.allowed_extension_ids.split(",") if item)
+
+    @property
+    def trusted_hosts(self) -> list[str]:
+        """Cabeceras ``Host`` aceptadas, como defensa frente a DNS rebinding.
+
+        Una dirección de escucha comodín (``0.0.0.0``) no dice con qué nombre
+        llegarán los clientes, así que solo añade las locales; para escuchar en
+        la red hay que fijar ``YOUJP_HOST`` a la IP concreta.
+        """
+        hosts = ["127.0.0.1", "localhost"]
+        if self.host not in hosts and self.host not in WILDCARD_HOSTS:
+            hosts.append(self.host)
+        return hosts
 
     # --- diagnostico -------------------------------------------------------
     log_level: str = "INFO"

@@ -1,3 +1,4 @@
+import { uiText } from '../i18n';
 /**
  * Overlay de subtítulos sobre el reproductor.
  *
@@ -11,11 +12,12 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AsrFinal, AsrPartial, MetricsTick, Token } from '../protocol';
+import type { AsrFinal, AsrPartial, MetricsTick } from '../protocol';
 import type { CaptureStatus, ExtensionMessage } from '../messages';
 import {
   DEFAULT_SETTINGS,
   loadSettings,
+  normalizeSettings,
   onSettingsChanged,
   saveSettings,
   toCssVars,
@@ -25,9 +27,9 @@ import { findVideo } from '../player';
 import { SettingsPanel } from './SettingsPanel';
 import { Subtitle } from './Subtitle';
 import { TranscriptPanel } from './TranscriptPanel';
-import type { Line } from './types';
+import type { Line, Selection } from './types';
 import { useDrag } from './useDrag';
-import { WordCard } from './WordCard';
+import { WordInspector } from './WordInspector';
 
 const MAX_LINES = 4; // la actual mas tres de historial en el overlay
 
@@ -53,8 +55,10 @@ export function Overlay() {
   const [metrics, setMetrics] = useState<MetricsTick | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [rateWarning, setRateWarning] = useState<number | null>(null);
-  const [selected, setSelected] = useState<Token | null>(null);
+  const [selected, setSelected] = useState<Selection | null>(null);
   const [settings, setSettings] = useState<OverlaySettings>(DEFAULT_SETTINGS);
+  const settingsRef = useRef(settings);
+  const settingsVersion = useRef(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const lastFinal = useRef(0);
@@ -62,16 +66,26 @@ export function Overlay() {
   const closeCard = useCallback(() => setSelected(null), []);
 
   const patchSettings = useCallback((patch: Partial<OverlaySettings>) => {
-    setSettings((previous) => {
-      const next = { ...previous, ...patch };
-      void saveSettings(next);
-      return next;
-    });
+    const next = normalizeSettings({ ...settingsRef.current, ...patch });
+    settingsRef.current = next;
+    settingsVersion.current += 1;
+    setSettings(next);
+    void saveSettings(next);
   }, []);
 
   useEffect(() => {
-    void loadSettings().then(setSettings);
-    return onSettingsChanged(setSettings);
+    let active = true;
+    const version = settingsVersion.current;
+    const apply = (next: OverlaySettings) => {
+      settingsRef.current = next;
+      settingsVersion.current += 1;
+      setSettings(next);
+    };
+    const unsubscribe = onSettingsChanged(apply);
+    void loadSettings().then((next) => {
+      if (active && settingsVersion.current === version) apply(next);
+    });
+    return () => { active = false; unsubscribe(); };
   }, []);
 
   const { dragging, preview, empezar } = useDrag(
@@ -97,14 +111,17 @@ export function Overlay() {
           if (message.model) setModel(message.model);
           if (message.status === 'reconnecting' || message.status === 'connecting') {
             setPartial(null);
-            setSelected(null);
             setMetrics(null);
           }
-          if (message.status === 'idle') {
+          if (message.status === 'idle' || message.status === 'starting') {
             lastFinal.current = 0;
             setPartial(null);
             setHistory([]);
-            setSelected(null);
+            setMetrics(null);
+            setModel('');
+            // La consulta sigue abierta, pero ya no señala una frase de la
+            // sesión anterior cuando los ID se reinician desde cero.
+            setSelected((current) => current ? { ...current, lineId: -1 } : null);
           }
           break;
         case 'subtitle.partial':
@@ -161,16 +178,34 @@ export function Overlay() {
   }, []);
 
   useEffect(() => {
+    const clearPartial = () => setPartial(null);
+    const changeVideo = () => {
+      lastFinal.current = 0;
+      setPartial(null);
+      setHistory([]);
+      setMetrics(null);
+      setSelected((current) => current ? { ...current, lineId: -1 } : null);
+    };
+    window.addEventListener('youjp:flush', clearPartial);
+    window.addEventListener('youjp:video', changeVideo);
+    return () => {
+      window.removeEventListener('youjp:flush', clearPartial);
+      window.removeEventListener('youjp:video', changeVideo);
+    };
+  }, []);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.altKey && event.code === 'KeyM') {
+      const shortcut = event.altKey && !event.shiftKey && !event.ctrlKey && !event.metaKey;
+      if (shortcut && event.code === 'KeyM') {
         event.preventDefault();
         setShowMetrics((value) => !value);
       }
-      if (event.altKey && event.code === 'KeyS') {
+      if (shortcut && event.code === 'KeyS') {
         event.preventDefault();
         setShowSettings((value) => !value);
       }
-      if (event.altKey && event.code === 'KeyH') {
+      if (shortcut && event.code === 'KeyH') {
         event.preventDefault();
         setShowTranscript((value) => !value);
       }
@@ -178,10 +213,17 @@ export function Overlay() {
         setSelected(null);
         setShowSettings(false);
         setShowTranscript(false);
+        setShowMetrics(false);
       }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
+  }, []);
+
+  useEffect(() => {
+    const openSettings = () => setShowSettings((value) => !value);
+    window.addEventListener('youjp:toggle-settings', openSettings);
+    return () => window.removeEventListener('youjp:toggle-settings', openSettings);
   }, []);
 
   useEffect(() => {
@@ -193,7 +235,9 @@ export function Overlay() {
     return () => window.removeEventListener('youjp:rate', listener);
   }, []);
 
-  if (status === 'idle' && history.length === 0) return null;
+  const t = (value: string) => uiText(settings.settingsLanguage, value);
+  const hasCaptureUi = status !== 'idle' || history.length > 0;
+  if (!hasCaptureUi && !showSettings && !showTranscript && !selected) return null;
 
   const visible = settings.history >= MAX_LINES ? history : history.slice(-(settings.history + 1));
   const committed = partial?.committed ?? '';
@@ -218,6 +262,7 @@ export function Overlay() {
           el otro. */}
       {showTranscript && (
         <TranscriptPanel
+          language={settings.settingsLanguage}
           lines={history}
           position={settings.transcriptPosition}
           onMove={(transcriptPosition) => patchSettings({ transcriptPosition })}
@@ -225,9 +270,36 @@ export function Overlay() {
           onSeek={seek}
           onClose={() => setShowTranscript(false)}
           showTranslation={showTranslation}
+          textSize={settings.transcriptSize}
+          furigana={settings.furigana}
+          selected={selected}
+          onSelect={(lineId, token) => setSelected({ lineId, token, from: 'transcript' })}
         />
       )}
 
+      {showSettings && (
+        <div className="youjp-settings-dock">
+          <SettingsPanel
+            settings={settings}
+            onChange={patchSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        </div>
+      )}
+
+      {selected && (
+        <WordInspector
+          language={settings.settingsLanguage}
+          token={selected.token}
+          target={settings.targetLanguage}
+          position={settings.wordPanelPosition}
+          onMove={(wordPanelPosition) => patchSettings({ wordPanelPosition })}
+          onResetPosition={() => patchSettings({ wordPanelPosition: null })}
+          onClose={closeCard}
+        />
+      )}
+
+      {hasCaptureUi && (
       <div
         className={[
           'youjp-root',
@@ -242,27 +314,18 @@ export function Overlay() {
       {status !== 'running' && (
         <div className={`youjp-status youjp-status--${status}`}>
           <span className="youjp-dot" />
-          {STATUS_LABEL[status]}
-          {detail && <span className="youjp-detail">{detail}</span>}
+          {t(STATUS_LABEL[status])}
+          {detail && <span className="youjp-detail">{t(detail)}</span>}
         </div>
       )}
 
       {rateWarning !== null && (
         <div className="youjp-status youjp-status--error">
-          Velocidad {rateWarning}× — la transcripción está pausada. El audio acelerado
-          se transcribe mal y descuadra los tiempos.
+          {settings.settingsLanguage === 'en'
+            ? `Speed ${rateWarning}× — transcription is paused. Faster audio reduces accuracy and breaks timing.`
+            : `Velocidad ${rateWarning}× — la transcripción está pausada. El audio acelerado se transcribe mal y descuadra los tiempos.`}
         </div>
       )}
-
-      {showSettings && (
-        <SettingsPanel
-          settings={settings}
-          onChange={patchSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-
-      {selected && <WordCard token={selected} target={settings.targetLanguage} onClose={closeCard} />}
 
       <div className="youjp-subs">
         {visible.map((line, index) => {
@@ -275,8 +338,9 @@ export function Overlay() {
                     text={line.ja}
                     tokens={line.tokens}
                     furigana={settings.furigana}
-                    selectedIndex={selected?.i ?? null}
-                    onSelect={setSelected}
+                    selectedIndex={selected?.from === 'subtitles' && selected.lineId === line.id
+                      ? selected.token.i : null}
+                    onSelect={(token) => setSelected({ lineId: line.id, token, from: 'subtitles' })}
                   />
                 </p>
               )}
@@ -304,24 +368,24 @@ export function Overlay() {
         <button type="button"
           className="youjp-tool youjp-grip"
           onMouseDown={empezar}
-          title="Arrastrar para mover los subtítulos"
-          aria-label="Mover los subtítulos"
+          title={t('Arrastrar para mover los subtítulos')}
+          aria-label={t('Mover los subtítulos')}
         >
           ⠿
         </button>
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowTranscript((value) => !value)}
-          title={`Historial de la sesión · ${history.length} frases (Alt+H)`}
-          aria-label="Historial de la sesión"
+          title={`${t('Historial de la sesión')} · ${history.length} ${t('frases')} (Alt+H)`}
+          aria-label={t('Historial de la sesión')}
         >
           ☰
         </button>
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowSettings((value) => !value)}
-          title="Ajustes de subtítulos (Alt+S)"
-          aria-label="Ajustes de subtítulos"
+          title={t('Ajustes de subtítulos (Alt+S)')}
+          aria-label={t('Ajustes de subtítulos')}
         >
           ⚙
         </button>
@@ -329,37 +393,37 @@ export function Overlay() {
 
       {showMetrics && metrics && (
         <div className="youjp-metrics">
-          <span title="latencia extremo a extremo">
+          <span title={t('latencia extremo a extremo')}>
             e2e <b>{metrics.end_to_end_ms_p50.toFixed(0)}</b>/
             {metrics.end_to_end_ms_p95.toFixed(0)} ms
           </span>
-          <span title="inferencia de Whisper">
+          <span title={t('inferencia de Whisper')}>
             asr <b>{metrics.whisper_processing_ms_p50.toFixed(0)}</b> ms
           </span>
-          <span title="análisis morfológico y consulta de diccionario">
+          <span title={t('análisis morfológico y consulta de diccionario')}>
             nlp <b>{metrics.nlp_ms_p50.toFixed(1)}</b> ms
           </span>
-          <span title="traducción: latencia p50 y frases traducidas">
+          <span title={t('traducción: latencia p50 y frases traducidas')}>
             mt <b>{metrics.translation_latency_ms_p50.toFixed(0)}</b> ms ·{' '}
             {metrics.translations}
             {metrics.dropped_translations > 0 && (
               <span className="youjp-bad"> (−{metrics.dropped_translations})</span>
             )}
           </span>
-          <span title="audio pendiente en la cola del backend">
+          <span title={t('audio pendiente en la cola del backend')}>
             buf <b>{metrics.audio_buffer_ms.toFixed(0)}</b> ms
           </span>
           <span
-            title="tramas de audio descartadas — debe quedarse en cero"
+            title={t('tramas de audio descartadas — debe quedarse en cero')}
             className={metrics.dropped_audio_chunks > 0 ? 'youjp-bad' : undefined}
           >
             drop <b>{metrics.dropped_audio_chunks}</b>
           </span>
-          <span title="pasadas de Whisper / saltadas por el VAD">
-            pas {metrics.passes}/<b>{metrics.skipped_silent}</b>
+          <span title={t('pasadas de Whisper / saltadas por el VAD')}>
+            {t('pas')} {metrics.passes}/<b>{metrics.skipped_silent}</b>
           </span>
           <span
-            title="VRAM usada — por debajo de 500 MiB libres el sistema empieza a degradarse"
+            title={t('VRAM usada — por debajo de 500 MiB libres el sistema empieza a degradarse')}
             className={
               metrics.gpu_total_mb - metrics.gpu_used_mb < 500 ? 'youjp-bad' : undefined
             }
@@ -370,6 +434,7 @@ export function Overlay() {
         </div>
       )}
       </div>
+      )}
     </>
   );
 }

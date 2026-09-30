@@ -13,13 +13,18 @@ import asyncio
 import contextlib
 import logging
 import re
+import sqlite3
 import time
 import uuid
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
+from typing import Literal
 
 import psutil
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel, ValidationError
+from fastapi import FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
+from fastapi.exception_handlers import http_exception_handler
+from pydantic import BaseModel, Field, ValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from youjp.asr.engine import WhisperEngine
@@ -30,6 +35,7 @@ from youjp.mt import build_provider
 from youjp.nlp.tokenizer import JapaneseTokenizer
 from youjp.obs.gpu import read_gpu
 from youjp.obs.logging import setup_logging
+from youjp.ocr import recognize_japanese
 from youjp.pipeline.analyze import NlpWorker, SentenceAnalyzer
 from youjp.pipeline.streaming import FinalUpdate
 from youjp.pipeline.translate import MtWorker, TranslationJob
@@ -56,16 +62,15 @@ log = logging.getLogger(__name__)
 METRICS_INTERVAL_S = 2.0
 OUTBOX_SIZE = 512
 EXTENSION_ORIGIN = re.compile(r"chrome-extension://[a-p]{32}\Z")
+MAX_OCR_PNG_BYTES = 4 * 1024 * 1024
+MAX_OCR_PIXELS = 6_000_000
 
 
-def _trusted_origin(origin: str | None, allowed_ids: str) -> bool:
+def _trusted_origin(origin: str | None, allowed_ids: frozenset[str]) -> bool:
     """Acepta el ID configurado; la lista vacía habilita otros IDs de desarrollo."""
     if origin is None or EXTENSION_ORIGIN.fullmatch(origin) is None:
         return False
-    if not allowed_ids.strip():
-        return True
-    ids = {item.strip() for item in allowed_ids.split(",") if item.strip()}
-    return origin.removeprefix("chrome-extension://") in ids
+    return not allowed_ids or origin.removeprefix("chrome-extension://") in allowed_ids
 
 
 class AppState:
@@ -100,56 +105,71 @@ async def lifespan(app: FastAPI):
     state = AppState(settings)
     app.state.youjp = state
 
-    log.info("precargando el modelo de ASR...")
-    await asyncio.to_thread(state.engine.load)
-    await asyncio.to_thread(state.engine.warmup)
+    async with AsyncExitStack() as resources:
+        resources.push_async_callback(_unload_resource, state.engine)
+        resources.push_async_callback(_unload_resource, state.translator)
+        log.info("precargando el modelo de ASR...")
+        await asyncio.to_thread(state.engine.load)
+        await asyncio.to_thread(state.engine.warmup)
 
-    log.info("cargando Sudachi y el diccionario...")
-    await asyncio.to_thread(state.tokenizer.load)
-    try:
-        state.dictionary = Dictionary(settings.dict_db, max_senses=settings.max_senses)
-        stats = state.dictionary.stats()
-        warm_ms = await asyncio.to_thread(state.dictionary.warmup)
-        log.info(
-            "diccionario: %s entradas, %s kanji (calentado en %.0f ms)",
-            f"{int(stats.get('entries', 0)):,}",
-            f"{int(stats.get('kanji', 0)):,}",
-            warm_ms,
-        )
-    except FileNotFoundError as exc:
-        # Sin diccionario los subtítulos y la traducción siguen funcionando;
-        # solo se pierden las palabras clicables. Arrancar cojo es mejor que no
-        # arrancar.
-        log.warning("%s", exc)
-
-    if settings.mt_provider != "none":
+        log.info("cargando Sudachi y el diccionario...")
+        await asyncio.to_thread(state.tokenizer.load)
         try:
-            log.info("precargando el traductor (%s)...", settings.mt_provider)
-            # Avisar antes de cargar: si hay modelos ajenos ocupando la GPU,
-            # conviene saberlo antes de intentar meter uno más.
-            residents = getattr(state.translator, "report_residents", None)
-            if residents is not None:
-                await asyncio.to_thread(residents)
-            await asyncio.to_thread(state.translator.load)
-            # Calentar aquí y no en la primera frase del vídeo: en frío, subir
-            # el modelo a la GPU cuesta unos 30 s.
-            warm = getattr(state.translator, "warmup", None)
-            if warm is not None:
-                await asyncio.to_thread(warm)
-        except Exception:  # noqa: BLE001
-            # Sin traductor el sistema sigue siendo útil: los subtítulos
-            # japoneses son la mitad del producto. Mejor arrancar cojo que no
+            state.dictionary = Dictionary(settings.dict_db, max_senses=settings.max_senses)
+            stats, warm_ms = await asyncio.to_thread(_warm_dictionary, state.dictionary)
+            log.info(
+                "diccionario: %s entradas, %s kanji (calentado en %.0f ms)",
+                f"{int(stats.get('entries', 0)):,}",
+                f"{int(stats.get('kanji', 0)):,}",
+                warm_ms,
+            )
+        except (OSError, sqlite3.Error, ValueError) as exc:
+            # Sin diccionario los subtítulos y la traducción siguen funcionando;
+            # solo se pierden las palabras clicables. Arrancar cojo es mejor que no
             # arrancar.
-            log.exception("no se pudo cargar el traductor; se sigue sin traducción")
-            state.translator = build_provider(settings.model_copy(update={"mt_provider": "none"}))
+            state.dictionary = None
+            log.warning("diccionario no disponible: %s", exc)
 
-    _warn_if_vram_tight()
-    log.info("servidor listo en http://%s:%d", settings.host, settings.port)
-    try:
+        if settings.mt_provider != "none":
+            try:
+                log.info("precargando el traductor (%s)...", settings.mt_provider)
+                # Avisar antes de cargar: si hay modelos ajenos ocupando la GPU,
+                # conviene saberlo antes de intentar meter uno más.
+                residents = getattr(state.translator, "report_residents", None)
+                if residents is not None:
+                    await asyncio.to_thread(residents)
+                await asyncio.to_thread(state.translator.load)
+                # Calentar aquí y no en la primera frase del vídeo: en frío, subir
+                # el modelo a la GPU cuesta unos 30 s.
+                warm = getattr(state.translator, "warmup", None)
+                if warm is not None:
+                    await asyncio.to_thread(warm)
+            except Exception:  # noqa: BLE001
+                # Sin traductor el sistema sigue siendo útil: los subtítulos
+                # japoneses son la mitad del producto. Mejor arrancar cojo que no
+                # arrancar.
+                log.exception("no se pudo cargar el traductor; se sigue sin traducción")
+                await _unload_resource(state.translator)
+                state.translator = build_provider(settings.model_copy(update={"mt_provider": "none"}))
+
+        _warn_if_vram_tight()
+        log.info("servidor listo en http://%s:%d", settings.host, settings.port)
         yield
+
+
+async def _unload_resource(resource) -> None:
+    try:
+        await asyncio.to_thread(resource.unload)
+    except Exception:
+        log.exception("error liberando %s", type(resource).__name__)
+
+
+def _warm_dictionary(dictionary: Dictionary) -> tuple[dict[str, str], float]:
+    try:
+        return dictionary.stats(), dictionary.warmup()
     finally:
-        state.engine.unload()
-        state.translator.unload()
+        # La conexión de arranque pertenece al executor, no al futuro hilo NLP.
+        dictionary.close()
 
 
 MIN_FREE_VRAM_MB = 500
@@ -179,7 +199,7 @@ def _warn_if_vram_tight() -> None:
 
 
 app = FastAPI(title="youjp", version=APP_VERSION, lifespan=lifespan)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"], www_redirect=False)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=get_settings().trusted_hosts, www_redirect=False)
 
 
 @app.get("/health")
@@ -210,11 +230,134 @@ async def health() -> dict:
     }
 
 
+def _ocr_cors_headers(origin: str) -> dict[str, str]:
+    return {
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Private-Network": "true",
+        "Vary": "Origin",
+    }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_error(request: Request, exc: StarletteHTTPException) -> Response:
+    response = await http_exception_handler(request, exc)
+    origin = request.headers.get("origin")
+    if request.url.path in {"/ocr/translate", "/ocr/translate-text"} and _trusted_origin(
+        origin, app.state.youjp.settings.extension_ids
+    ):
+        # El navegador necesita CORS también en 4xx/5xx para poder mostrar
+        # el motivo concreto (OCR ausente, imagen inválida, tamaño excesivo).
+        response.headers.update(_ocr_cors_headers(origin))
+    return response
+
+
+@app.options("/ocr/translate")
+@app.options("/ocr/translate-text")
+async def ocr_preflight(request: Request) -> Response:
+    origin = request.headers.get("origin")
+    if not _trusted_origin(origin, app.state.youjp.settings.extension_ids):
+        raise HTTPException(status_code=403, detail="Origen no permitido")
+    return Response(status_code=204, headers=_ocr_cors_headers(origin))
+
+
+async def _translate_ocr_text(state, japanese: str, target: Literal["es", "en"]) -> dict:
+    translated = ""
+    error = None
+    if japanese and state.translator.name != "none":
+        try:
+            result = await asyncio.to_thread(state.translator.translate, japanese, target=target)
+            translated = result.text
+            if not translated:
+                error = "translation_failed"
+        except Exception:
+            log.exception("falló la traducción de la captura")
+            error = "translation_failed"
+    return {
+        "japanese": japanese, "translation": translated, "target": target,
+        "spanish": translated if target == "es" else "",
+        "translation_error": error, "provider": state.translator.name,
+    }
+
+
+class OcrTextRequest(BaseModel):
+    japanese: str = Field(min_length=1, max_length=8000)
+    target: Literal["es", "en"] = "es"
+
+
+@app.post("/ocr/translate-text")
+async def ocr_translate_text(request: Request) -> JSONResponse:
+    state: AppState = app.state.youjp
+    origin = request.headers.get("origin")
+    if not _trusted_origin(origin, state.settings.extension_ids):
+        raise HTTPException(status_code=403, detail="Origen no permitido")
+    # A bounded body keeps retry requests as small as the OCR results they contain.
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > 64_000:
+            raise HTTPException(status_code=413, detail="Texto demasiado grande")
+    try:
+        data = OcrTextRequest.model_validate_json(body)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail="Texto o idioma no válido") from exc
+    return JSONResponse(await _translate_ocr_text(state, data.japanese, data.target),
+                        headers=_ocr_cors_headers(origin))
+
+
+@app.post("/ocr/translate")
+async def ocr_translate(request: Request) -> JSONResponse:
+    state: AppState = app.state.youjp
+    origin = request.headers.get("origin")
+    if not _trusted_origin(origin, state.settings.extension_ids):
+        raise HTTPException(status_code=403, detail="Origen no permitido")
+    target = request.query_params.get("target", "es")
+    if target not in {"es", "en"}:
+        raise HTTPException(status_code=422, detail="Idioma no válido")
+    if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "image/png":
+        raise HTTPException(status_code=415, detail="Se necesita una captura PNG")
+
+    chunks = bytearray()
+    async for chunk in request.stream():
+        chunks.extend(chunk)
+        if len(chunks) > MAX_OCR_PNG_BYTES:
+            raise HTTPException(status_code=413, detail="La captura es demasiado grande")
+    png = bytes(chunks)
+    if len(png) < 24 or png[:8] != b"\x89PNG\r\n\x1a\n" or png[12:16] != b"IHDR":
+        raise HTTPException(status_code=400, detail="PNG no válido")
+    width = int.from_bytes(png[16:20], "big")
+    height = int.from_bytes(png[20:24], "big")
+    if not width or not height or width * height > MAX_OCR_PIXELS:
+        raise HTTPException(status_code=413, detail="La selección es demasiado grande")
+
+    try:
+        japanese = await asyncio.to_thread(recognize_japanese, png)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        log.exception("falló el OCR de la captura")
+        raise HTTPException(status_code=422, detail="No se pudo leer la imagen") from exc
+
+    return JSONResponse(
+        await _translate_ocr_text(state, japanese, target),
+        headers=_ocr_cors_headers(origin),
+    )
+
+
 @app.websocket("/stream")
 async def stream(ws: WebSocket) -> None:
     state: AppState = app.state.youjp
     settings = state.settings
-    if not _trusted_origin(ws.headers.get("origin"), settings.allowed_extension_ids):
+    origin = ws.headers.get("origin")
+    if not _trusted_origin(origin, settings.extension_ids):
+        # Sin este aviso, un ID mal configurado solo se ve como una extensión
+        # que no conecta. %r evita que un Origin manipulado inyecte líneas.
+        log.warning(
+            "conexion rechazada: origen %r no permitido. Si es tu extensión, "
+            "añade su ID a YOUJP_ALLOWED_EXTENSION_IDS.",
+            origin,
+        )
         # Cerrar antes de accept() produce HTTP 403 y oculta el código 1008 al
         # cliente. Aceptamos y cerramos sin crear tareas ni cargar trabajadores.
         await ws.accept()
@@ -232,13 +375,14 @@ async def stream(ws: WebSocket) -> None:
     nlp: NlpWorker | None = None
     sender = asyncio.create_task(_sender(ws, outbox), name=f"sender-{session_id}")
     ticker: asyncio.Task | None = None
+    close_code = 1000
 
     log.info("[%s] conexion abierta desde %s", session_id, ws.client)
     state.sessions += 1
 
     try:
         while True:
-            packet = await ws.receive()
+            packet = await _receive_packet(ws, sender)
             kind = packet.get("type")
 
             if kind == "websocket.disconnect":
@@ -263,6 +407,8 @@ async def stream(ws: WebSocket) -> None:
             try:
                 message = parse_client_message(raw)
             except ProtocolMismatch as exc:
+                # El error fatal también debe respetar un único escritor.
+                await _cancel_task(sender)
                 await ws.send_text(ErrorMessage(
                     code="protocol_mismatch", message=str(exc), fatal=True,
                 ).model_dump_json())
@@ -352,13 +498,14 @@ async def stream(ws: WebSocket) -> None:
     except WebSocketDisconnect:
         log.info("[%s] el cliente cerro la conexion", session_id)
     except Exception:  # noqa: BLE001
+        close_code = 1011
         log.exception("[%s] error en la sesion", session_id)
     finally:
         emitter.close()
         state.sessions -= 1
-        sender.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await sender
+        await _cancel_task(sender)
+        with contextlib.suppress(WebSocketDisconnect, RuntimeError, OSError):
+            await ws.close(code=close_code)
         await _stop_session(ticker, worker, mt, nlp)
         log.info("[%s] sesion cerrada", session_id)
 
@@ -371,12 +518,39 @@ async def _stop_session(
 ) -> None:
     """Detiene las tareas y trabajadores de una sesión en el mismo orden."""
     if ticker is not None:
-        ticker.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await ticker
+        await _cancel_task(ticker)
     for item in (worker, mt, nlp):
         if item is not None:
-            await asyncio.to_thread(item.stop)
+            try:
+                await asyncio.to_thread(item.stop)
+            except Exception:
+                # Un fallo al liberar un recurso no debe dejar vivos a los demás.
+                log.exception("error deteniendo %s", type(item).__name__)
+
+
+async def _cancel_task(task: asyncio.Task) -> None:
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+    except Exception:
+        log.exception("error en la tarea %s", task.get_name())
+
+
+async def _receive_packet(ws: WebSocket, sender: asyncio.Task) -> dict:
+    """No dejar sesiones huérfanas si el envío falla mientras se espera audio."""
+    receiver = asyncio.create_task(ws.receive())
+    try:
+        await asyncio.wait((receiver, sender), return_when=asyncio.FIRST_COMPLETED)
+        if receiver.done():
+            return receiver.result()
+        await sender
+        raise WebSocketDisconnect()
+    finally:
+        receiver.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await receiver
 
 
 def _fan_out(mt: MtWorker, nlp: NlpWorker):
@@ -409,7 +583,7 @@ async def _sender(ws: WebSocket, outbox: asyncio.Queue[BaseModel]) -> None:
         message = await outbox.get()
         try:
             await ws.send_text(message.model_dump_json())
-        except (WebSocketDisconnect, RuntimeError):
+        except (WebSocketDisconnect, RuntimeError, OSError):
             return
 
 

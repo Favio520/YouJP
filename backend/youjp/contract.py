@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Annotated, Literal
 from pydantic import BaseModel, Field
 
-APP_VERSION = '1.3.0'
+APP_VERSION = '1.4.0'
 PROTOCOL_VERSION = 2
 AUDIO_VERSION = 1
 SAMPLE_RATE = 16000

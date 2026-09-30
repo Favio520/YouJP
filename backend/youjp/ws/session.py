@@ -64,6 +64,7 @@ class AsrWorker:
         self._stopped = threading.Event()
         self._control_lock = threading.Lock()
         self._pending_flush: tuple[str, int] | None = None
+        self._last_sequence: int | None = None
         self._queue: queue.Queue[Any] = queue.Queue(maxsize=max_queued_frames)
         self._dropped = 0
 
@@ -94,7 +95,8 @@ class AsrWorker:
         with self._control_lock:
             self._stopped.set()
             self._replace_pending(_STOP)
-        self._thread.join(timeout=timeout)
+        if self._thread.ident is not None:
+            self._thread.join(timeout=timeout)
         if self._thread.is_alive():
             log.warning("el hilo de ASR no termino en %.1f s", timeout)
 
@@ -163,14 +165,24 @@ class AsrWorker:
             try:
                 if isinstance(item, tuple) and item[0] == "flush":
                     self.session.reset()
+                    self._last_sequence = None
                     if self._on_reset is not None:
                         self._on_reset()
                     with self._control_lock:
                         if self._pending_flush is item:
                             self._pending_flush = None
                 else:
-                    if item.discontinuity and self._on_reset is not None:
+                    gap = self._last_sequence is not None and item.seq != (
+                        (self._last_sequence + 1) & 0xFFFFFFFF
+                    )
+                    if gap and not item.discontinuity:
+                        # Al descartar audio por saturación no se puede pegar el
+                        # PCM restante al anterior: desplazaría todos los tiempos
+                        # posteriores y mezclaría palabras separadas por el hueco.
+                        self.session.reset()
+                    if (gap or item.discontinuity) and self._on_reset is not None:
                         self._on_reset()
+                    self._last_sequence = item.seq
                     self.session.push(item)
             except Exception:  # noqa: BLE001 - un fallo aqui no debe matar el hilo
                 log.exception("error procesando audio; la sesion continua")

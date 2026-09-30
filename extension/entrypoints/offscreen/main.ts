@@ -28,6 +28,7 @@ interface Capture {
 
 let current: Capture | null = null;
 let captureCommands: Promise<void> = Promise.resolve();
+let commandRevision = 0;
 
 // Los documentos offscreen solo pueden usar chrome.runtime, no chrome.storage.
 // El service worker lee y normaliza los ajustes guardados por el overlay.
@@ -93,6 +94,7 @@ async function buildGraph(stream: MediaStream, onFrame: (pcm: ArrayBuffer) => vo
     node.connect(asrCtx.destination);
 
     node.port.onmessage = (event: MessageEvent<ArrayBuffer>) => onFrame(event.data);
+    await Promise.all([playbackCtx.resume(), asrCtx.resume()]);
     return { asrCtx, playbackCtx, node };
   } catch (error) {
     await Promise.all([
@@ -131,11 +133,18 @@ function forward(capture: Capture, message: ServerMessage): void {
   }
 }
 
-async function start(params: StartCapture): Promise<void> {
+async function start(params: StartCapture, revision: number): Promise<void> {
+  if (revision !== commandRevision) return;
   await stop();
+  if (revision !== commandRevision) return;
   report({ type: 'status', status: 'connecting' }, params.tabId);
   const settings = await loadCaptureSettings();
+  if (revision !== commandRevision) return;
   const stream = await openStream(params.streamId);
+  if (revision !== commandRevision) {
+    stream.getTracks().forEach((track) => { track.stop(); });
+    return;
+  }
   let capture: Capture | undefined;
   let graph: Awaited<ReturnType<typeof buildGraph>>;
   try {
@@ -190,18 +199,40 @@ async function start(params: StartCapture): Promise<void> {
     onFatal: (detail) => {
       if (capture && current === capture) {
         current = null;
-        void release(capture).then(() => report({ type: 'status', status: 'error', detail }, params.tabId));
+        void release(capture).then(() => {
+          if (revision === commandRevision) report({ type: 'status', status: 'error', detail }, params.tabId);
+        });
       }
     },
   });
   capture = {
     ...graph, tabId: params.tabId, params, stream, connection,
     startedAt: performance.now(), seq: 0, mediaTimeMs: params.mediaTimeMs,
-    paused: false, rate: 1, pendingDiscontinuity: true,
+    paused: params.paused ?? false, rate: params.rate ?? 1, pendingDiscontinuity: true,
     target: settings.targetLanguage, nextSegment: 0, segments: new Map(),
   };
+  if (revision !== commandRevision) {
+    await release(capture);
+    return;
+  }
   current = capture;
+  const activeCapture = capture;
+  const failCapture = (detail: string) => {
+    if (current !== activeCapture) return;
+    current = null;
+    void release(activeCapture).then(() => {
+      if (revision === commandRevision) report({ type: 'status', status: 'error', detail }, params.tabId);
+    });
+  };
+  for (const track of stream.getTracks()) {
+    track.addEventListener('ended', () => failCapture('La captura de audio terminó. Actívala de nuevo con el icono.'));
+  }
+  graph.node.onprocessorerror = () => failCapture('El procesador de audio se detuvo. Activa de nuevo la captura.');
   const latest = await loadCaptureSettings();
+  if (revision !== commandRevision || current !== capture) {
+    if (current === capture) await stop();
+    return;
+  }
   capture.target = latest.targetLanguage;
   connection.start();
 }
@@ -215,6 +246,7 @@ function updateTarget(target: TargetLanguage): void {
 async function release(capture: Capture): Promise<void> {
   capture.connection.stop();
   capture.node.port.onmessage = null;
+  capture.node.onprocessorerror = null;
   capture.node.disconnect();
   capture.stream.getTracks().forEach((track) => { track.stop(); });
   await Promise.all([
@@ -232,6 +264,10 @@ async function stop(): Promise<void> {
 }
 
 chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, respond) => {
+  if (sender.id !== chrome.runtime.id || !message || typeof message !== 'object') return;
+  // Solo el service worker controla captura y ajustes; los content scripts
+  // únicamente pueden publicar el reloj de su propia pestaña.
+  if (sender.tab && message.type !== 'player.tick' && message.type !== 'player.flush') return;
   if (message.type === 'offscreen.ping') {
     respond({ ready: true });
     return true;
@@ -242,27 +278,46 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, respond
     case 'settings.changed':
       updateTarget(message.settings.targetLanguage);
       break;
-    case 'capture.start':
-      captureCommands = captureCommands.then(() => start(message)).catch(async (error) => {
+    case 'capture.start': {
+      const revision = ++commandRevision;
+      captureCommands = captureCommands.then(() => start(message, revision)).catch(async (error) => {
         await stop();
-        report({ type: 'status', status: 'error', detail: String(error.message ?? error) }, message.tabId);
+        if (revision === commandRevision) {
+          report({ type: 'status', status: 'error', detail: String(error?.message ?? error) }, message.tabId);
+        }
       });
       break;
+    }
     case 'capture.stop':
+      commandRevision += 1;
       captureCommands = captureCommands.then(stop).catch(console.error);
       break;
     case 'player.tick':
+      if (!Number.isFinite(message.mediaTimeMs) || message.mediaTimeMs < 0 ||
+          !Number.isFinite(message.rate) || message.rate <= 0 ||
+          typeof message.paused !== 'boolean' || typeof message.videoId !== 'string') return;
       if (current) {
+        if (current.params.videoId !== message.videoId) {
+          current.pendingDiscontinuity = true;
+          current.segments.clear();
+          current.node.port.postMessage({ type: 'reset' });
+          current.connection.send({ type: 'control.flush', reason: 'seek',
+            media_time_ms: Math.round(message.mediaTimeMs) });
+        }
         current.mediaTimeMs = message.mediaTimeMs;
         current.paused = message.paused;
         current.rate = message.rate;
         current.params.videoId = message.videoId;
+        if (typeof message.isLive === 'boolean') current.params.isLive = message.isLive;
       }
       break;
     case 'player.flush':
+      if (!Number.isFinite(message.mediaTimeMs) || message.mediaTimeMs < 0 ||
+          !['seek', 'pause', 'rate'].includes(message.reason)) return;
       if (current) {
         current.mediaTimeMs = message.mediaTimeMs;
         current.pendingDiscontinuity = true;
+        current.node.port.postMessage({ type: 'reset' });
         current.connection.send({ type: 'control.flush', reason: message.reason,
           media_time_ms: Math.round(message.mediaTimeMs) });
       }

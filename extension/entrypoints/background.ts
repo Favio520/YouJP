@@ -11,8 +11,13 @@ import { defineBackground } from '#imports';
 import { DEFAULT_SERVER_URL, type ExtensionMessage } from '@/src/messages';
 import { loadSettings, onSettingsChanged } from '@/src/settings';
 import type { PlayerSnapshot } from '@/src/player';
+import { captureAndTranslate, retryScreenTranslation, supportsScreenCapture, validSelection } from '@/src/screenCapture';
+import { uiText, type UiLanguage } from '@/src/i18n';
 
 const OFFSCREEN_PATH = 'offscreen.html';
+let uiLanguage: UiLanguage = 'es';
+let languageChanged = false;
+const t = (value: string) => uiText(uiLanguage, value);
 
 /**
  * Envoltorio con callback en vez de la forma con promesa.
@@ -31,6 +36,8 @@ function getMediaStreamId(targetTabId: number): Promise<string> {
       const error = chrome.runtime.lastError;
       if (error) {
         reject(new Error(error.message ?? 'tabCapture.getMediaStreamId falló'));
+      } else if (!streamId) {
+        reject(new Error('Chrome no devolvió un identificador de captura válido'));
       } else {
         resolve(streamId);
       }
@@ -44,6 +51,15 @@ interface CaptureState {
 }
 
 let capture: CaptureState | null = null;
+let captureCommands: Promise<void> = Promise.resolve();
+
+// Todos los cambios de captura comparten una cola: dos clics rápidos no deben
+// crear dos documentos ni dejar un inicio pendiente después de detenerlo.
+function queueCapture(command: () => Promise<void>): Promise<void> {
+  const pending = captureCommands.then(command);
+  captureCommands = pending.catch(() => {});
+  return pending;
+}
 // El service worker puede dormirse durante los 30 segundos de reconexión.
 const restored = chrome.storage.session.get('capture').then((state) => {
   capture = state.capture ?? null;
@@ -94,7 +110,8 @@ function isPlayerSnapshot(value: unknown): value is PlayerSnapshot {
   const item = value as Record<string, unknown>;
   return typeof item.videoId === 'string' && typeof item.mediaTimeMs === 'number' &&
     typeof item.isLive === 'boolean' && typeof item.paused === 'boolean' &&
-    typeof item.rate === 'number';
+    typeof item.rate === 'number' && Number.isFinite(item.mediaTimeMs) &&
+    item.mediaTimeMs >= 0 && Number.isFinite(item.rate) && item.rate > 0;
 }
 
 async function ensureContentScript(tabId: number): Promise<PlayerSnapshot | null> {
@@ -122,14 +139,11 @@ async function ensureContentScript(tabId: number): Promise<PlayerSnapshot | null
 }
 
 async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
-  if (!tab.id) return;
-
-  await ensureOffscreen();
-
-  // getMediaStreamId debe invocarse aquí, en el service worker, tras el gesto
-  // del usuario. El identificador caduca en unos segundos si no se usa, así que
-  // se manda inmediatamente.
-  const streamId = await getMediaStreamId(tab.id);
+  if (tab.id === undefined) return;
+  const page = tab.url ? new URL(tab.url) : null;
+  if (page?.protocol !== 'https:' || page.hostname !== 'www.youtube.com') {
+    throw new Error('Abre una pestaña de YouTube para activar los subtítulos');
+  }
 
   const info = await ensureContentScript(tab.id);
   if (info === null) {
@@ -144,11 +158,17 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
 
   const { serverUrl = DEFAULT_SERVER_URL } = await chrome.storage.local.get('serverUrl');
 
+  await ensureOffscreen();
+
   capture = { tabId: tab.id, videoId: info?.videoId ?? '' };
   await chrome.storage.session.set({ capture });
   await chrome.action.setBadgeText({ text: '...', tabId: tab.id });
   await chrome.action.setBadgeBackgroundColor({ color: '#24427C', tabId: tab.id });
-  await chrome.action.setTitle({ title: 'YouJP: conectando', tabId: tab.id });
+  await chrome.action.setTitle({ title: t('YouJP: conectando'), tabId: tab.id });
+
+  // El identificador caduca pronto: no preparar el overlay ni leer ajustes
+  // después de obtenerlo, para que el offscreen pueda consumirlo de inmediato.
+  const streamId = await getMediaStreamId(tab.id);
 
   await chrome.runtime.sendMessage({
     type: 'capture.start',
@@ -158,6 +178,8 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
     url: tab.url ?? '',
     isLive: info?.isLive ?? false,
     mediaTimeMs: info?.mediaTimeMs ?? 0,
+    paused: info.paused,
+    rate: info.rate,
     serverUrl,
   } satisfies ExtensionMessage);
 
@@ -171,7 +193,7 @@ async function stopCapture(): Promise<void> {
   if (previous) {
     await chrome.action.setBadgeText({ text: '', tabId: previous.tabId }).catch(() => {});
     await chrome.action
-      .setTitle({ title: 'Activar subtítulos japoneses', tabId: previous.tabId })
+      .setTitle({ title: t('Activar subtítulos japoneses'), tabId: previous.tabId })
       .catch(() => {});
     await chrome.tabs
       .sendMessage(previous.tabId, { type: 'status', status: 'idle' } satisfies ExtensionMessage)
@@ -180,15 +202,112 @@ async function stopCapture(): Promise<void> {
   await chrome.offscreen.closeDocument().catch(() => {});
 }
 
+const screenStarts = new Map<number, Promise<void>>();
+const screenRequests = new Map<string, { id: number; controller: AbortController }>();
+function cancelTabScreenRequests(tabId: number): void {
+  for (const [key, pending] of screenRequests) {
+    if (!key.startsWith(`${tabId}:`)) continue;
+    pending.controller.abort();
+    screenRequests.delete(key);
+  }
+}
+
+async function startScreenCapture(tab: chrome.tabs.Tab): Promise<void> {
+  if (tab.id === undefined) return;
+  const tabId = tab.id;
+  if (!supportsScreenCapture(tab.url)) {
+    throw new Error('El recorte requiere una página HTTP o HTTPS. El navegador bloquea sus páginas internas.');
+  }
+  if (screenStarts.has(tabId)) return screenStarts.get(tabId);
+  const start = (async () => {
+    const probe = () => chrome.tabs.sendMessage(tabId, { type: 'screen.probe' }, { frameId: 0 })
+      .catch(() => null);
+    if ((await probe())?.ready !== true) {
+      await chrome.scripting.executeScript({ target: { tabId }, files: ['content-scripts/screen.js'] });
+      if ((await probe())?.ready !== true) throw new Error('No se pudo iniciar el selector. Recarga la página.');
+    }
+    await chrome.tabs.sendMessage(tabId, { type: 'screen.select' }, { frameId: 0 });
+  })();
+  screenStarts.set(tabId, start);
+  try { await start; } finally { screenStarts.delete(tabId); }
+}
+
+async function reportScreenError(tabId: number | undefined, error: unknown): Promise<void> {
+  console.warn('[youjp] no se pudo iniciar la selección', error);
+  if (tabId === undefined) return;
+  const detail = error instanceof Error ? error.message : String(error);
+  await chrome.action.setTitle({ tabId, title: `YouJP: ${t(detail)}` }).catch(() => {});
+  await chrome.action.setBadgeText({ tabId, text: '!' }).catch(() => {});
+}
+
 export default defineBackground(() => {
+  void loadSettings().then((settings) => {
+    if (!languageChanged) uiLanguage = settings.settingsLanguage;
+  });
+  chrome.commands.onCommand.addListener((command, selectedTab) => {
+    if (command !== 'translate-selection') return;
+    void (async () => {
+      const tab = selectedTab ?? (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+      if (!tab) return;
+      await startScreenCapture(tab).catch((error) => reportScreenError(tab.id, error));
+    })().catch((error) => console.warn('[youjp] no se pudo iniciar la selección', error));
+  });
+
+  chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
+    const tabId = sender.tab?.id;
+    if (!message || typeof message !== 'object' || !('type' in message) ||
+        !['screen.capture', 'screen.retry', 'screen.cancel'].includes(String(message.type)) || tabId === undefined ||
+        sender.id !== chrome.runtime.id || sender.frameId !== 0) return;
+    const key = `${tabId}:${sender.documentId ?? 'main'}`;
+    const requestId = 'requestId' in message && typeof message.requestId === 'number' ? message.requestId : 0;
+    if (message.type === 'screen.cancel') {
+      const pending = screenRequests.get(key);
+      if (pending?.id === requestId) pending.controller.abort();
+      respond({ ok: true });
+      return;
+    }
+    screenRequests.get(key)?.controller.abort();
+    const controller = new AbortController();
+    screenRequests.set(key, { id: requestId, controller });
+    void (async () => {
+      if (message.type === 'screen.capture' && (!('selection' in message) || !validSelection(message.selection))) {
+        throw new Error('Selección no válida');
+      }
+      const tab = await chrome.tabs.get(tabId);
+      if (sender.url !== tab.url) throw new Error('La página cambió. Vuelve a seleccionar el texto.');
+      const { serverUrl = DEFAULT_SERVER_URL } = await chrome.storage.local.get('serverUrl');
+      const settings = await loadSettings();
+      if (message.type === 'screen.retry') {
+        if (!('japanese' in message) || typeof message.japanese !== 'string' ||
+            !message.japanese || message.japanese.length > 8000) throw new Error('Texto no válido');
+        return retryScreenTranslation(message.japanese, serverUrl, settings.targetLanguage, controller.signal);
+      }
+      if (!('selection' in message) || !validSelection(message.selection)) throw new Error('Selección no válida');
+      return captureAndTranslate(tab, message.selection, serverUrl, async () => {
+        if (controller.signal.aborted) throw new Error('Captura cancelada');
+        await chrome.tabs.sendMessage(tabId, { type: 'screen.capture.progress', requestId },
+          sender.documentId ? { documentId: sender.documentId } : { frameId: 0 }).catch(() => {});
+      }, settings.targetLanguage, controller.signal);
+    })().then((result) => respond({ ok: true, result }))
+      .catch((error) => respond({ ok: false, error: error instanceof Error ? error.message : String(error) }))
+      .finally(() => { if (screenRequests.get(key)?.controller === controller) screenRequests.delete(key); });
+    return true;
+  });
+
   // El documento offscreen solo tiene chrome.runtime: el almacenamiento y
   // sus eventos se atienden aquí, también al despertar el service worker.
   onSettingsChanged((settings) => {
+    languageChanged = true;
+    uiLanguage = settings.settingsLanguage;
     chrome.runtime.sendMessage({ type: 'settings.changed', settings } satisfies ExtensionMessage)
       .catch(() => {});
   });
 
-  chrome.action.onClicked.addListener(async (tab) => {
+  chrome.action.onClicked.addListener((tab) => {
+    if (!tab.url?.startsWith('https://www.youtube.com/')) {
+      return startScreenCapture(tab).catch((error) => reportScreenError(tab.id, error));
+    }
+    return queueCapture(async () => {
     try {
       await restored;
       if (capture && capture.tabId === tab.id) {
@@ -200,8 +319,7 @@ export default defineBackground(() => {
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       console.error('[youjp] no se pudo alternar la captura', error);
-      capture = null;
-      await chrome.storage.session.remove('capture');
+      await stopCapture();
       if (tab.id) {
         // El overlay puede no existir justo cuando falla, así que el aviso va
         // también al icono: es el único sitio que siempre se ve.
@@ -209,7 +327,7 @@ export default defineBackground(() => {
         await chrome.action
           .setBadgeBackgroundColor({ color: '#B8422B', tabId: tab.id })
           .catch(() => {});
-        await chrome.action.setTitle({ title: `youjp: ${detail}`, tabId: tab.id }).catch(() => {});
+        await chrome.action.setTitle({ title: `YouJP: ${t(detail)}`, tabId: tab.id }).catch(() => {});
         chrome.tabs
           .sendMessage(tab.id, {
             type: 'status',
@@ -219,6 +337,7 @@ export default defineBackground(() => {
           .catch(() => {});
       }
     }
+    });
   });
 
   // Encaminamiento offscreen -> pestaña. El offscreen no tiene chrome.tabs.
@@ -234,6 +353,7 @@ export default defineBackground(() => {
     }
     void restored.then(async () => {
       if (!capture || message.tabId !== capture.tabId) return;
+      const activeCapture = capture;
       const tabId = capture.tabId;
       if (
         message.type === 'status' ||
@@ -245,15 +365,18 @@ export default defineBackground(() => {
         message.type === 'backend.error'
       ) {
         await chrome.tabs.sendMessage(tabId, message).catch(() => {});
-        if (message.type === 'status' && capture?.tabId === tabId) {
+        if (message.type === 'status' && capture === activeCapture) {
           await chrome.action.setBadgeText({ tabId,
             text: message.status === 'running' ? 'ON' : message.status === 'idle' ? '' : message.status === 'error' ? '!' : '...' });
           await chrome.action.setTitle({ tabId,
-            title: `YouJP: ${message.detail || message.status}` });
+            title: `YouJP: ${t(message.detail || message.status)}` });
           if (message.status === 'error') {
-            capture = null;
-            await chrome.storage.session.remove('capture');
-            await chrome.offscreen.closeDocument().catch(() => {});
+            await queueCapture(async () => {
+              if (capture !== activeCapture) return;
+              capture = null;
+              await chrome.storage.session.remove('capture');
+              await chrome.offscreen.closeDocument().catch(() => {});
+            });
           }
         }
       }
@@ -263,12 +386,19 @@ export default defineBackground(() => {
   // Si la pestaña capturada se cierra o navega fuera, la captura ya no tiene
   // sentido: el streamId queda huérfano y el audio deja de llegar.
   chrome.tabs.onRemoved.addListener((tabId) => {
-    void restored.then(() => { if (capture?.tabId === tabId) return stopCapture(); });
+    cancelTabScreenRequests(tabId);
+    void queueCapture(async () => {
+      await restored;
+      if (capture?.tabId === tabId) await stopCapture();
+    }).catch(console.warn);
   });
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    void restored.then(() => {
-      if (capture?.tabId === tabId && changeInfo.status === 'loading') return stopCapture();
-    });
+    if (changeInfo.status !== 'loading') return;
+    cancelTabScreenRequests(tabId);
+    void queueCapture(async () => {
+      await restored;
+      if (capture?.tabId === tabId) await stopCapture();
+    }).catch(console.warn);
   });
 });

@@ -38,6 +38,7 @@ export interface PlayerTick {
   paused: boolean;
   rate: number;
   videoId: string;
+  isLive?: boolean;
 }
 
 /** content script -> offscreen: seek, pausa o cambio de velocidad */
@@ -56,6 +57,8 @@ export interface StartCapture {
   url: string;
   isLive: boolean;
   mediaTimeMs: number;
+  paused?: boolean;
+  rate?: number;
   serverUrl: string;
 }
 

@@ -75,7 +75,8 @@ class MtWorker:
             self._generation += 1
             self._clear_queue()
             self._queue.put_nowait(_STOP)
-        self._thread.join(timeout=timeout)
+        if self._thread.ident is not None:
+            self._thread.join(timeout=timeout)
         if self._thread.is_alive():
             log.warning("el hilo de traduccion no termino en %.1f s", timeout)
 

@@ -29,6 +29,11 @@ class PcmCollector extends AudioWorkletProcessor {
     this.frameSamples = frameSamples;
     this.buffer = new Float32Array(frameSamples);
     this.filled = 0;
+    this.port.onmessage = (event) => {
+      // Un seek, una pausa o un vídeo nuevo no deben completar una trama con
+      // las muestras que quedaron pendientes antes de la discontinuidad.
+      if (event.data?.type === 'reset') this.filled = 0;
+    };
   }
 
   /**

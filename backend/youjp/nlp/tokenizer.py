@@ -17,6 +17,7 @@ Sudachi ofrece tres modos de segmentación. Se usan dos, y por motivos distintos
 from __future__ import annotations
 
 import logging
+import threading
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Literal
@@ -115,8 +116,16 @@ class JapaneseTokenizer:
         self.dict_type = dict_type
         self._tokenizer = None
         self._modes: dict[str, object] = {}
+        # Sudachi guarda estado mutable durante tokenize y rechaza llamadas
+        # simultáneas con RuntimeError("Already borrowed"). La instancia se
+        # comparte entre las sesiones, por lo que carga y uso deben serializarse.
+        self._lock = threading.RLock()
 
     def load(self) -> None:
+        with self._lock:
+            self._load()
+
+    def _load(self) -> None:
         if self._tokenizer is not None:
             return
         from sudachipy import Dictionary, SplitMode
@@ -126,6 +135,10 @@ class JapaneseTokenizer:
         self._modes = {"A": SplitMode.A, "B": SplitMode.B, "C": SplitMode.C}
 
     def tokenize(self, text: str, mode: SplitModeName = "C") -> list[Morpheme]:
+        with self._lock:
+            return self._tokenize(text, mode)
+
+    def _tokenize(self, text: str, mode: SplitModeName) -> list[Morpheme]:
         self.load()
         assert self._tokenizer is not None
         if not text:

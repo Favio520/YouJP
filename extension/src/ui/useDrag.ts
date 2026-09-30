@@ -27,24 +27,27 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
 export function useDrag(onCommit: (position: Position) => void) {
   const [dragging, setDragging] = useState(false);
   const [preview, setPreview] = useState<Position | null>(null);
+  const latestPosition = useRef<Position | null>(null);
   const estado = useRef<{ rect: DOMRect } | null>(null);
 
   const mover = useCallback((event: MouseEvent) => {
     const rect = estado.current?.rect;
     if (!rect || rect.width === 0 || rect.height === 0) return;
-    setPreview({
+    const position = {
       x: clamp(((event.clientX - rect.left) / rect.width) * 100, MARGEN, 100 - MARGEN),
       y: clamp(((event.clientY - rect.top) / rect.height) * 100, MARGEN, 100 - MARGEN),
-    });
+    };
+    latestPosition.current = position;
+    setPreview(position);
   }, []);
 
   const soltar = useCallback(() => {
     setDragging(false);
     estado.current = null;
-    setPreview((actual) => {
-      if (actual) onCommit(actual);
-      return null;
-    });
+    const position = latestPosition.current;
+    latestPosition.current = null;
+    setPreview(null);
+    if (position) onCommit(position);
   }, [onCommit]);
 
   useEffect(() => {
@@ -54,18 +57,22 @@ export function useDrag(onCommit: (position: Position) => void) {
     // cuanto el cursor pasa por encima de la barra.
     window.addEventListener('mousemove', mover, true);
     window.addEventListener('mouseup', soltar, true);
+    window.addEventListener('blur', soltar);
     return () => {
       window.removeEventListener('mousemove', mover, true);
       window.removeEventListener('mouseup', soltar, true);
+      window.removeEventListener('blur', soltar);
     };
   }, [dragging, mover, soltar]);
 
   const empezar = useCallback((event: React.MouseEvent) => {
+    if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
     const player = findPlayerRoot();
     if (!player) return;
     estado.current = { rect: player.getBoundingClientRect() };
+    latestPosition.current = null;
     setDragging(true);
   }, []);
 

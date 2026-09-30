@@ -10,8 +10,11 @@ function Get-YouJPHardware {
         $rows = & nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv,noheader,nounits 2>$null
         if ($LASTEXITCODE -eq 0 -and $rows) {
             $parts = (@($rows)[0]) -split ',\s*'
-            if ($parts.Count -eq 3) {
-                $gpu = [pscustomobject]@{ Name = $parts[0]; TotalMB = [int]$parts[1]; FreeMB = [int]$parts[2] }
+            $totalMB = 0
+            $freeMB = 0
+            if ($parts.Count -eq 3 -and [int]::TryParse($parts[1], [ref]$totalMB) -and
+                [int]::TryParse($parts[2], [ref]$freeMB)) {
+                $gpu = [pscustomobject]@{ Name = $parts[0]; TotalMB = $totalMB; FreeMB = $freeMB }
             }
         }
     }
@@ -57,8 +60,48 @@ function Get-YouJPVersion {
 
 function Get-YouJPRuntime {
     $path = Join-Path $script:RuntimeDir 'runtime.json'
-    if (Test-Path -LiteralPath $path) { return Get-Content -LiteralPath $path -Raw | ConvertFrom-Json }
-    [pscustomobject]@{ port = 8770; app_version = ''; asr_device = ''; mt_provider = '' }
+    $runtime = [pscustomobject]@{ port = 8770; app_version = ''; asr_device = ''; mt_provider = '' }
+    if (Test-Path -LiteralPath $path) {
+        try {
+            $saved = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+            if ($null -eq $saved -or $saved -isnot [pscustomobject]) { return $runtime }
+            $port = 0
+            if ('port' -in $saved.PSObject.Properties.Name -and
+                [int]::TryParse([string]$saved.port, [ref]$port) -and $port -ge 1 -and $port -le 65535) {
+                $runtime.port = $port
+            }
+            foreach ($name in @('app_version', 'asr_device', 'mt_provider')) {
+                if ($name -in $saved.PSObject.Properties.Name -and $saved.$name -is [string]) {
+                    $runtime.$name = $saved.$name
+                }
+            }
+        } catch { Write-Warning 'No se pudo leer runtime.json. Prepara el equipo para regenerar la configuracion.' }
+    }
+    return $runtime
+}
+
+function Test-YouJPInstallation {
+    $marker = Join-Path $script:RuntimeDir 'installed-version'
+    $python = Join-Path $script:ProjectRoot 'backend/.venv/Scripts/python.exe'
+    if (-not (Test-Path -LiteralPath $marker -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $python -PathType Leaf)) { return $false }
+    try { return ([IO.File]::ReadAllText($marker).Trim() -eq (Get-YouJPVersion)) }
+    catch { return $false }
+}
+
+function Get-YouJPEffectiveRuntime {
+    $python = Join-Path $script:ProjectRoot 'backend/.venv/Scripts/python.exe'
+    if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { return Get-YouJPRuntime }
+    # Consultar la misma configuracion que usara el backend, sin cargar modelos.
+    $json = Invoke-YouJPCommand -Exe $python -Arguments @(
+        (Join-Path $script:ProjectRoot 'scripts/prepare_runtime.py'), '--print-settings')
+    $runtime = $json | ConvertFrom-Json
+    $port = 0
+    if ($null -eq $runtime -or 'port' -notin $runtime.PSObject.Properties.Name -or
+        -not [int]::TryParse([string]$runtime.port, [ref]$port) -or $port -lt 1 -or $port -gt 65535) {
+        throw 'No se pudo determinar el puerto configurado de YouJP.'
+    }
+    return $runtime
 }
 
 function Test-YouJPHealth {
@@ -68,7 +111,7 @@ function Test-YouJPHealth {
     $protocol = Get-Content -LiteralPath (Join-Path $script:ProjectRoot 'protocol/schema.json') -Raw | ConvertFrom-Json
     return ('service' -in $properties -and 'protocol_version' -in $properties -and
         'app_version' -in $properties -and 'asr_loaded' -in $properties -and
-        $Health.service -eq 'youjp' -and $Health.asr_loaded -and
+        $Health.service -eq 'youjp' -and $Health.asr_loaded -is [bool] -and $Health.asr_loaded -and
         $Health.protocol_version -eq $protocol.'x-youjp'.protocol_version -and
         $Health.app_version -eq (Get-YouJPVersion))
 }

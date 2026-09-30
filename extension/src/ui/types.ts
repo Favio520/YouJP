@@ -16,3 +16,12 @@ export interface Line {
   /** Posición dentro del vídeo, para poder volver a ella desde el historial. */
   mediaStartMs: number;
 }
+
+/** Palabra abierta en la tarjeta. La frase importa: `token.i` solo es único
+ *  dentro de su frase, y sin `lineId` se resaltaría la misma posición en todas. */
+export interface Selection {
+  lineId: number;
+  token: Token;
+  /** Dónde se pulsó, para abrir la tarjeta junto a esa palabra. */
+  from: 'subtitles' | 'transcript';
+}

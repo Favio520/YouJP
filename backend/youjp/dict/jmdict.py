@@ -101,7 +101,9 @@ class Dictionary:
     def _conn(self) -> sqlite3.Connection:
         conn = getattr(self._local, "conn", None)
         if conn is None:
-            conn = sqlite3.connect(f"file:{self.path}?mode=ro", uri=True, check_same_thread=False)
+            conn = sqlite3.connect(
+                f"{self.path.resolve().as_uri()}?mode=ro", uri=True, check_same_thread=False
+            )
             conn.row_factory = sqlite3.Row
             # La base son 70 MB y las búsquedas tocan páginas dispersas del
             # índice. Sin esto, las primeras consultas van a disco: medido en
@@ -116,6 +118,13 @@ class Dictionary:
             conn.execute("PRAGMA temp_store = MEMORY")
             self._local.conn = conn
         return conn
+
+    def close(self) -> None:
+        """Libera la conexión del hilo actual al terminar su trabajo."""
+        conn = getattr(self._local, "conn", None)
+        if conn is not None:
+            conn.close()
+            del self._local.conn
 
     # Palabras frecuentes de categorías distintas, para que el calentamiento
     # toque las zonas del índice que se van a usar de verdad.

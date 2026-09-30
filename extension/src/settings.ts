@@ -19,6 +19,8 @@ export interface OverlaySettings {
   /** Tamaño del japonés en píxeles a 1080p; escala con el ancho del vídeo. */
   jaSize: number;
   translationSize: number;
+  /** Tamaño del japonés en el historial; la traducción escala con él. */
+  transcriptSize: number;
   settingsLanguage: 'es' | 'en';
   targetLanguage: TargetLanguage;
   /** Distancia desde el borde inferior del reproductor, en píxeles. */
@@ -46,11 +48,14 @@ export interface OverlaySettings {
 
   /** Posición del panel de historial, con el mismo criterio que `position`. */
   transcriptPosition: { x: number; y: number } | null;
+  /** Posición de la consulta de palabras, independiente del historial. */
+  wordPanelPosition: { x: number; y: number } | null;
 }
 
 export const DEFAULT_SETTINGS: OverlaySettings = {
   jaSize: 28,
   translationSize: 21,
+  transcriptSize: 16,
   settingsLanguage: 'es',
   targetLanguage: 'es',
   bottom: 72,
@@ -65,25 +70,43 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   showTentative: true,
   position: null,
   transcriptPosition: null,
+  wordPanelPosition: null,
 };
 
 const KEY = 'overlaySettings';
 
 /** Migrate the Spanish-only settings without losing saved display preferences. */
 export function normalizeSettings(value: unknown): OverlaySettings {
-  const stored = value && typeof value === 'object'
+  const stored = value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown> : {};
-  const { esSize, ...rest } = stored;
-  const current = { ...DEFAULT_SETTINGS, ...rest };
+  const number = (value: unknown, min: number, max: number, fallback: number) =>
+    typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max
+      ? value : fallback;
+  const position = (value: unknown): OverlaySettings['position'] => {
+    if (!value || typeof value !== 'object') return null;
+    const { x, y } = value as Record<string, unknown>;
+    if (typeof x !== 'number' || !Number.isFinite(x) ||
+        typeof y !== 'number' || !Number.isFinite(y)) return null;
+    return { x: Math.max(3, Math.min(97, x)), y: Math.max(3, Math.min(97, y)) };
+  };
   return {
-    ...current,
-    translationSize: typeof stored.translationSize === 'number'
-      ? stored.translationSize : typeof esSize === 'number' ? esSize : DEFAULT_SETTINGS.translationSize,
+    jaSize: number(stored.jaSize, 16, 56, DEFAULT_SETTINGS.jaSize),
+    translationSize: number(stored.translationSize ?? stored.esSize, 12, 44, DEFAULT_SETTINGS.translationSize),
+    transcriptSize: number(stored.transcriptSize, 12, 32, DEFAULT_SETTINGS.transcriptSize),
+    bottom: number(stored.bottom, 8, 320, DEFAULT_SETTINGS.bottom),
+    width: number(stored.width, 40, 100, DEFAULT_SETTINGS.width),
+    history: Math.floor(number(stored.history, 0, 3, DEFAULT_SETTINGS.history)),
+    showTentative: typeof stored.showTentative === 'boolean' ? stored.showTentative : DEFAULT_SETTINGS.showTentative,
+    furigana: stored.furigana === 'off' || stored.furigana === 'all' ? stored.furigana : 'auto',
+    backdrop: stored.backdrop === 'none' || stored.backdrop === 'solid' ? stored.backdrop : 'soft',
+    position: position(stored.position),
+    transcriptPosition: position(stored.transcriptPosition),
+    wordPanelPosition: position(stored.wordPanelPosition),
     settingsLanguage: stored.settingsLanguage === 'en' ? 'en' : 'es',
     targetLanguage: stored.targetLanguage === 'en' ? 'en' : 'es',
     languages: stored.languages === 'es' || stored.languages === 'translation'
       ? 'translation' : stored.languages === 'ja' ? 'ja' : 'both',
-  } as OverlaySettings;
+  };
 }
 
 export async function loadSettings(): Promise<OverlaySettings> {
@@ -97,7 +120,7 @@ export async function loadSettings(): Promise<OverlaySettings> {
 
 export async function saveSettings(settings: OverlaySettings): Promise<void> {
   try {
-    await chrome.storage.local.set({ [KEY]: settings });
+    await chrome.storage.local.set({ [KEY]: normalizeSettings(settings) });
   } catch {
     // Sin almacenamiento los ajustes duran lo que la sesión. No es motivo para
     // romper el overlay.
@@ -110,7 +133,7 @@ export function onSettingsChanged(fn: (settings: OverlaySettings) => void): () =
     changes: Record<string, chrome.storage.StorageChange>,
     area: string,
   ) => {
-    if (area === 'local' && changes[KEY]?.newValue) {
+    if (area === 'local' && changes[KEY]) {
       fn(normalizeSettings(changes[KEY].newValue));
     }
   };

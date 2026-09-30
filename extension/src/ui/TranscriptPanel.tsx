@@ -1,3 +1,4 @@
+import { uiText, type UiLanguage } from '../i18n';
 /**
  * Historial completo de la sesión.
  *
@@ -6,7 +7,8 @@
  * una frase que pasó rápido, comprobar una traducción, o saltar al momento en
  * que se dijo.
  *
- * Por eso cada línea es pulsable y lleva el vídeo a su marca temporal. Es la
+ * Por eso la marca temporal de cada línea lleva el vídeo a ese momento, y las
+ * palabras se pueden pulsar igual que en el subtítulo en directo. Es la
  * diferencia entre un subtítulo y algo con lo que se puede estudiar.
  *
  * El panel se mueve y se redimensiona por su cuenta, independiente de los
@@ -15,10 +17,14 @@
  */
 
 import { useEffect, useRef } from 'react';
-import type { Line } from './types';
+import type { Token } from '../protocol';
+import type { FuriganaMode } from '../settings';
+import { Subtitle } from './Subtitle';
+import type { Line, Selection } from './types';
 import { useDrag, type Position } from './useDrag';
 
 interface Props {
+  language?: UiLanguage;
   lines: Line[];
   position: Position | null;
   onMove: (position: Position) => void;
@@ -26,6 +32,10 @@ interface Props {
   onSeek: (mediaMs: number) => void;
   onClose: () => void;
   showTranslation: boolean;
+  textSize: number;
+  furigana: FuriganaMode;
+  selected: Selection | null;
+  onSelect: (lineId: number, token: Token) => void;
 }
 
 function marca(ms: number): string {
@@ -46,7 +56,13 @@ export function TranscriptPanel({
   onSeek,
   onClose,
   showTranslation,
+  textSize,
+  furigana,
+  selected,
+  onSelect,
+  language = 'es',
 }: Props) {
+  const t = (value: string) => uiText(language, value);
   const scroller = useRef<HTMLDivElement>(null);
   const pegadoAbajo = useRef(true);
   const { dragging, preview, empezar } = useDrag(onMove);
@@ -77,20 +93,20 @@ export function TranscriptPanel({
           ? `youjp-transcript youjp-transcript--free${dragging ? ' youjp-transcript--dragging' : ''}`
           : 'youjp-transcript'
       }
-      style={estilo}
+      style={{ ...estilo, '--youjp-transcript-size': `${textSize}px` } as React.CSSProperties}
       role="dialog"
-      aria-label="Historial de la sesión"
+      aria-label={t('Historial de la sesión')}
     >
       {/* La cabecera entera es el asa: es la zona que no tiene nada pulsable
           dentro, así que arrastrar desde ahí no compite con nada. */}
       <div className="youjp-transcript-head" onMouseDown={empezar}>
-        <span className="youjp-transcript-title">Historial · {lines.length} frases</span>
+        <span className="youjp-transcript-title">{t('Historial')} · {lines.length} {t('frases')}</span>
         {actual && (
           <button type="button"
             className="youjp-transcript-action"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onResetPosition}
-            title="Devolver el panel a su sitio"
+            title={t('Devolver el panel a su sitio')}
           >
             ⌖
           </button>
@@ -99,7 +115,7 @@ export function TranscriptPanel({
           className="youjp-transcript-action"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={t('Cerrar')}
         >
           ×
         </button>
@@ -108,26 +124,38 @@ export function TranscriptPanel({
       <div className="youjp-transcript-body" ref={scroller} onScroll={onScroll}>
         {lines.length === 0 && (
           <p className="youjp-transcript-empty">
-            Todavía no hay frases. Aparecerán aquí según se transcriban.
+            {t('Todavía no hay frases. Aparecerán aquí según se transcriban.')}
           </p>
         )}
         {lines.map((line) => (
-          <button type="button"
-            key={line.id}
-            className="youjp-transcript-row"
-            onClick={() => onSeek(line.mediaStartMs)}
-            title="Ir a este momento del vídeo"
-          >
-            <span className="youjp-transcript-time">{marca(line.mediaStartMs)}</span>
+          // La fila ya no es un botón: dentro hay palabras pulsables, y un botón
+          // no puede contener otros. Saltar al momento queda en la marca temporal.
+          <div key={line.id} className="youjp-transcript-row">
+            <button type="button"
+              className="youjp-transcript-time"
+              onClick={() => onSeek(line.mediaStartMs)}
+              title={t('Ir a este momento del vídeo')}
+            >
+              {marca(line.mediaStartMs)}
+            </button>
             <span className="youjp-transcript-text">
-              <span className="youjp-transcript-ja">{line.ja}</span>
+              <span className="youjp-transcript-ja">
+                <Subtitle
+                  text={line.ja}
+                  tokens={line.tokens}
+                  furigana={furigana}
+                  selectedIndex={selected?.from === 'transcript' && selected.lineId === line.id
+                    ? selected.token.i : null}
+                  onSelect={(token) => onSelect(line.id, token)}
+                />
+              </span>
               {showTranslation && line.translation && (
                 <span className="youjp-transcript-es" lang={line.target ?? undefined}>
                   <small>{line.target?.toUpperCase()} · </small>{line.translation}
                 </span>
               )}
             </span>
-          </button>
+          </div>
         ))}
       </div>
     </div>

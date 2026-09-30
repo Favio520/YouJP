@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import queue
+import sqlite3
 import threading
 import time
 from collections.abc import Callable
@@ -122,7 +123,8 @@ class NlpWorker:
 
     def stop(self, timeout: float = 5.0) -> None:
         self._stopped.set()
-        self._thread.join(timeout=timeout)
+        if self._thread.ident is not None:
+            self._thread.join(timeout=timeout)
         if self._thread.is_alive():
             log.warning("el hilo de analisis no termino en %.1f s", timeout)
 
@@ -136,13 +138,25 @@ class NlpWorker:
             self.metrics.count("dropped_analyses")
 
     def _run(self) -> None:
+        try:
+            self._consume()
+        finally:
+            if self.analyzer.dictionary is not None:
+                self.analyzer.dictionary.close()
+
+    def _consume(self) -> None:
         log.info("hilo de analisis arrancado")
         # La conexión a SQLite es por hilo, así que este tiene la suya y su
         # propia caché fría. Calentarla aquí y no en la primera frase evita que
         # el arranque de cada sesión se analice cien veces más despacio.
         if self.analyzer.dictionary is not None:
-            ms = self.analyzer.dictionary.warmup()
-            log.debug("diccionario calentado en el hilo de analisis: %.0f ms", ms)
+            try:
+                ms = self.analyzer.dictionary.warmup()
+                log.debug("diccionario calentado en el hilo de analisis: %.0f ms", ms)
+            except (OSError, sqlite3.Error):
+                log.exception("diccionario no disponible; se mantiene el análisis sin acepciones")
+                self.analyzer.dictionary.close()
+                self.analyzer.dictionary = None
         while not self._stopped.is_set():
             try:
                 item = self._queue.get(timeout=0.1)

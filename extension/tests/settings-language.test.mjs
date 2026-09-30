@@ -46,7 +46,7 @@ test('English settings translate labels, tooltips and accessibility text', () =>
     settings: { ...DEFAULT_SETTINGS, settingsLanguage: 'en', position: { x: 50, y: 50 } },
     onChange() {}, onClose() {},
   }));
-  for (const label of ['Settings language', 'Subtitle settings', 'Close', 'Japanese text size',
+  for (const label of ['Interface language', 'Subtitle settings', 'Close', 'Japanese text size',
     'Translate into', 'Translation only', 'Reset to bottom center', 'All kanji']) {
     assert.ok(html.includes(label), label);
   }

@@ -38,7 +38,8 @@ export function findVideo(): HTMLVideoElement | null {
 }
 
 export function currentVideoId(): string {
-  return new URLSearchParams(location.search).get('v') ?? '';
+  return new URLSearchParams(location.search).get('v') ??
+    location.pathname.match(/^\/(?:shorts|live|embed)\/([^/]+)/)?.[1] ?? '';
 }
 
 /**
@@ -46,8 +47,9 @@ export function currentVideoId(): string {
  * puede estar en el borde o desplazado dentro del DVR.
  */
 export function isLive(video: HTMLVideoElement | null): boolean {
-  if (video && !Number.isFinite(video.duration)) return true;
-  return Boolean(document.querySelector('.ytp-live-badge, .ytp-live'));
+  if (video?.duration === Number.POSITIVE_INFINITY) return true;
+  // YouTube conserva un botón de directo oculto también en vídeos normales.
+  return Boolean(findPlayerRoot()?.classList.contains('ytp-live'));
 }
 
 export function snapshot(): PlayerSnapshot {
@@ -90,6 +92,7 @@ export function watchPlayer(handlers: PlayerWatchHandlers): () => void {
     element.addEventListener('seeked', onSeeked);
     element.addEventListener('pause', onPause);
     element.addEventListener('ratechange', onRate);
+    handlers.onRateWarning(element.playbackRate);
 
     detach = () => {
       element.removeEventListener('seeked', onSeeked);
@@ -106,11 +109,17 @@ export function watchPlayer(handlers: PlayerWatchHandlers): () => void {
   const observer = new MutationObserver(() => {
     const element = findVideo();
     if (element && element !== video) attach(element);
+    else if (!element && video) {
+      detach?.();
+      detach = null;
+      video = null;
+      handlers.onRateWarning(1);
+    }
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
   const timer = window.setInterval(() => {
-    if (video) handlers.onTick(snapshot());
+    handlers.onTick(snapshot());
   }, TICK_MS);
 
   return () => {

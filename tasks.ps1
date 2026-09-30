@@ -21,19 +21,25 @@ $ErrorActionPreference = 'Stop'
 $Root = $PSScriptRoot
 $Backend = Join-Path $Root 'backend'
 
+function Invoke-TaskCommand {
+  param([string]$Exe, [string[]]$Arguments)
+  & $Exe @Arguments
+  if ($LASTEXITCODE -ne 0) { throw "Fallo ($LASTEXITCODE): $Exe $($Arguments -join ' ')" }
+}
+
 function Invoke-Setup {
   Push-Location $Backend
   try {
     Write-Host '==> entorno de Python' -ForegroundColor Cyan
-    uv sync --extra cuda --extra nllb
+    Invoke-TaskCommand 'uv' @('sync', '--extra', 'cuda', '--extra', 'nllb')
     Write-Host '==> modelos' -ForegroundColor Cyan
-    uv run python ../scripts/fetch_models.py --whisper large-v3-turbo
+    Invoke-TaskCommand 'uv' @('run', 'python', '../scripts/fetch_models.py', '--whisper', 'large-v3-turbo')
   } finally { Pop-Location }
 }
 
 function Invoke-Test {
   Push-Location $Backend
-  try { uv run pytest } finally { Pop-Location }
+  try { Invoke-TaskCommand 'uv' @('run', 'pytest') } finally { Pop-Location }
 }
 
 function Invoke-Bench {
@@ -42,24 +48,23 @@ function Invoke-Bench {
     $argv = @('run', 'python', '../scripts/bench_latency.py')
     if ($Fast) { $argv += '--fast' }
     if ($Model) { $argv += @('--model', $Model) }
-    & uv @argv
+    Invoke-TaskCommand 'uv' $argv
   } finally { Pop-Location }
 }
 
 function Invoke-Gpu {
-  nvidia-smi --query-gpu=name,memory.total,memory.used,memory.free,utilization.gpu `
-    --format=csv,noheader
+  Invoke-TaskCommand 'nvidia-smi' @('--query-gpu=name,memory.total,memory.used,memory.free,utilization.gpu', '--format=csv,noheader')
 }
 
 function Invoke-Doctor {
-  $ok = $true
+  $status = @{ Ok = $true }
   function Check($label, [scriptblock]$test, $hint) {
     try { $value = & $test } catch { $value = $null }
     if ($value) {
       Write-Host ("  [ok]   {0,-22} {1}" -f $label, $value) -ForegroundColor Green
     } else {
       Write-Host ("  [falta] {0,-21} {1}" -f $label, $hint) -ForegroundColor Yellow
-      $script:ok = $false
+      $status.Ok = $false
     }
   }
 
@@ -92,14 +97,14 @@ function Invoke-Doctor {
   Write-Host 'gpu' -ForegroundColor Cyan
   Check 'VRAM libre' { Invoke-Gpu } 'sin GPU accesible'
 
-  if ($ok) { Write-Host "`nTodo listo." -ForegroundColor Green }
-  else { Write-Host "`nFalta algo de lo marcado arriba." -ForegroundColor Yellow }
+  if ($status.Ok) { Write-Host "`nTodo listo." -ForegroundColor Green }
+  else { throw 'Falta algo de lo marcado arriba.' }
 }
 
 switch ($Task) {
   'app' { & (Join-Path $Root 'scripts/windows/YouJP.ps1') }
   'install' { & (Join-Path $Root 'scripts/windows/Setup.ps1') }
-  'contract' { uv run --project $Backend python (Join-Path $Root 'scripts/generate_contract.py') }
+  'contract' { Invoke-TaskCommand 'uv' @('run', '--project', $Backend, 'python', (Join-Path $Root 'scripts/generate_contract.py')) }
   'setup'  { Invoke-Setup }
   'test'   { Invoke-Test }
   'bench'  { Invoke-Bench }

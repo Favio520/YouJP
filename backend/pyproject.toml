@@ -34,6 +34,8 @@ dependencies = [
 
 [project.optional-dependencies]
 nllb = ["transformers>=5.17.0"]
+# OCR de capturas: carga los modelos ligeros en CPU solo al usar el atajo.
+ocr = ["rapidocr>=3.9,<4"]
 # Bibliotecas CUDA para CTranslate2 en Windows. Se instalan como ruedas de pip:
 # no hace falta el CUDA Toolkit completo, solo el driver de NVIDIA.
 # youjp.cuda_setup anade sus carpetas al path de DLLs al arrancar.

@@ -1,48 +1,57 @@
-# YouJP para Windows
+# YouJP for Windows
 
-Abre **YouJP.exe** desde la raíz del proyecto. Tiene su propio icono y ejecuta
-la interfaz WPF sin abrir una consola. Puedes crear un acceso directo a ese
-archivo; el ejecutable debe permanecer junto a las carpetas del proyecto.
-No es un instalador ni un paquete autónomo del motor de transcripción.
+Open **YouJP.exe** in the project root. It has a native icon and opens the WPF
+interface without a console. You can create a shortcut, but keep the executable
+beside the project folders: it is not a standalone installer.
 
-La ventana ofrece **Tu sesión**, **Configuración** y **Actividad**. El estado
-distingue el motor disponible de una pestaña conectada. Al cerrar la ventana,
-YouJP sigue en la bandeja; **Salir y detener** cierra el motor iniciado por
-esa ventana. Un motor iniciado desde otra aplicación nunca se termina desde aquí.
+The window contains **Your session**, **Settings**, and **Activity**. Its status
+distinguishes a ready backend from a connected browser tab. Choose **English**
+or **Español** in Settings; this preference is saved separately from the browser
+extension's interface and translation languages.
 
-El archivo `.cmd` queda como entrada compatible para instalaciones que todavía
-no tienen el ejecutable. Preparar / actualizar lo genera si falta.
-Al actualizar desde una extensión anterior con otro ID, elimínala en
-`chrome://extensions`, carga de nuevo la carpeta compilada y reinicia el backend.
+Closing the window leaves YouJP in the tray. **Exit and stop** stops the backend
+started by that launcher. A backend started by another application is not stopped.
+Technical logs and external diagnostic messages keep their original wording.
 
-## Desarrollo
+`YouJP.cmd` also works when the executable has not been built. **Prepare / update**
+prepares dependencies, builds the extension, and creates the launcher. When updating
+an old extension with a different ID, remove it from `chrome://extensions`, load the
+new build, and restart the backend.
 
-No hacen falta un SDK ni paquetes adicionales para la interfaz: utiliza WPF,
-Windows PowerShell 5.1 y el compilador .NET Framework incluidos en Windows.
+## Development
+
+The launcher uses WPF, Windows PowerShell 5.1, and the .NET Framework compiler
+included with Windows. No additional UI SDK is required.
 
 ```powershell
-# Compilar iconos y ejecutable (con YouJP cerrado)
+# Build icons and executable with YouJP closed
 powershell -NoProfile -ExecutionPolicy Bypass -STA -File scripts/windows/Build-Launcher.ps1
 
-# Estados, perfiles, carga XAML y ejecutable; sin iniciar modelos ni descargar
+# Check states, profiles, XAML, language switching, and executable without models
 powershell -NoProfile -ExecutionPolicy Bypass -STA -File scripts/windows/Test-Launcher.ps1
 
-# Ventana de muestra aislada, sin tocar una sesión real
+# Isolated preview window
 .\YouJP.exe --preview --preview-state=ready
 
-# Vistas del propio XAML, sin capturar el escritorio
-powershell -NoProfile -ExecutionPolicy Bypass -STA -File scripts/windows/Render-Preview.ps1 -State ready
+# Render the XAML to local images without capturing the desktop
+powershell -NoProfile -ExecutionPolicy Bypass -STA -File scripts/windows/Render-Preview.ps1 -State ready -Language en
 ```
 
-`YouJP.xaml` define la interfaz, `LauncherState.ps1` sus decisiones de
-presentación y `YouJP.ps1` conserva la supervisión de los procesos.
-`Launcher.cs` aloja ese controlador dentro de `YouJP.exe` con un hilo STA.
+`YouJP.xaml` defines the interface, `LauncherState.ps1` derives presentation state,
+and `YouJP.ps1` supervises processes. `Localization.ps1` and `locales/en.json`
+provide English labels. `Launcher.cs` hosts the controller inside `YouJP.exe`
+on an STA thread.
 
-## Identidad visual
+## Visual assets
 
-Papel cálido, tinta verde, naranja caqui y un icono de dinosaurio con auriculares.
-`assets/AppIcon.xaml` es el original vectorial del icono; la compilación produce
-PNG e ICO con tamaños de 16 a 256 píxeles para Windows y la extensión.
+The interface uses an ivory background, jade cover, coral actions, and compact
+peach, mint, blue, and lavender status cards. Settings and Activity retain their
+existing controls and behavior.
 
-`assets/mascot-dino.png` se generó con la herramienta integrada de imágenes y se
-conserva con transparencia. Su prompt está en `assets/mascot-dino.prompt.txt`.
+`assets/BrandLogo.xaml` defines the headphones and dialogue emblem.
+`Build-Icons.ps1` generates `app-logo.png` and `youjp-logo.ico` at sizes from
+16 to 256 pixels for the window, executable, and tray. It does not change the
+extension icons. Previous assets are retained.
+
+`assets/mascot-design-b.png` is the transparent mascot with headphones and a
+hiragana card. `assets/fuji-design-b.png` is the jade and coral landscape.

@@ -1,4 +1,4 @@
-<# Pruebas aisladas de decisiones: sin descargas, instalación ni backend. #>
+﻿<# Pruebas aisladas de decisiones: sin descargas, instalación ni backend. #>
 . (Join-Path $PSScriptRoot 'Common.ps1')
 . (Join-Path $PSScriptRoot 'LauncherState.ps1')
 function Assert($Condition, [string]$Message) {
@@ -27,6 +27,92 @@ $health = [pscustomobject]@{ service = 'youjp'; app_version = Get-YouJPVersion;
 Assert (Test-YouJPHealth $health) 'Current backend should be ready'
 $health.protocol_version = 999
 Assert (-not (Test-YouJPHealth $health)) 'Incompatible backend must not be ready'
+$health.protocol_version = $schema.'x-youjp'.protocol_version
+$health.asr_loaded = 'false'
+Assert (-not (Test-YouJPHealth $health)) 'A string must not masquerade as loaded models'
+
+# Load task functions without running setup, diagnostics, or any real command.
+$taskTokens = $null
+$taskErrors = $null
+$taskAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $script:ProjectRoot 'tasks.ps1'), [ref]$taskTokens, [ref]$taskErrors)
+Assert ($taskErrors.Count -eq 0) 'Project tasks must have valid PowerShell syntax'
+foreach ($definition in $taskAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -like 'Invoke-*' }, $false)) {
+    . ([scriptblock]::Create($definition.Extent.Text))
+}
+
+# Fixtures never touch the real installation or its saved runtime.
+$originalRoot = $script:ProjectRoot
+$originalRuntime = $script:RuntimeDir
+$fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ('youjp-launcher-test-' + [Guid]::NewGuid().ToString('N'))
+try {
+    $script:ProjectRoot = $fixtureRoot
+    $script:RuntimeDir = Join-Path $fixtureRoot '.youjp'
+    New-Item -ItemType Directory -Path $script:RuntimeDir -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'backend/.venv/Scripts') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $fixtureRoot 'VERSION'), '1.2.3')
+    [IO.File]::WriteAllText((Join-Path $fixtureRoot 'backend/.venv/Scripts/python.exe'), '')
+    $marker = Join-Path $script:RuntimeDir 'installed-version'
+    [IO.File]::WriteAllText($marker, '')
+    Assert (-not (Test-YouJPInstallation)) 'Failed setup with an empty marker must remain recoverable'
+    [IO.File]::WriteAllText($marker, '1.2.3')
+    Assert (Test-YouJPInstallation) 'A matching installation marker should be accepted'
+    [IO.File]::WriteAllText($marker, '1.2.2')
+    Assert (-not (Test-YouJPInstallation)) 'An outdated marker must require preparation'
+    $runtimePath = Join-Path $script:RuntimeDir 'runtime.json'
+    foreach ($json in @('', '{', 'null', '[]', '{"port":99999}', '{"port":"oops"}')) {
+        [IO.File]::WriteAllText($runtimePath, $json)
+        $runtime = Get-YouJPRuntime -WarningAction SilentlyContinue
+        Assert ($runtime.port -eq 8770 -and $runtime.asr_device -eq '') 'Invalid runtime data must not crash the panel'
+    }
+    [IO.File]::WriteAllText($runtimePath, '{"port":9891}')
+    $runtime = Get-YouJPRuntime
+    Assert ($runtime.port -eq 9891 -and $runtime.mt_provider -eq '') 'Partial runtime config must receive safe defaults'
+    & {
+        function Invoke-YouJPCommand {
+            param([string]$Exe, [string[]]$Arguments)
+            Assert ($Arguments[-1] -eq '--print-settings') 'Effective settings must use the read-only mode'
+            return '{"port":9991,"app_version":"1.2.3","asr_device":"cpu","mt_provider":"none"}'
+        }
+        Assert ((Get-YouJPEffectiveRuntime).port -eq 9991) 'Changed environment settings must override the cached runtime port'
+        Assert ((Get-YouJPRuntime).port -eq 9891) 'Querying current settings must not rewrite cached configuration'
+    }
+
+    & {
+        $Root = $fixtureRoot
+        $Backend = Join-Path $fixtureRoot 'backend'
+        $invocations = [Collections.Generic.List[string]]::new()
+        function uv { $invocations.Add(($args -join ' ')); $global:LASTEXITCODE = 23 }
+        $failed = $false
+        try { Invoke-Setup 6>$null } catch { $failed = $true }
+        Assert ($failed -and $invocations.Count -eq 1) 'A failed environment sync must stop setup before model downloads'
+        $failed = $false
+        try { Invoke-Test } catch { $failed = $true }
+        Assert $failed 'A failed test command must fail the task'
+    }
+    & {
+        $Root = $fixtureRoot
+        $Backend = Join-Path $fixtureRoot 'backend'
+        function Get-Command { return $null }
+        function Invoke-Gpu { throw 'Fixture GPU unavailable' }
+        $failed = $false
+        try { Invoke-Doctor 6>$null } catch { $failed = $_.Exception.Message -eq 'Falta algo de lo marcado arriba.' }
+        Assert $failed 'Doctor must report missing dependencies rather than claiming everything is ready'
+    }
+} finally {
+    $script:ProjectRoot = $originalRoot
+    $script:RuntimeDir = $originalRuntime
+    $resolvedFixture = [IO.Path]::GetFullPath($fixtureRoot)
+    $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
+    if ($resolvedFixture.StartsWith($tempRoot, [StringComparison]::OrdinalIgnoreCase) -and
+        [IO.Path]::GetFileName($resolvedFixture).StartsWith('youjp-launcher-test-')) {
+        Remove-Item -LiteralPath $resolvedFixture -Recurse -Force
+    }
+}
+
+& {
+    function nvidia-smi { $global:LASTEXITCODE = 0; 'NVIDIA fixture, 8192, N/A' }
+    Assert ($null -eq (Get-YouJPHardware).GPU) 'Unavailable GPU metrics must permit CPU fallback'
+}
 
 $view = Get-YouJPPanelState -Installed $true -Checked $false
 Assert (-not $view.CanAct -and -not $view.CanSetup) 'First health check must finish before starting or installing'
@@ -40,6 +126,7 @@ $view = Get-YouJPPanelState -Ready $true -Checked $true
 Assert ($view.Kind -eq 'ready' -and $view.Action -eq 'youtube' -and -not $view.CanStop -and -not $view.CanSetup) 'External backend can be used, but not stopped or updated'
 $view = Get-YouJPPanelState -Ready $true -Owned $true -Checked $true -Sessions 1
 Assert ($view.Kind -eq 'capturing' -and $view.CanStop) 'A live browser connection must differ from backend ready'
+Assert ($view.Title -eq 'El japonés, frase a frase.' -and $view.Detail.Contains('pestaña')) 'Spanish text must retain its accents'
 $view = Get-YouJPPanelState -Ready $true -Owned $true -Stopping $true -Checked $true
 Assert ($view.Kind -eq 'stopping' -and -not $view.CanStop -and -not $view.CanAct) 'Stopping must override a stale ready response'
 $view = Get-YouJPPanelState -SettingUp $true -Checked $true
@@ -50,6 +137,11 @@ $view = Get-YouJPPanelState -Installed $true -Checked $true -Failure 'Model fail
 Assert ($view.Kind -eq 'error' -and $view.Detail -eq 'Model failed' -and $view.Action -eq 'start') 'Failure details and retry must remain available'
 
 foreach ($file in (Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.ps1')) {
+    # Windows PowerShell 5.1 interpreta como ANSI los scripts UTF-8 sin BOM.
+    $bytes = [IO.File]::ReadAllBytes($file.FullName)
+    if ($bytes | Where-Object { $_ -gt 127 }) {
+        Assert ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) "UTF-8 BOM requerido: $($file.Name)"
+    }
     $tokens = $null
     $parseErrors = $null
     $null = [Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)

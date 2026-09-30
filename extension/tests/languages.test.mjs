@@ -18,7 +18,7 @@ function load(relative) {
   return module.exports;
 }
 
-const { DEFAULT_SETTINGS, normalizeSettings, toCssVars } = load('../src/settings.ts');
+const { DEFAULT_SETTINGS, normalizeSettings, toCssVars, onSettingsChanged } = load('../src/settings.ts');
 const { SettingsPanel } = load('../src/ui/SettingsPanel.tsx');
 const { WordCard } = load('../src/ui/WordCard.tsx');
 const { TranscriptPanel } = load('../src/ui/TranscriptPanel.tsx');
@@ -27,6 +27,7 @@ test('legacy Spanish-only settings migrate while keeping layout', () => {
   const settings = normalizeSettings({ esSize: 30, languages: 'es', position: { x: 40, y: 60 } });
   assert.equal(settings.targetLanguage, 'es');
   assert.equal(settings.translationSize, 30);
+  assert.equal(settings.transcriptSize, 16);
   assert.equal(settings.languages, 'translation');
   assert.deepEqual(settings.position, { x: 40, y: 60 });
   assert.equal(toCssVars(settings)['--youjp-es-size'], '30px');
@@ -54,6 +55,41 @@ test('settings panel offers both targets and neutral display controls', () => {
   assert.match(html, /English/);
   assert.match(html, /Solo traducción/);
   assert.doesNotMatch(html, /Solo español|Tamaño del español/);
+  assert.match(html, /Texto del historial/);
+  assert.match(html, /id="youjp-transcript-size"/);
+});
+
+test('history text size survives settings normalization', () => {
+  assert.equal(normalizeSettings({ transcriptSize: 26 }).transcriptSize, 26);
+  assert.equal(normalizeSettings({ transcriptSize: 99 }).transcriptSize, 16);
+});
+
+test('corrupt saved settings cannot hide subtitles or leak unknown fields', () => {
+  const settings = normalizeSettings({
+    jaSize: null, translationSize: Infinity, transcriptSize: NaN, bottom: -1,
+    width: '100', history: -3, showTentative: 'false', furigana: 'oops',
+    backdrop: {}, position: { x: 50 }, transcriptPosition: { x: NaN, y: 1 },
+    wordPanelPosition: 'outside', unexpected: 'value',
+  });
+  assert.deepEqual(settings, DEFAULT_SETTINGS);
+  assert.equal(normalizeSettings({ history: 1.8 }).history, 1);
+  assert.deepEqual(normalizeSettings({ position: { x: -999, y: 999 } }).position, { x: 3, y: 97 });
+  assert.deepEqual(normalizeSettings([]), DEFAULT_SETTINGS);
+});
+
+test('removing saved settings restores defaults in every open overlay', () => {
+  let listener;
+  globalThis.chrome = { storage: { onChanged: {
+    addListener(fn) { listener = fn; }, removeListener(fn) { assert.equal(fn, listener); },
+  } } };
+  try {
+    const updates = [];
+    const unsubscribe = onSettingsChanged((settings) => updates.push(settings));
+    listener({ overlaySettings: { oldValue: { jaSize: 44 } } }, 'local');
+    listener({ overlaySettings: { newValue: { jaSize: 32 } } }, 'sync');
+    assert.deepEqual(updates, [DEFAULT_SETTINGS]);
+    unsubscribe();
+  } finally { delete globalThis.chrome; }
 });
 
 const token = {

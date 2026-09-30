@@ -19,8 +19,9 @@ for implementation details and historical measurements (in Spanish).
 - Automatic furigana for uncommon words, or furigana on all kanji.
 - Subtitle history with timestamps that seek back to the corresponding sentence.
 - Live controls for subtitle size, position, background, and language visibility.
-- A settings panel available in Spanish and English, with a saved language preference.
-- A Windows launcher for preparing and running the local backend.
+- Spanish and English interfaces for subtitles, settings, history, vocabulary, and image translation.
+- Image translation from a selected region on HTTP and HTTPS webpages.
+- A Windows launcher with a saved Spanish or English interface preference.
 
 The streaming and translation pipeline is implemented. Vocabulary analysis is
 still being tested; recognition mistakes can also affect readings and definitions.
@@ -43,7 +44,7 @@ Open `YouJP.cmd` in the project root and select **Preparar / actualizar**
 Keep it beside the project folders: it is not a standalone installer.
 
 See the [Windows launcher guide](scripts/windows/README.md) for launcher-specific
-instructions (in Spanish).
+instructions.
 
 The default translator uses **Qwen3-4B-Instruct-2507 through Ollama**. Download it once:
 
@@ -64,8 +65,8 @@ requires this user gesture, so the extension intentionally has no action popup.
 
 Open the gear beside the YouTube volume control, or press **Alt+S**.
 
-- **Settings language / Idioma de los ajustes:** choose **English** or **Español**
-  for the settings panel. This preference is saved independently of translation.
+- **Interface language / Idioma de la interfaz:** choose **English** or **Español**
+  for the extension interface. This preference is saved independently of translation.
 - **Translate into / Traducir al:** choose English or Spanish for new translations.
   Earlier history entries retain their original translation language.
 - **Show:** display both languages, Japanese only, or translation only.
@@ -74,8 +75,9 @@ Open the gear beside the YouTube volume control, or press **Alt+S**.
 
 Size, width, distance from the bottom, background, visible previous sentences,
 and partial text visibility update immediately and persist between sessions.
-Resetting display settings preserves the selected settings-panel language.
-Other application screens may still contain Spanish text.
+Resetting display settings preserves the selected interface language.
+In the Windows launcher's **Settings / Configuración** page, choose its interface
+language separately. Technical logs and external error messages retain their original wording.
 
 Hover over the subtitles to reveal the drag handle, history button, and settings
 button. Positions are stored as percentages so they adapt to fullscreen playback.
@@ -91,6 +93,36 @@ Confirmed text is white; gray italic text is tentative and may change.
 Click a Japanese word to inspect its reading, rōmaji, part of speech,
 conjugation, and dictionary senses. The history panel retains the latest 300
 sentences and their translations. Click a timestamp to replay that moment.
+
+### Image translation and vocabulary panels
+
+Press **Alt+Shift+S** on any HTTP or HTTPS webpage and drag over visible Japanese text to translate
+an image or part of the video. Only the selected crop is sent to the local server;
+it is not saved and does not change the audio transcript. Reassign the shortcut
+at `chrome://extensions/shortcuts` if another extension already uses it.
+
+Outside YouTube, clicking the extension icon also opens the region selector.
+On YouTube, the icon still toggles audio subtitles. The selector is loaded only
+when requested, using temporary access to the active tab. Browser-internal pages
+and other protected pages that block extension scripts cannot use the selector.
+
+Image translation follows **Translate into**. If translation fails after OCR,
+the recognized Japanese remains visible and **Retry translation** reuses that
+text without taking another screenshot. Closing the panel cancels the waiting
+request; navigating away discards its result. Server work already in progress
+may finish in the background.
+
+OCR runs locally on the CPU. Its Japanese models download on the first capture
+(about 15 MB, requiring internet) and are reused from `models/ocr`. For a manual
+installation, add `--extra ocr` to your existing backend extras. Windows setup
+installs it automatically. If an already-running server lacks OCR, choose
+**Salir y detener** (Exit and stop) in the Windows tray, reopen YouJP, and reload
+the extension. Closing only the launcher window leaves the server running.
+
+History text has its own size control. Words in history are clickable with the
+same furigana settings as live subtitles. Definitions open in an independent
+window that remains visible while subtitles advance; move, resize, or close it
+with **×**. Closing history does not close the vocabulary window.
 
 ## Manual development setup
 
@@ -129,6 +161,17 @@ different ID, remove it, load the rebuilt extension, and restart the backend.
 To allow another ID, set `YOUJP_ALLOWED_EXTENSION_IDS` to one or more
 comma-separated IDs. An empty value permits any valid extension origin for
 development. Rejected origins are recorded in the backend log.
+
+For a store build, omit the fixed manifest key:
+
+```powershell
+cd extension
+$env:YOUJP_STORE_BUILD = '1'
+npm run zip
+Remove-Item Env:YOUJP_STORE_BUILD
+```
+
+Add the store-assigned ID to `YOUJP_ALLOWED_EXTENSION_IDS` before using that build.
 
 ## Dictionary
 
@@ -235,7 +278,13 @@ npm test
 npm run compile
 npm run lint
 npm run build
+npm audit
 ```
+
+CI also checks generated protocol files, builds the extension, and saves the
+Chrome MV3 build as an artifact. Automated tests cover message routing, cropping,
+navigation, cancellation, retries, and interface languages. Actual Chrome/Edge
+audio capture, fullscreen behavior, and OCR on real webpages still require browser testing.
 
 ## Benchmarks
 

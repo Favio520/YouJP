@@ -1,3 +1,4 @@
+import { uiText, type UiLanguage } from '../i18n';
 /**
  * Tarjeta de palabra.
  *
@@ -10,9 +11,11 @@
 import type { TargetLanguage, Token } from '../protocol';
 
 interface Props {
+  language?: UiLanguage;
   token: Token;
   target: TargetLanguage;
   onClose: () => void;
+  showClose?: boolean;
 }
 
 /** Marcadores de JMdict que cambian cómo se usa la palabra. */
@@ -31,17 +34,20 @@ const POS_TAGS: Record<string, string> = {
   prt: 'partícula',
 };
 
-export function WordCard({ token, target, onClose }: Props) {
+export function WordCard({ token, target, onClose, showClose = true, language = 'es' }: Props) {
+  const t = (value: string) => uiText(language, value);
   const entry = token.entry;
   if (!entry) return null;
 
   const conjugado = token.chain.length > 0 && token.surface !== token.lemma;
 
   return (
-    <div className="youjp-card" role="dialog" aria-label={`Definición de ${entry.headword}`}>
-      <button type="button" className="youjp-card-close" onClick={onClose} aria-label="Cerrar">
-        ×
-      </button>
+    <div className="youjp-card" role="dialog" aria-label={`${t('Definición de')} ${entry.headword}`}>
+      {showClose && (
+        <button type="button" className="youjp-card-close" onClick={onClose} aria-label={t('Cerrar')}>
+          ×
+        </button>
+      )}
 
       <div className="youjp-card-head">
         <div className="youjp-card-word">{entry.headword}</div>
@@ -51,18 +57,18 @@ export function WordCard({ token, target, onClose }: Props) {
 
       <div className="youjp-card-body">
         <div className="youjp-card-tags">
-          {token.pos_label && <span className="youjp-tag">{token.pos_label}</span>}
-          {entry.common && <span className="youjp-tag youjp-tag--common">común</span>}
+          {token.pos_label && <span className="youjp-tag">{t(token.pos_label)}</span>}
+          {entry.common && <span className="youjp-tag youjp-tag--common">{t('común')}</span>}
           {entry.freq_rank !== null && (
-            <span className="youjp-tag" title="Grupo de frecuencia de JMdict: 1 es el más común">
-              frec. {entry.freq_rank}
+            <span className="youjp-tag" title={t('Grupo de frecuencia de JMdict: 1 es el más común')}>
+              {t('frec.')} {entry.freq_rank}
             </span>
           )}
         </div>
 
         {conjugado && (
           <div className="youjp-card-section">
-            <div className="youjp-card-label">Conjugación</div>
+            <div className="youjp-card-label">{t('Conjugación')}</div>
             <div className="youjp-chain">
               <span className="youjp-chain-lemma">{token.lemma}</span>
               <span className="youjp-chain-arrow">→</span>
@@ -70,8 +76,8 @@ export function WordCard({ token, target, onClose }: Props) {
             </div>
             <div className="youjp-chain-steps">
               {token.chain.map((paso) => (
-                <span key={paso} className="youjp-step">
-                  {paso}
+                <span key={t(paso)} className="youjp-step">
+                  {t(paso)}
                 </span>
               ))}
             </div>
@@ -80,12 +86,12 @@ export function WordCard({ token, target, onClose }: Props) {
 
         <div className="youjp-card-section">
           <div className="youjp-card-label">
-            Significado <span className="youjp-source">JMdict</span>
+            {t('Significado')} <span className="youjp-source">JMdict</span>
           </div>
           <ol className="youjp-senses">
             {entry.senses.map((sense, i) => {
               const tags = sense.pos
-                .map((p) => POS_TAGS[p])
+                .map((p) => POS_TAGS[p] ? t(POS_TAGS[p]) : null)
                 .filter(Boolean)
                 .slice(0, 3);
               // El español de JMdict cubre una parte de las entradas. Cuando
@@ -100,7 +106,7 @@ export function WordCard({ token, target, onClose }: Props) {
                   <span className={enEspanol ? undefined : 'youjp-gloss-en'}>
                     {glosas.slice(0, 4).join('; ')}
                   </span>
-                  {!enEspanol && target === 'es' && <span className="youjp-lang-badge">en inglés</span>}
+                  {!enEspanol && target === 'es' && <span className="youjp-lang-badge">{t('en inglés')}</span>}
                 </li>
               );
             })}

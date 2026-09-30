@@ -29,6 +29,8 @@ jobs:
         run: uv sync --locked --project backend
       - name: Revisar Python
         run: uv run --locked --project backend ruff check backend
+      - name: Comprobar contrato y versiones
+        run: uv run --locked --project backend python scripts/generate_contract.py --check
       - name: Probar Python
         run: uv run --locked --project backend pytest backend/tests
       - name: Compilar tipos
@@ -37,6 +39,16 @@ jobs:
         run: npm run lint --prefix extension
       - name: Probar extensión
         run: npm test --prefix extension
+      - name: Compilar extensión
+        run: npm run build --prefix extension
+      - name: Revisar dependencias de npm
+        run: npm audit --audit-level=high --prefix extension
+      - name: Guardar extensión compilada
+        uses: actions/upload-artifact@v4
+        with:
+          name: youjp-chrome-mv3
+          path: extension/.output/chrome-mv3
+          include-hidden-files: true
       - name: Comparar tramas Python y TypeScript
         run: uv run --locked --project backend python scripts/check_frame_conformance.py
 
