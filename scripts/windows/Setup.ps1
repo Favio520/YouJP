@@ -43,7 +43,9 @@ try {
         Invoke-YouJPCommand -Exe $script:PowerShellExe -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $installer)
         if (-not (Test-Path -LiteralPath $uvPath)) { throw 'No se encontro uv despues de instalarlo.' }
     }
-    Invoke-YouJPCommand -Exe $uvPath -Arguments @('python', 'install', '3.12')
+    # YouJP uses its private interpreter through uv, not a global Python alias.
+    # Existing executables and registry entries belong to the user's environment.
+    Invoke-YouJPCommand -Exe $uvPath -Arguments @('python', 'install', '3.12', '--no-bin', '--no-registry')
     # Este archivo solo aporta valores iniciales; no reescribir el .env del usuario.
     $lines = @('# Generado por el asistente. .env y las variables del entorno tienen prioridad.')
     foreach ($key in $profile.Keys) { $lines += "$key=$($profile[$key])" }
