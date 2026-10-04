@@ -1,0 +1,204 @@
+{
+  "reports": [
+    {
+      "provider": "nemotron",
+      "status": "completed",
+      "gpu": {
+        "name": "NVIDIA GeForce RTX 2060",
+        "total_mb": 6144.0,
+        "baseline_used_mb": 1406.7265625,
+        "peak_used_mb": 2435.5546875,
+        "increment_mb": 1028.828125,
+        "sample_hz": 10,
+        "contended": false,
+        "note": "Total device VRAM sampled by NVML; delta also reflects other processes."
+      },
+      "model_load_ms": 1281.7125997971743,
+      "warmup_ms": 3231.4821002073586,
+      "samples": [
+        {
+          "sample": "10-noticias-apertura.wav",
+          "sha256": "6fd1602c5ce1789c32868dbafe00ee0ce172b4edb0a464e383dd92d049ab2282",
+          "audio_s": 30.0,
+          "wall_s": 31.125910100061446,
+          "partial_count": 203,
+          "first_partial_s": 1.026156600099057,
+          "timestamp_validation": {
+            "timestamps_verified": true,
+            "status": "verified",
+            "text_finals": 12,
+            "checked_words": 12,
+            "single_whole_phrase_word_finals": 12,
+            "all_words_are_whole_phrase": true,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": {
+            "name": "final_arrival_minus_recognizer_end_ms",
+            "unit": "ms",
+            "count": 12,
+            "mean": 841.76,
+            "p50": 834.4,
+            "p95": 1044.99,
+            "max": 1104.36
+          },
+          "text": "ここは大人の自習室一体何のために本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってますなんか目指していて投稿用のプロット作りに行きました。女なんですけど、そういうサイスタッテっていう大事の"
+        },
+        {
+          "sample": "20-anime-frieren.wav",
+          "sha256": "c811658a3e4ed0cf3b82860ce9edda736e9c6ed907f3dd92b13c4123ced0cc62",
+          "audio_s": 30.0,
+          "wall_s": 31.257669600192457,
+          "partial_count": 44,
+          "first_partial_s": 4.994439100148156,
+          "timestamp_validation": {
+            "timestamps_verified": true,
+            "status": "verified",
+            "text_finals": 1,
+            "checked_words": 1,
+            "single_whole_phrase_word_finals": 1,
+            "all_words_are_whole_phrase": true,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": {
+            "name": "final_arrival_minus_recognizer_end_ms",
+            "unit": "ms",
+            "count": 1,
+            "mean": 789.14,
+            "p50": 789.14,
+            "p95": 789.14,
+            "max": 789.14
+          },
+          "text": "魔力も技術もコントロールも私の方がはるかに上"
+        },
+        {
+          "sample": "00-silencio.wav",
+          "sha256": "fe04e06676e54a18bce6696508d2696394f172b365445e1f2eb969dc0a10f163",
+          "audio_s": 20.0,
+          "wall_s": 21.177902299910784,
+          "partial_count": 0,
+          "first_partial_s": null,
+          "timestamp_validation": {
+            "timestamps_verified": null,
+            "status": "no_speech_text",
+            "text_finals": 0,
+            "checked_words": 0,
+            "single_whole_phrase_word_finals": 0,
+            "all_words_are_whole_phrase": false,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": null,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "provider": "whisper",
+      "status": "completed",
+      "gpu": {
+        "name": "NVIDIA GeForce RTX 2060",
+        "total_mb": 6144.0,
+        "baseline_used_mb": 1350.953125,
+        "peak_used_mb": 2756.625,
+        "increment_mb": 1405.671875,
+        "sample_hz": 10,
+        "contended": false,
+        "note": "Total device VRAM sampled by NVML; delta also reflects other processes."
+      },
+      "model_load_ms": 4171.174299903214,
+      "warmup_ms": 4201.486699981615,
+      "samples": [
+        {
+          "sample": "10-noticias-apertura.wav",
+          "sha256": "6fd1602c5ce1789c32868dbafe00ee0ce172b4edb0a464e383dd92d049ab2282",
+          "audio_s": 30.0,
+          "wall_s": 30.700347600039095,
+          "partial_count": 28,
+          "first_partial_s": 1.079828100046143,
+          "timestamp_validation": {
+            "timestamps_verified": true,
+            "status": "verified",
+            "text_finals": 5,
+            "checked_words": 78,
+            "single_whole_phrase_word_finals": 0,
+            "all_words_are_whole_phrase": false,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": {
+            "name": "final_arrival_minus_recognizer_end_ms",
+            "unit": "ms",
+            "count": 5,
+            "mean": 1952.63,
+            "p50": 1411.47,
+            "p95": 3728.68,
+            "max": 4227.31
+          },
+          "text": "ここは大人の自主室一体何のために日本だけじゃなく世界も見ていろんな医療のことを勉強したいなと言って私は中を目指していて投稿用のプロットを作りに行きました私はサンドルオンになるんですけど、まずはサイスタートにな"
+        },
+        {
+          "sample": "20-anime-frieren.wav",
+          "sha256": "c811658a3e4ed0cf3b82860ce9edda736e9c6ed907f3dd92b13c4123ced0cc62",
+          "audio_s": 30.0,
+          "wall_s": 30.00369399995543,
+          "partial_count": 7,
+          "first_partial_s": 5.919632599921897,
+          "timestamp_validation": {
+            "timestamps_verified": true,
+            "status": "verified",
+            "text_finals": 1,
+            "checked_words": 19,
+            "single_whole_phrase_word_finals": 0,
+            "all_words_are_whole_phrase": false,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": {
+            "name": "final_arrival_minus_recognizer_end_ms",
+            "unit": "ms",
+            "count": 1,
+            "mean": 1308.75,
+            "p50": 1308.75,
+            "p95": 1308.75,
+            "max": 1308.75
+          },
+          "text": "魔力も技術もコントロールも私の方が遥かに上"
+        },
+        {
+          "sample": "00-silencio.wav",
+          "sha256": "fe04e06676e54a18bce6696508d2696394f172b365445e1f2eb969dc0a10f163",
+          "audio_s": 20.0,
+          "wall_s": 20.003806400112808,
+          "partial_count": 0,
+          "first_partial_s": null,
+          "timestamp_validation": {
+            "timestamps_verified": null,
+            "status": "no_speech_text",
+            "text_finals": 0,
+            "checked_words": 0,
+            "single_whole_phrase_word_finals": 0,
+            "all_words_are_whole_phrase": false,
+            "end_bound_tolerance_s": 0.5,
+            "issues": [],
+            "note": "Validity of supplied intervals only; no human alignment reference."
+          },
+          "latency_ms": null,
+          "text": ""
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No CER/WER: no human reference.",
+    "End estimates and segmentation differ; latency is indicative only.",
+    "One anime utterance and small news final counts; percentiles not robust.",
+    "Isolated ASR; translation/browser/co-resident MT not exercised."
+  ]
+}

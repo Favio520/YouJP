@@ -1,0 +1,56 @@
+[
+  {
+    "name": "00-silencio.wav",
+    "duration_s": 45.0,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.0,
+    "peak": 0.0,
+    "is_digital_silence": true
+  },
+  {
+    "name": "01-ruido-rosa.wav",
+    "duration_s": 45.0,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.002884121611714363,
+    "peak": 0.01251220703125,
+    "is_digital_silence": false
+  },
+  {
+    "name": "10-noticias-apertura.wav",
+    "duration_s": 69.9935,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.04463377594947815,
+    "peak": 0.444732666015625,
+    "is_digital_silence": false
+  },
+  {
+    "name": "11-noticias-entrevista.wav",
+    "duration_s": 69.9935,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.04257471114397049,
+    "peak": 0.616455078125,
+    "is_digital_silence": false
+  },
+  {
+    "name": "12-noticias-final.wav",
+    "duration_s": 69.9935,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.047371767461299896,
+    "peak": 0.714874267578125,
+    "is_digital_silence": false
+  },
+  {
+    "name": "20-anime-frieren.wav",
+    "duration_s": 61.9935,
+    "sample_rate": 16000,
+    "channels": 1,
+    "rms": 0.09485314786434174,
+    "peak": 0.8013916015625,
+    "is_digital_silence": false
+  }
+]

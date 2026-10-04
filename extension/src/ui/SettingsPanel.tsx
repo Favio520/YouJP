@@ -16,6 +16,7 @@ import type {
 import { uiText } from '../i18n';
 import { DEFAULT_SETTINGS } from '../settings';
 import type { TargetLanguage } from '../protocol';
+import { Icon } from './Icon';
 
 interface Props {
   settings: OverlaySettings;
@@ -49,13 +50,13 @@ const TARGETS: Array<[TargetLanguage, string, string]> = [
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className="youjp-setting">
+    <fieldset className="youjp-setting" aria-label={label}>
       <div className="youjp-setting-label">
         {label}
         {hint && <span className="youjp-setting-hint">{hint}</span>}
       </div>
       {children}
-    </div>
+    </fieldset>
   );
 }
 
@@ -76,6 +77,7 @@ function Choice<T extends string>({
           className={key === value ? 'youjp-choice-btn youjp-choice-btn--on' : 'youjp-choice-btn'}
           onClick={() => onPick(key)}
           title={hint || undefined}
+          aria-pressed={key === value}
         >
           {label}
         </button>
@@ -91,20 +93,28 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
   return (
     <div className="youjp-settings" role="dialog" aria-label={t('Ajustes de subtítulos', 'Subtitle settings')}>
       <div className="youjp-settings-head">
-        <span>{t('Ajustes', 'Settings')}</span>
+        <span className="youjp-panel-mark" aria-hidden="true">調</span>
+        <span className="youjp-panel-heading"><span>{t('Ajustes', 'Settings')}</span>
+          <small>{t('A tu manera. En tiempo real.', 'Your way. In real time.')}</small></span>
         <button type="button" className="youjp-card-close" onClick={onClose} aria-label={t('Cerrar', 'Close')}>
-          ×
+          <Icon name="close" />
         </button>
       </div>
 
       <div className="youjp-settings-body">
+        <fieldset className="youjp-setting-section">
+          <legend>{t('Tu experiencia', 'Your experience')}</legend>
         <Row label={t('Idioma de la interfaz', 'Interface language')}>
           <Choice options={[[ 'es', 'Español', '' ], [ 'en', 'English', '' ]]}
             value={settings.settingsLanguage} onPick={(v) => onChange({ settingsLanguage: v })} />
         </Row>
+        </fieldset>
+        <fieldset className="youjp-setting-section">
+          <legend>{t('Lectura y posición', 'Reading and position')}</legend>
         <Row label={t('Tamaño del japonés', 'Japanese text size')} hint={`${settings.jaSize} px`}>
           <input
             id="youjp-ja-size"
+            aria-label={t('Tamaño del japonés', 'Japanese text size')}
             type="range"
             min={16}
             max={56}
@@ -117,6 +127,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         <Row label={t('Tamaño de la traducción', 'Translation text size')} hint={`${settings.translationSize} px`}>
           <input
             id="youjp-es-size"
+            aria-label={t('Tamaño de la traducción', 'Translation text size')}
             type="range"
             min={12}
             max={44}
@@ -129,6 +140,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         <Row label={t('Texto del historial', 'History text size')} hint={`${settings.transcriptSize} px`}>
           <input
             id="youjp-transcript-size"
+            aria-label={t('Texto del historial', 'History text size')}
             type="range"
             min={12}
             max={32}
@@ -148,6 +160,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           <Row label={t('Altura sobre el borde', 'Distance from bottom')} hint={`${settings.bottom} px`}>
             <input
               id="youjp-bottom"
+              aria-label={t('Altura sobre el borde', 'Distance from bottom')}
               type="range"
               min={8}
               max={320}
@@ -161,6 +174,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         <Row label={t('Ancho máximo', 'Maximum width')} hint={`${settings.width} %`}>
           <input
             id="youjp-width"
+            aria-label={t('Ancho máximo', 'Maximum width')}
             type="range"
             min={40}
             max={100}
@@ -170,6 +184,9 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           />
         </Row>
 
+        </fieldset>
+        <fieldset className="youjp-setting-section">
+          <legend>{t('Idioma y ayudas', 'Language and reading aids')}</legend>
         <Row label="Furigana">
           <Choice options={translateOptions(FURIGANA)} value={settings.furigana} onPick={(v) => onChange({ furigana: v })} />
         </Row>
@@ -189,6 +206,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
         <Row label={t('Frases anteriores', 'Previous sentences')} hint={String(settings.history)}>
           <input
             id="youjp-history"
+            aria-label={t('Frases anteriores', 'Previous sentences')}
             type="range"
             min={0}
             max={3}
@@ -210,6 +228,7 @@ export function SettingsPanel({ settings, onChange, onClose }: Props) {
           </label>
         </Row>
 
+        </fieldset>
         <button type="button" className="youjp-reset" onClick={() => onChange({ ...DEFAULT_SETTINGS, settingsLanguage: settings.settingsLanguage })}>
           {t('Restablecer', 'Reset')}
         </button>

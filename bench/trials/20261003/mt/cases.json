@@ -1,0 +1,212 @@
+[
+  {
+    "id": "reg_aspiration",
+    "source": "漫画家を目指して10年以上になるという田中さん",
+    "target": "es",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "Keep third-person Tanaka and over ten years of trying/aspiring to become a manga artist; do not claim that he already is one.",
+    "context_only_cues": []
+  },
+  {
+    "id": "reg_subject_context",
+    "source": "ここで毎朝2時間勉強しています",
+    "target": "es",
+    "context": [
+      "一方西梅田店は朝5時から営業",
+      "証券会社でお客様対応をしている35歳の西山さん"
+    ],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "Use third-person studies; translate only the last line, without adding Nishiyama's age, job or the shop opening time.",
+    "context_only_cues": [
+      "35",
+      "treinta y cinco",
+      "cinco de la mañana",
+      "valores",
+      "nishiyama",
+      "nishi-umeda"
+    ]
+  },
+  {
+    "id": "reg_comparison_skill",
+    "source": "魔力も技術もコントロールも私の方が遥かに上",
+    "target": "es",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "The speaker is far above the other person in magical power, skill/technique and control. Do not invert comparison, use 'los míos', or translate skill as industrial technology.",
+    "context_only_cues": []
+  },
+  {
+    "id": "reg_proper_name",
+    "source": "証券会社でお客様対応をしている35歳の西山真さん",
+    "target": "es",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "Preserve age 35, customer-facing securities job and Nishiyama by sound. Given-name reading 真 is not established in this isolated line; do not score one reading as certain.",
+    "context_only_cues": []
+  },
+  {
+    "id": "reg_fragment",
+    "source": "と言って",
+    "target": "es",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "Translate the short quoted-speech fragment without inventing a completed event.",
+    "context_only_cues": []
+  },
+  {
+    "id": "reg_one_line",
+    "source": "今日は経済への影響について話します。",
+    "target": "es",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "A natural subtitle about discussing effects on the economy today; no commentary or extra lines.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_negation",
+    "source": "行かないわけではないけど、今日はやめておく。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "The speaker does not flatly refuse to go; today they choose to leave it. Preserve the double-negation nuance without reversing the decision.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_numbers",
+    "source": "料金は税込みで一万二千五百円、割引はありません。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Preserve 12,500 yen, taxes included, and no discount.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_politeness",
+    "source": "恐れ入りますが、少々お待ちいただけますか。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "A polite request to wait a moment, maintaining polite register without a long cultural explanation.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_colloquial",
+    "source": "マジで？めっちゃすごいじゃん。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Natural informal surprise and praise; preserve questions and colloquial register.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_unfinished_condition",
+    "source": "もし明日までに返事がなかったら",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Preserve the unfinished condition 'if there is no reply by tomorrow'; do not invent what happens next.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_idiom",
+    "source": "猫の手も借りたいくらい忙しい。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Express being extremely busy / needing any help, without presenting literal cat labor as the intended meaning.",
+    "context_only_cues": []
+  },
+  {
+    "id": "edge_terms_places",
+    "source": "本町から西梅田まで地下鉄で行きます。",
+    "target": "es",
+    "context": [],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Travel by subway from Honmachi to Nishi-Umeda, preserving both place names by sound.",
+    "context_only_cues": []
+  },
+  {
+    "id": "ctx_subject_three",
+    "source": "毎朝ここで二時間勉強しています。",
+    "target": "es",
+    "context": [
+      "これは田中さんです。",
+      "田中さんは試験に向けて準備しています。",
+      "勉強場所は図書館です。"
+    ],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Third-person studies for two hours every morning; preceding Tanaka/library/exam information must only resolve context, without being translated again.",
+    "context_only_cues": [
+      "tanaka",
+      "biblioteca",
+      "examen"
+    ]
+  },
+  {
+    "id": "ctx_person_three",
+    "source": "昨日、退院しました。",
+    "target": "es",
+    "context": [
+      "山田さんには娘がいます。",
+      "娘の名前は美咲です。",
+      "美咲は先週、病院に入院しました。"
+    ],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Context identifies Misaki as the discharged person; preserve yesterday and discharge rather than admission, without repeating the family/intake history.",
+    "context_only_cues": [
+      "yamada",
+      "hija",
+      "semana pasada",
+      "ingresó",
+      "ingresada"
+    ]
+  },
+  {
+    "id": "ctx_no_repetition_three",
+    "source": "会議は午後三時からです。",
+    "target": "es",
+    "context": [
+      "昨日は東京へ行きました。",
+      "西山さんと寿司を食べました。",
+      "新幹線で帰ってきました。"
+    ],
+    "provenance": "manually authored edge case; not a recording",
+    "review_question": "Only the meeting starting at 3 p.m.; prior Tokyo/Nishiyama/sushi/train sentences must not reappear.",
+    "context_only_cues": [
+      "tokio",
+      "tokyo",
+      "nishiyama",
+      "sushi",
+      "shinkansen",
+      "tren"
+    ]
+  },
+  {
+    "id": "en_economy",
+    "source": "今日は経済について話します。",
+    "target": "en",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "Discuss the economy today in English.",
+    "context_only_cues": []
+  },
+  {
+    "id": "en_name",
+    "source": "私の名前は田中です。",
+    "target": "en",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "The speaker's name is Tanaka, in English.",
+    "context_only_cues": []
+  },
+  {
+    "id": "en_thanks",
+    "source": "ありがとうございます。",
+    "target": "en",
+    "context": [],
+    "provenance": "backend/tests/test_translation_quality.py; real transcript regression, reviewed 2026-09-14",
+    "review_question": "A polite thank-you in English.",
+    "context_only_cues": []
+  }
+]

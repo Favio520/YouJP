@@ -1,4 +1,4 @@
-Set-StrictMode -Version Latest
+﻿Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $script:ProjectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $script:RuntimeDir = Join-Path $script:ProjectRoot '.youjp'
@@ -114,4 +114,64 @@ function Test-YouJPHealth {
         $Health.service -eq 'youjp' -and $Health.asr_loaded -is [bool] -and $Health.asr_loaded -and
         $Health.protocol_version -eq $protocol.'x-youjp'.protocol_version -and
         $Health.app_version -eq (Get-YouJPVersion))
+}
+
+function Get-YouJPHistoryDir {
+    Join-Path $script:RuntimeDir 'history'
+}
+
+function Read-YouJPHistoryFile {
+    param([string]$Path)
+    # El backend escribe línea a línea: una línea a medias no debe ocultar el resto.
+    $session = $null
+    $lines = [Collections.Generic.List[object]]::new()
+    $translations = @{}
+    foreach ($raw in [IO.File]::ReadLines($Path, [Text.Encoding]::UTF8)) {
+        try { $row = $raw | ConvertFrom-Json } catch { continue }
+        if ($null -eq $row -or 'kind' -notin $row.PSObject.Properties.Name) { continue }
+        switch ($row.kind) {
+            'session' { $session = $row }
+            'line' { $lines.Add([pscustomobject]@{ Id = [int]$row.id; StartMs = [int]$row.start_ms; Japanese = [string]$row.ja; Translation = '' }) }
+            'tr' { $translations[[int]$row.id] = [string]$row.text }
+        }
+    }
+    if ($null -eq $session) { return $null }
+    foreach ($line in $lines) { if ($translations.ContainsKey($line.Id)) { $line.Translation = $translations[$line.Id] } }
+    [pscustomobject]@{ Path = $Path; Session = $session; Lines = @($lines) }
+}
+
+function Get-YouJPHistorySessions {
+    $dir = Get-YouJPHistoryDir
+    if (-not (Test-Path -LiteralPath $dir -PathType Container)) { return @() }
+    $sessions = foreach ($file in (Get-ChildItem -LiteralPath $dir -Filter '*.jsonl' | Sort-Object Name -Descending)) {
+        try { $data = Read-YouJPHistoryFile $file.FullName } catch { continue }
+        if ($null -eq $data -or $data.Lines.Count -eq 0) { continue }
+        $started = [DateTime]::MinValue
+        $null = [DateTime]::TryParse([string]$data.Session.started_at, [ref]$started)
+        [pscustomobject]@{
+            Path = $file.FullName; StartedAt = $started; VideoId = [string]$data.Session.video_id
+            Url = [string]$data.Session.url; Count = $data.Lines.Count; Preview = $data.Lines[0].Japanese
+        }
+    }
+    @($sessions)
+}
+
+function Format-YouJPHistorySession {
+    param($Data)
+    $rows = foreach ($line in $Data.Lines) {
+        $time = [TimeSpan]::FromMilliseconds($line.StartMs)
+        $stamp = if ($time.TotalHours -ge 1) { $time.ToString('h\:mm\:ss') } else { $time.ToString('m\:ss') }
+        $text = "[$stamp] $($line.Japanese)"
+        if ($line.Translation) { $text += [Environment]::NewLine + '        ' + $line.Translation }
+        $text
+    }
+    $rows -join ([Environment]::NewLine + [Environment]::NewLine)
+}
+
+function Get-YouJPHistoryVideoUrl {
+    param([string]$Url)
+    # Solo se abren enlaces web: el fichero es local, pero no se fía de su contenido.
+    $uri = $null
+    if ([Uri]::TryCreate($Url, [UriKind]::Absolute, [ref]$uri) -and $uri.Scheme -eq 'https') { return $uri.AbsoluteUri }
+    return $null
 }

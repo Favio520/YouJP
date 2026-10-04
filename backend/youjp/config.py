@@ -39,6 +39,8 @@ class Settings(BaseSettings):
     models_dir: Path = PROJECT_ROOT / "models"
     data_dir: Path = PROJECT_ROOT / "data"
     bench_dir: Path = PROJECT_ROOT / "bench"
+    history_dir: Path = PROJECT_ROOT / ".youjp" / "history"
+    """Sesiones traducidas; las lee la pestaña Historial del lanzador."""
 
     # --- audio -------------------------------------------------------------
     sample_rate: int = SAMPLE_RATE

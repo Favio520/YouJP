@@ -44,14 +44,23 @@ on an STA thread.
 
 ## Visual assets
 
-The interface uses an ivory background, jade cover, coral actions, and compact
-peach, mint, blue, and lavender status cards. Settings and Activity retain their
-existing controls and behavior.
+YouJP uses warm paper (`#FFF9F2`), ink (`#25364A`), coral (`#FF705E`),
+lilac (`#B9A2F4`), and mint (`#C8E8D3`). The light sidebar frames an illustrated
+cover, four pastel tiles, session progress, and recent activity. Major cards
+have 22 px corners and soft shadows. Settings, Activity, and the extension's
+study panels share the same visual system. The default window is 1180 × 850,
+bounded by the available desktop area; shorter windows scroll their content.
+
+For an interactive review of the extension's production components without
+models or audio capture, run `npm.cmd run preview:ui` from `extension` and open
+`http://127.0.0.1:4178`. Review criteria and results are recorded in
+`docs/ui-redesign.md`.
 
 `assets/BrandLogo.xaml` defines the headphones and dialogue emblem.
 `Build-Icons.ps1` generates `app-logo.png` and `youjp-logo.ico` at sizes from
 16 to 256 pixels for the window, executable, and tray. It does not change the
 extension icons. Previous assets are retained.
 
-`assets/mascot-design-b.png` is the transparent mascot with headphones and a
-hiragana card. `assets/fuji-design-b.png` is the jade and coral landscape.
+`assets/mascot-pastel.png` is the transparent mascot with headphones and a
+hiragana card. `assets/fuji-pastel.png` is the Fuji and sakura landscape.
+Both files are the original artwork supplied with the pastel UI reference.

@@ -1,0 +1,3 @@
+[nemo-speech] serve session started
+[asr] model=nemotron-3.5-asr-streaming-0.6b.q8_0 head=rnnt backend=CUDA0
+[asr] mode=streaming head=rnnt left=56 center=1 right=3 attention=60 encoder-frames step=320ms

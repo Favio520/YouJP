@@ -22,9 +22,11 @@ import type { FuriganaMode } from '../settings';
 import { Subtitle } from './Subtitle';
 import type { Line, Selection } from './types';
 import { useDrag, type Position } from './useDrag';
+import { Icon } from './Icon';
 
 interface Props {
   language?: UiLanguage;
+  withDictionary?: boolean;
   lines: Line[];
   position: Position | null;
   onMove: (position: Position) => void;
@@ -61,6 +63,7 @@ export function TranscriptPanel({
   selected,
   onSelect,
   language = 'es',
+  withDictionary = false,
 }: Props) {
   const t = (value: string) => uiText(language, value);
   const scroller = useRef<HTMLDivElement>(null);
@@ -91,7 +94,7 @@ export function TranscriptPanel({
       className={
         actual
           ? `youjp-transcript youjp-transcript--free${dragging ? ' youjp-transcript--dragging' : ''}`
-          : 'youjp-transcript'
+          : `youjp-transcript${withDictionary ? ' youjp-transcript--with-dictionary' : ''}`
       }
       style={{ ...estilo, '--youjp-transcript-size': `${textSize}px` } as React.CSSProperties}
       role="dialog"
@@ -100,15 +103,17 @@ export function TranscriptPanel({
       {/* La cabecera entera es el asa: es la zona que no tiene nada pulsable
           dentro, así que arrastrar desde ahí no compite con nada. */}
       <div className="youjp-transcript-head" onMouseDown={empezar}>
-        <span className="youjp-transcript-title">{t('Historial')} · {lines.length} {t('frases')}</span>
+        <span className="youjp-panel-mark" aria-hidden="true">記</span>
+        <span className="youjp-transcript-title">{t('Historial')}<small>{lines.length} {t('frases')}</small></span>
         {actual && (
           <button type="button"
             className="youjp-transcript-action"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onResetPosition}
             title={t('Devolver el panel a su sitio')}
+            aria-label={t('Devolver el panel a su sitio')}
           >
-            ⌖
+            <Icon name="reset" />
           </button>
         )}
         <button type="button"
@@ -117,7 +122,7 @@ export function TranscriptPanel({
           onClick={onClose}
           aria-label={t('Cerrar')}
         >
-          ×
+          <Icon name="close" />
         </button>
       </div>
 

@@ -84,8 +84,20 @@ export default defineContentScript({
       button.className = 'ytp-button';
       button.dataset.youjpSettings = '';
       button.setAttribute('aria-haspopup', 'dialog');
-      button.style.cssText = 'display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:#a8c5f0;font-size:23px;vertical-align:top;cursor:pointer;';
-      button.textContent = '⚙';
+      button.style.cssText = 'display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:#c8e8d3;vertical-align:top;cursor:pointer;';
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('viewBox', '0 0 24 24');
+      icon.setAttribute('width', '22');
+      icon.setAttribute('height', '22');
+      icon.setAttribute('fill', 'none');
+      icon.setAttribute('stroke', 'currentColor');
+      icon.setAttribute('stroke-width', '1.5');
+      icon.setAttribute('stroke-linecap', 'round');
+      icon.setAttribute('aria-hidden', 'true');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M4 7h16M4 17h16M9 4v6m6 4v6');
+      icon.append(path);
+      button.append(icon);
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();

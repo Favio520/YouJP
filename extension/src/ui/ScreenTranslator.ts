@@ -18,32 +18,34 @@ export function configureScreenTranslator(value: OverlaySettings): void { settin
 const t = (value: string) => uiText(settings.settingsLanguage, value);
 
 const STYLE = `
-  :host { font-family: system-ui, 'Yu Gothic UI', sans-serif; }
+  :host { font-family: system-ui, 'Yu Gothic UI', sans-serif; color-scheme:light; }
   .veil { position:fixed; inset:0; cursor:crosshair; background:rgba(5,10,18,.38);
     touch-action:none; user-select:none; }
   .hint { position:fixed; top:18px; left:50%; transform:translateX(-50%);
-    padding:10px 16px; border-radius:999px; background:#101821; color:#e8f2ff;
-    border:1px solid #7cb3f1; font-size:13px; box-shadow:0 8px 30px #0008;
-    pointer-events:none; white-space:nowrap; }
-  .box { position:fixed; display:none; border:2px solid #8bc3ff;
-    background:rgba(139,195,255,.14); box-shadow:0 0 0 1px #071019;
+    padding:12px 18px; border-radius:16px; background:#fff9f2; color:#25364a;
+    border:1px solid #dfd2f5; font-size:13px; box-shadow:0 8px 30px #25364a20;
+    pointer-events:none; width:max-content; max-width:calc(100vw - 32px); box-sizing:border-box; text-align:center; }
+  .box { position:fixed; display:none; border:2px solid #6450a4;
+    background:rgba(185,162,244,.18); box-shadow:0 0 0 1px #fff9f2;
     pointer-events:none; }
   .panel { pointer-events:auto; width:min(370px,calc(100vw - 28px)); max-height:72vh;
-    overflow:auto; border:1px solid #547aa5; border-radius:12px;
-    background:#121a22; color:#edf3f8; box-shadow:0 18px 48px #000a; }
-  .head { display:flex; align-items:center; gap:8px; padding:11px 13px;
-    background:#1b2b3b; border-bottom:1px solid #39536d; font-size:13px; font-weight:700; }
-  .badge { color:#91c7ff; font-size:11px; letter-spacing:.1em; }
+    overflow:auto; border:1px solid #eadfd4; border-radius:22px;
+    background:#fff9f2; color:#25364a; box-shadow:0 16px 44px #25364a20;
+    scrollbar-width:thin; scrollbar-color:#b6a6ce transparent; }
+  .head { display:flex; align-items:center; gap:10px; padding:14px 16px;
+    border-bottom:1px solid #eadfd4; background:#f1ecfd; font-size:14px; font-weight:600; }
+  .badge { color:#6450a4; font-size:11px; letter-spacing:.1em; }
   .title { flex:1; }
-  button { font:inherit; cursor:pointer; border:0; border-radius:5px;
-    background:#294661; color:#eaf4ff; padding:4px 8px; }
-  button:hover, button:focus-visible { background:#3a6487; }
+  button { font:inherit; cursor:pointer; border:1px solid #eadfd4; border-radius:12px;
+    background:#eee5ff; color:#25364a; padding:7px 10px; min-height:32px; }
+  button:hover { background:#e4d8fc; }
+  button:focus-visible { outline:2px solid #ae3b2c; outline-offset:2px; }
   .close { background:transparent; font-size:18px; line-height:1; }
-  .body { padding:14px; font-size:14px; line-height:1.55; }
-  .label { color:#91c7ff; font-size:10px; font-weight:700; text-transform:uppercase;
+  .body { padding:18px; font-size:14px; line-height:1.65; }
+  .label { color:#ae3b2c; font-size:10px; font-weight:600; text-transform:uppercase;
     letter-spacing:.12em; margin:0 0 5px; }
   .text { white-space:pre-wrap; overflow-wrap:anywhere; margin:0 0 15px; }
-  .empty { color:#b8c3ca; }
+  .empty { color:#5c6b7e; }
   .actions { display:flex; justify-content:flex-end; }
 `;
 

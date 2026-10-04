@@ -1,3 +1,9 @@
+/* YouJP: warm paper, ink, coral, lilac and mint. All assets work locally. */
+:host, .youjp-theme {
+  --youjp-paper:#fff9f2; --youjp-ink:#25364a; --youjp-muted:#5c6b7e;
+  --youjp-coral:#ff705e; --youjp-lilac:#b9a2f4; --youjp-mint:#c8e8d3;
+}
+[class^='youjp-'] { box-sizing:border-box; }
 /*
  * Estilos del overlay. Viven dentro de un Shadow DOM, así que no hay riesgo de
  * chocar con el CSS de YouTube ni al revés.
@@ -34,24 +40,18 @@
 }
 
 .youjp-subs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  max-width: var(--youjp-width);
-  padding: 4px 14px;
-  border-radius: 8px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+    max-width:var(--youjp-width); padding:10px 20px 12px; border-radius:22px;
 }
 
 /* El contorno solo no basta sobre fondos claros o con mucho movimiento, que es
    justo donde más cuesta leer. */
 .youjp-bg--soft .youjp-subs {
-  background: rgba(10, 12, 14, 0.42);
-  backdrop-filter: blur(3px);
+  background:rgba(18,28,43,.70); backdrop-filter:blur(5px);
 }
 
 .youjp-bg--solid .youjp-subs {
-  background: rgba(10, 12, 14, 0.88);
+  background:rgba(18,28,43,.94);
 }
 
 .youjp-line {
@@ -82,10 +82,10 @@
    te has perdido, no para competir con la línea actual. */
 .youjp-block--past .youjp-line {
   font-size: calc(var(--youjp-ja-size) * 0.72);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
 }
 
-/* El español en un azul claro y no en blanco: con los dos idiomas del mismo
+/* La traducción en menta y no en blanco: con los dos idiomas del mismo
    color hay que leer para saber cuál es cuál, y el ojo tiene que poder saltar
    directo al que busca. */
 .youjp-es {
@@ -93,7 +93,7 @@
   text-align: center;
   font-size: var(--youjp-es-size);
   line-height: 1.4;
-  color: #b9a8ff;
+  color: #c8e8d3;
   text-shadow:
     0 0 4px rgba(0, 0, 0, 0.95),
     0 2px 6px rgba(0, 0, 0, 0.85);
@@ -102,7 +102,7 @@
 
 .youjp-block--past .youjp-es {
   font-size: calc(var(--youjp-es-size) * 0.72);
-  color: rgba(185, 168, 255, 0.45);
+  color: rgba(200, 232, 211, 0.65);
 }
 
 .youjp-committed {
@@ -112,7 +112,7 @@
 /* La cola tentativa se reescribe cada 0,8 s. En gris y en cursiva para que se
    note de un vistazo que todavía puede cambiar. */
 .youjp-tentative {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
   font-style: italic;
 }
 
@@ -125,28 +125,29 @@
   border-radius: 999px;
   font-size: 12.5px;
   letter-spacing: 0.01em;
-  background: rgba(16, 19, 21, 0.86);
-  color: #ece8ff;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #fff9f2;
+  color: #25364a;
+  border: 1px solid #eadfd4;
   backdrop-filter: blur(6px);
   max-width: 80%;
 }
 
 .youjp-status--error {
-  border-color: #b8422b;
-  color: #ffb3a3;
+  border-color: #f4b6a7;
+  background: #ffe8e1;
+  color: #ae3b2c;
 }
 
 .youjp-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #cfa34c;
+  background: #b9a2f4;
   animation: youjp-pulse 1.4s ease-in-out infinite;
 }
 
 .youjp-status--error .youjp-dot {
-  background: #e58067;
+  background: #ff705e;
   animation: none;
 }
 
@@ -167,7 +168,7 @@
 }
 
 .youjp-detail {
-  color: rgba(236, 232, 255, 0.6);
+  color: #5c6b7e;
   font-size: 11.5px;
 }
 
@@ -192,7 +193,7 @@
 }
 
 .youjp-block--past .youjp-line rt {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* --------------------------------------------------- posición arrastrable */
@@ -218,13 +219,9 @@
 /* ------------------------------------------------------------ herramientas */
 
 .youjp-tools {
-  position: absolute;
-  top: -26px;
-  right: 4%;
-  display: flex;
-  gap: 4px;
-  opacity: 0.28;
-  transition: opacity 120ms ease;
+  position:absolute; top:-38px; right:4%; display:flex; gap:2px; padding:3px;
+    opacity:.96; transition:opacity 160ms ease; background:#fff9f2;
+    border:1px solid #eadfd4; border-radius:14px; box-shadow:0 4px 14px rgba(37,54,74,.1);
 }
 
 .youjp-root:hover .youjp-tools,
@@ -233,22 +230,12 @@
 }
 
 .youjp-tool {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  font-size: 13px;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(16, 19, 21, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 5px;
-  cursor: pointer;
-  pointer-events: auto;
+  display:grid; place-items:center; width:32px; height:30px; padding:0;
+    color:#25364a; background:transparent; border:0; border-radius:10px; cursor:pointer; pointer-events:auto;
 }
 
 .youjp-tool:hover {
-  background: rgba(16, 19, 21, 0.92);
-  border-color: rgba(255, 255, 255, 0.3);
+  background:#f0e8ff;
 }
 
 .youjp-grip {
@@ -274,7 +261,7 @@
   pointer-events: auto;
   width: min(520px, 94%);
   height: min(420px, 54%);
-  min-width: 260px;
+  min-width: min(260px, 94%);
   min-height: 140px;
   max-width: 96%;
   max-height: 88%;
@@ -284,13 +271,12 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  background: rgba(27, 22, 58, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
-  color: #ece8ff;
+  border-radius: 22px;
+  background: #fff9f2;
+  border: 1px solid #eadfd4;
+  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
+  color: #25364a;
   text-align: left;
-  backdrop-filter: blur(10px);
   font-family: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN',
     'Noto Sans JP', system-ui, sans-serif;
 }
@@ -305,18 +291,9 @@
 }
 
 .youjp-transcript-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 10px 9px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.55);
-  font-weight: 600;
-  cursor: grab;
-  flex: 0 0 auto;
+  display:flex; align-items:center; gap:11px; padding:14px 16px;
+    border-bottom:1px solid #eadfd4; font-size:14px; color:#25364a;
+    font-weight:600; cursor:grab; flex:0 0 auto; background:#edf7f0;
 }
 
 .youjp-transcript--dragging .youjp-transcript-head {
@@ -324,102 +301,68 @@
 }
 
 .youjp-transcript-title {
-  flex: 1 1 auto;
+  display:flex; flex:1; align-items:baseline; gap:10px;
 }
 
 .youjp-transcript-action {
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  font-size: 15px;
-  line-height: 1;
-  color: rgba(236, 232, 255, 0.5);
-  background: none;
-  border: 0;
-  border-radius: 4px;
-  cursor: pointer;
-  flex: 0 0 auto;
+  display:grid; place-items:center; width:32px; height:32px; padding:0;
+    color:#5c6b7e; background:transparent; border:0; border-radius:10px; cursor:pointer; flex:0 0 auto;
 }
 
 .youjp-transcript-action:hover {
-  color: #ece8ff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #25364a;
+  background: #eee5dd;
 }
 
 .youjp-transcript-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex:1 1 auto; min-height:0; overflow-y:auto; padding:4px 16px 10px;
+    display:flex; flex-direction:column;
 }
 
 .youjp-transcript-empty {
-  margin: 0;
-  padding: 18px 12px;
-  text-align: center;
-  font-size: 12.5px;
-  color: rgba(236, 232, 255, 0.45);
+  margin:0; padding:28px 10px; text-align:center; font-size:13px;
+    line-height:1.7; color:#5c6b7e;
 }
 
 /* La marca temporal lleva el vídeo a esa frase y las palabras abren su
    tarjeta, como en el subtítulo. El resto de la fila es texto seleccionable. */
 .youjp-transcript-row {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 8px;
-  align-items: baseline;
-  width: 100%;
-  padding: 6px 8px;
-  text-align: left;
-  border-radius: 5px;
+  display:grid; grid-template-columns:46px minmax(0,1fr); gap:10px;
+    align-items:baseline; width:100%; padding:14px 0; text-align:left;
+    border-bottom:1px solid #eee5dd;
 }
 
 .youjp-transcript-row:hover {
-  background: rgba(185, 168, 255, 0.07);
+  background: #edf7f0;
 }
 
 .youjp-transcript-time {
-  justify-self: start;
-  padding: 1px 4px;
-  margin: 0 0 0 -4px;
-  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
-  font-size: calc(var(--youjp-transcript-size, 16px) * 0.72);
-  font-variant-numeric: tabular-nums;
-  color: rgba(236, 232, 255, 0.4);
-  background: none;
-  border: 0;
-  border-radius: 3px;
-  cursor: pointer;
+  justify-self:start; padding:5px 4px; margin:0 0 0 -4px; min-height:28px;
+    font-family:'Cascadia Mono',Consolas,ui-monospace,monospace; font-size:11px;
+    font-variant-numeric:tabular-nums; color:#5c6b7e; background:transparent; border:0;
+    border-radius:4px; cursor:pointer;
 }
 
 .youjp-transcript-time:hover {
-  color: #b9a8ff;
-  background: rgba(185, 168, 255, 0.16);
+  color: #6450a4;
+  background: #e9e0fb;
 }
 
 .youjp-transcript-time:focus-visible {
-  outline: 2px solid #b9a8ff;
+  outline: 2px solid #6450a4;
   outline-offset: 1px;
 }
 
 .youjp-transcript-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  display:flex; flex-direction:column; gap:6px; min-width:0; overflow-wrap:anywhere;
 }
 
 .youjp-transcript-ja {
-  font-size: var(--youjp-transcript-size, 16px);
-  line-height: 1.45;
+  font-size:var(--youjp-transcript-size,16px); line-height:1.65;
 }
 
 .youjp-transcript-es {
-  font-size: calc(var(--youjp-transcript-size, 16px) * 0.88);
-  line-height: 1.4;
-  color: #b9a8ff;
+  font-size:calc(var(--youjp-transcript-size,16px) * .88); line-height:1.55; color:#6450a4;
 }
 
 /* --------------------------------------------------------------- ajustes */
@@ -427,148 +370,100 @@
 .youjp-settings-dock {
   position: absolute;
   right: 12px;
+  top: 12px;
   bottom: 58px;
   z-index: 64;
   width: min(380px, calc(100% - 24px));
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .youjp-settings {
-  pointer-events: auto;
-  width: 100%;
-  max-height: min(68vh, 620px);
-  overflow-y: auto;
-  border-radius: 10px;
-  background: rgba(27, 22, 58, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
-  color: #ece8ff;
-  text-align: left;
-  font-size: 13px;
-  backdrop-filter: blur(10px);
+  pointer-events:auto; display:flex; flex-direction:column; width:100%;
+    max-height:min(100%,620px); overflow:hidden; border-radius:22px; background:#fff9f2;
+    border:1px solid #eadfd4; box-shadow:0 10px 30px rgba(37,54,74,.12); color:#25364a;
+    text-align:left; font-size:13px;
 }
 
 .youjp-settings-head {
-  position: relative;
-  padding: 11px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.55);
-  font-weight: 600;
+  display:flex; align-items:center; gap:11px; flex:0 0 auto; padding:14px 16px;
+    border-bottom:1px solid #eadfd4; font-size:14px; color:#25364a; font-weight:600; background:#f1ecfd;
 }
 
 .youjp-settings-body {
-  padding: 12px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
+  padding:18px; display:flex; flex-direction:column; gap:20px;
+    min-height:0; overflow-y:auto;
 }
 
 .youjp-setting {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display:flex; flex-direction:column; gap:9px; margin:0; padding:0; border:0; min-width:0;
 }
 
 .youjp-setting-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-  font-size: 12.5px;
-  color: rgba(236, 232, 255, 0.9);
+  display:flex; justify-content:space-between; align-items:baseline;
+    flex-wrap:wrap; gap:5px 12px; font-size:12px; color:#25364a;
 }
 
 .youjp-setting-hint {
-  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
-  font-size: 10.5px;
-  color: rgba(236, 232, 255, 0.4);
-  text-align: right;
+  font-size:11px; color:#5c6b7e; line-height:1.6;
 }
 
 .youjp-setting input[type='range'] {
-  width: 100%;
-  accent-color: #b9a8ff;
-  cursor: pointer;
+  width:100%; height:18px; margin:0; accent-color:#8265bc; cursor:pointer;
 }
 
 .youjp-choice {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  display:flex; gap:5px; flex-wrap:wrap;
 }
 
 .youjp-choice-btn {
-  flex: 1 1 auto;
-  padding: 5px 9px;
-  font: inherit;
-  font-size: 12px;
-  color: rgba(236, 232, 255, 0.7);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid transparent;
-  border-radius: 5px;
-  cursor: pointer;
-  white-space: nowrap;
+  flex:1 1 auto; min-height:34px; padding:7px 10px; font:inherit; font-size:12px;
+    color:#5c6b7e; background:#ffffff; border:1px solid #eadfd4;
+    border-radius:12px; cursor:pointer; white-space:nowrap; transition:background-color 140ms ease;
 }
 
 .youjp-choice-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #f0e8ff;
 }
 
 .youjp-choice-btn--on {
-  color: #b9a8ff;
-  background: rgba(185, 168, 255, 0.16);
-  border-color: rgba(185, 168, 255, 0.45);
+  color:#25364a; background:#e9e0fb; border-color:#b9a2f4; font-weight:600;
 }
 
 .youjp-switch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: rgba(236, 232, 255, 0.7);
-  cursor: pointer;
+  display:flex; align-items:center; gap:8px; min-height:30px; font-size:12px; color:#5c6b7e; cursor:pointer;
 }
 
 .youjp-switch input {
-  accent-color: #b9a8ff;
-  cursor: pointer;
+  width:16px; height:16px; accent-color:#6450a4; cursor:pointer;
 }
 
 .youjp-reset {
-  align-self: flex-start;
-  margin-top: 2px;
-  padding: 5px 11px;
-  font: inherit;
-  font-size: 12px;
-  color: rgba(236, 232, 255, 0.6);
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 5px;
-  cursor: pointer;
+  align-self:flex-start; padding:8px 12px; min-height:34px; font:inherit; font-size:12px;
+    color:#5c6b7e; background:transparent; border:1px solid #eadfd4; border-radius:12px; cursor:pointer;
 }
 
 .youjp-reset:hover {
-  color: #ece8ff;
-  border-color: rgba(255, 255, 255, 0.3);
+  color: #25364a;
+  border-color: #b9a2f4;
 }
 
 .youjp-capture-hint {
   margin: 0;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(236, 232, 255, 0.6);
+  border-top: 1px solid #eee5dd;
+  color: #5c6b7e;
   font-size: 11px;
   line-height: 1.5;
 }
 
 .youjp-capture-hint kbd {
   padding: 1px 4px;
-  border: 1px solid rgba(185, 168, 255, 0.3);
-  border-radius: 3px;
-  color: #b9a8ff;
+  border: 1px solid #dfd2f5;
+  border-radius: 8px;
+  color: #6450a4;
   font: inherit;
 }
 
@@ -583,7 +478,7 @@
   border: 0;
   padding: 0;
   margin: 0;
-  border-radius: 3px;
+  border-radius: 8px;
   cursor: pointer;
   /* El contenedor tiene pointer-events: none para no tapar los controles del
      reproductor; los tokens lo reactivan solo sobre sí mismos. */
@@ -602,16 +497,16 @@
 }
 
 .youjp-token:not(.youjp-token--plain):hover {
-  background: rgba(185, 168, 255, 0.28);
+  background: rgba(185, 162, 244, 0.28);
 }
 
 .youjp-token--active {
-  background: rgba(185, 168, 255, 0.4);
-  box-shadow: 0 0 0 1px rgba(185, 168, 255, 0.55);
+  background: rgba(185, 162, 244, 0.4);
+  box-shadow: 0 0 0 1px #b9a2f4;
 }
 
 .youjp-token:focus-visible {
-  outline: 2px solid #b9a8ff;
+  outline: 2px solid #6450a4;
   outline-offset: 1px;
 }
 
@@ -630,13 +525,12 @@
   max-height: 46vh;
   overflow-y: auto;
   padding: 0;
-  border-radius: 10px;
-  background: rgba(27, 22, 58, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
-  color: #ece8ff;
+  border-radius: 22px;
+  background: #fff9f2;
+  border: 1px solid #eadfd4;
+  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
+  color: #25364a;
   text-align: left;
-  backdrop-filter: blur(10px);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -652,114 +546,80 @@
   display: flex;
   flex-direction: column;
   width: min(370px, calc(100% - 24px));
-  height: min(330px, 65%);
-  min-width: 230px;
+  height: min(360px, calc(100% - 68px));
+  min-width: min(230px, 94%);
   min-height: 120px;
   max-width: 96%;
   max-height: 90%;
   resize: both;
   overflow: hidden;
-  border-radius: 10px;
-  background: rgba(27, 22, 58, 0.97);
-  border: 1px solid rgba(185, 168, 255, 0.32);
-  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.65);
+  border-radius: 22px;
+  background: #fff9f2;
+  border: 1px solid #dfd2f5;
+  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
   font-family: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN',
     'Noto Sans JP', system-ui, sans-serif;
 }
 
 .youjp-inspector-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 9px;
-  min-height: 25px;
-  flex: 0 0 auto;
-  color: #ece8ff;
-  background: rgba(185, 168, 255, 0.1);
-  border-bottom: 1px solid rgba(185, 168, 255, 0.2);
-  cursor: grab;
-  user-select: none;
+  display:flex; align-items:center; gap:11px; padding:12px 16px; flex:0 0 auto;
+    color:#25364a; border-bottom:1px solid #eadfd4; cursor:grab; user-select:none; background:#ffede7;
 }
 
 .youjp-inspector--dragging .youjp-inspector-head { cursor: grabbing; }
 
 .youjp-inspector-mark {
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  background: rgba(185, 168, 255, 0.18);
-  color: #b9a8ff;
-  font-size: 13px;
+  display:grid; place-items:center; flex:0 0 auto; width:32px; height:32px;
+    border-radius:12px; border:0; background:#c8e8d3; color:#25364a;
+    font-size:18px; font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
 }
 
 .youjp-inspector-title {
-  flex: 1;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  flex:1; font-size:14px; font-weight:600;
+}
+
+.youjp-transcript, .youjp-settings, .youjp-inspector, .youjp-card {
+  scrollbar-width:thin; scrollbar-color:#b6a6ce transparent; color-scheme:light;
+  animation:youjp-panel-in 160ms ease-out;
 }
 
 .youjp-inspector .youjp-card {
-  width: 100%;
-  min-height: 0;
-  max-height: none;
-  flex: 1;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  width:100%; min-height:0; max-height:none; flex:1; border:0;
+    border-radius:0 0 21px 21px; box-shadow:none; background:transparent; animation:none;
 }
 
 .youjp-card-close {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  font-size: 18px;
-  line-height: 1;
-  color: rgba(236, 232, 255, 0.55);
-  background: none;
-  border: 0;
-  border-radius: 4px;
-  cursor: pointer;
+  position:absolute; top:12px; right:12px; display:grid; place-items:center;
+    width:32px; height:32px; padding:0; color:#5c6b7e; background:transparent;
+    border:0; border-radius:10px; cursor:pointer;
 }
 
 .youjp-card-close:hover {
-  color: #ece8ff;
-  background: rgba(255, 255, 255, 0.08);
+  color: #25364a;
+  background: #edf1f6;
 }
 
 .youjp-card-head {
-  padding: 13px 16px 11px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding:16px 18px 14px; border-bottom:1px solid #eadfd4;
+    background:#edf7f0;
 }
 
 .youjp-card-word {
-  font-size: 28px;
-  line-height: 1.2;
-  font-weight: 500;
+  padding-right:25px; font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
+    font-size:32px; line-height:1.35; font-weight:500; overflow-wrap:anywhere;
 }
 
 .youjp-card-kana {
-  font-size: 14px;
-  color: rgba(236, 232, 255, 0.75);
+  margin-top:5px; font-size:14px; color:#6450a4;
 }
 
 .youjp-card-romaji {
-  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
-  font-size: 12px;
-  color: rgba(236, 232, 255, 0.5);
-  letter-spacing: 0.02em;
+  margin-top:2px; font-family:'Cascadia Mono',Consolas,ui-monospace,monospace;
+    font-size:11px; color:#5c6b7e; letter-spacing:.03em;
 }
 
 .youjp-card-body {
-  padding: 12px 16px 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
+  padding:14px 18px 16px; display:flex; flex-direction:column; gap:14px;
 }
 
 .youjp-card-tags {
@@ -771,37 +631,26 @@
 .youjp-tag {
   font-size: 11px;
   padding: 2px 7px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(236, 232, 255, 0.8);
+  border-radius: 8px;
+  background: #edf1f6;
+  color: #5c6b7e;
 }
 
 .youjp-tag--common {
-  background: rgba(151, 182, 127, 0.18);
-  color: #97b67f;
+  background: #dff1e6;
+  color: #336749;
 }
 
 .youjp-card-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.45);
-  margin-bottom: 5px;
-  font-weight: 600;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#ae3b2c;
+    margin-bottom:6px; font-weight:600;
 }
 
 /* Marca el origen del dato. Cuando la fase 5 añada explicaciones generadas,
    tendrán que distinguirse de un vistazo de lo que viene del diccionario. */
 .youjp-source {
-  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: rgba(236, 232, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 2px;
-  padding: 0 4px;
-  margin-left: 6px;
+  font-family:ui-monospace,monospace; font-size:9px; letter-spacing:0; text-transform:none;
+    color:#5c6b7e; border:1px solid #eadfd4; border-radius:8px; padding:1px 5px; margin-left:6px;
 }
 
 .youjp-chain {
@@ -812,16 +661,16 @@
 }
 
 .youjp-chain-lemma {
-  color: rgba(236, 232, 255, 0.6);
+  color: #5c6b7e;
 }
 
 .youjp-chain-arrow {
-  color: rgba(236, 232, 255, 0.35);
+  color: #5c6b7e;
   font-size: 13px;
 }
 
 .youjp-chain-surface {
-  color: #b9a8ff;
+  color: #6450a4;
 }
 
 .youjp-chain-steps {
@@ -834,37 +683,32 @@
 .youjp-step {
   font-size: 11px;
   padding: 2px 7px;
-  border-radius: 3px;
-  background: rgba(185, 168, 255, 0.14);
-  color: #b9a8ff;
+  border-radius: 8px;
+  background: #e9e0fb;
+  color: #6450a4;
 }
 
 .youjp-senses {
-  margin: 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+  margin:0; padding-left:19px; display:flex; flex-direction:column; gap:12px;
 }
 
 .youjp-senses li {
-  font-size: 13.5px;
+  font-size:14px; line-height:1.6;
 }
 
 .youjp-senses li::marker {
-  color: rgba(236, 232, 255, 0.35);
-  font-size: 11px;
+  color:#ae3b2c; font-size:11px;
 }
 
 .youjp-sense-tags {
   display: block;
   font-size: 10.5px;
-  color: rgba(236, 232, 255, 0.42);
+  color: #5c6b7e;
   margin-bottom: 1px;
 }
 
 .youjp-gloss-en {
-  color: rgba(236, 232, 255, 0.62);
+  color: #5c6b7e;
   font-style: italic;
 }
 
@@ -873,8 +717,8 @@
   margin-left: 6px;
   padding: 0 4px;
   border-radius: 2px;
-  background: rgba(207, 163, 76, 0.16);
-  color: #cfa34c;
+  background: #ffe3db;
+  color: #913f31;
   font-style: normal;
 }
 
@@ -886,7 +730,7 @@
   padding: 6px 12px;
   border-radius: 6px;
   background: rgba(16, 19, 21, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #f0e8ff;
   color: #b9c0c4;
   font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
   font-size: 11px;
@@ -894,14 +738,52 @@
 }
 
 .youjp-metrics b {
-  color: #ece8ff;
+  color: #fff9f2;
   font-weight: 500;
 }
 
 .youjp-bad b {
-  color: #e58067;
+  color: #ffb3a3;
 }
 
 .youjp-model {
   color: rgba(185, 192, 196, 0.6);
+}
+
+/* Shared details for the study panels. */
+.youjp-transcript--with-dictionary { left:12px; top:12px; bottom:auto; transform:none;
+  width:min(520px,calc(54% - 18px)); min-width:0; height:min(420px,65%); }
+.youjp-inspector--with-history { width:min(370px,calc(46% - 18px)); min-width:0; }
+.youjp-tool[aria-expanded='true'] { color:#6450a4; background:#f0e8ff; }
+.youjp-panel-mark { display:grid; place-items:center; flex:0 0 auto; width:32px; height:32px;
+  border:0; background:#b9a2f4; border-radius:12px; color:#25364a; font-size:18px;
+  font-family:'Yu Mincho','Hiragino Mincho ProN',serif; font-weight:400; }
+.youjp-panel-heading { display:flex; flex:1; flex-direction:column; gap:3px; }
+.youjp-panel-heading small, .youjp-transcript-title small { color:#5c6b7e; font-size:11px; font-weight:400; }
+.youjp-settings-head .youjp-card-close { position:static; flex:0 0 auto; }
+.youjp-setting-section { display:flex; flex-direction:column; gap:17px; margin:0; padding:0;
+  border:0; min-width:0; }
+.youjp-setting-section legend { padding:0; margin-bottom:15px; color:#ae3b2c; font-size:10px;
+  font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
+.youjp-setting-section + .youjp-setting-section { padding-top:18px; border-top:1px solid #eadfd4; }
+.youjp-transcript-row:last-child { border-bottom:0; }
+.youjp-transcript-es small { font-size:9px; font-family:ui-monospace,monospace; color:#5c6b7e; }
+@keyframes youjp-panel-in { from { opacity:0; } to { opacity:1; } }
+:is(.youjp-tool, .youjp-transcript-action, .youjp-card-close, .youjp-transcript-time, .youjp-choice-btn, .youjp-reset, .youjp-token):focus-visible {
+  outline:2px solid #6450a4; outline-offset:2px;
+}
+.youjp-setting input:focus-visible { outline:2px solid #ae3b2c; outline-offset:3px; border-radius:4px; }
+@media (max-height:600px) {
+  .youjp-settings-dock { bottom:48px; }
+}
+@media (max-width:600px) {
+  .youjp-transcript-head, .youjp-settings-head, .youjp-inspector-head { padding:10px 12px; gap:8px; }
+  .youjp-transcript-body { padding-inline:12px; }
+  .youjp-transcript-row { grid-template-columns:38px minmax(0,1fr); gap:6px; }
+  .youjp-transcript-title { gap:6px; }
+  .youjp-subs { padding:6px 10px 8px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .youjp-transcript, .youjp-settings, .youjp-card, .youjp-inspector { animation:none; }
+  .youjp-tools, .youjp-choice-btn { transition:none; }
 }

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "wxt",
     "dev:edge": "wxt -b edge",
+    "preview:ui": "node scripts/preview-ui.mjs",
     "build": "wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",

@@ -1,0 +1,44 @@
+{
+  "status": "blocked_missing_api_key",
+  "cloud_request_made": false,
+  "key_present": false,
+  "model": "stt-rt-v5",
+  "endpoint": "wss://stt-rt.soniox.com/transcribe-websocket",
+  "clips": [
+    {
+      "path": "D:\\youJP-ESP\\bench\\samples\\10-noticias-apertura.wav",
+      "sample": "10-noticias-apertura.wav",
+      "available_audio_s": 69.9935,
+      "trial_audio_s": 30.0,
+      "frames": 480000,
+      "pcm_sha256": "55097c5ff1075b8f5b566b6ca428648c5bdea08810b47ef68ead15cc1f96af91"
+    }
+  ],
+  "total_audio_s": 30.0,
+  "configuration": {
+    "model": "stt-rt-v5",
+    "audio_format": "pcm_s16le",
+    "sample_rate": 16000,
+    "num_channels": 1,
+    "language_hints": [
+      "ja"
+    ],
+    "enable_language_identification": true,
+    "enable_endpoint_detection": true,
+    "translation": {
+      "type": "one_way",
+      "target_language": "es"
+    }
+  },
+  "pricing_checked_utc_date": "2026-10-03",
+  "estimated_cost_usd": 0.0015,
+  "estimate_basis": "Approximation: 30,000 audio tokens/h at $2/M plus 15,000 source and 15,000 translated text tokens/h at $4/M. Billing is token-based; actual token density/session duration can differ. No hard dollar cap is supported by this harness.",
+  "docs": {
+    "models": "https://soniox.com/docs/stt/models",
+    "websocket": "https://soniox.com/docs/api-reference/stt/websocket-api",
+    "translation": "https://soniox.com/docs/translation/stt-translation/rt-translation",
+    "pricing": "https://soniox.com/pricing",
+    "languages": "https://soniox.com/docs/stt/concepts/supported-languages"
+  },
+  "next_step": "Set SONIOX_API_KEY locally in the process environment or workspace .env; rerun with --execute-cloud when the cloud trial is authorized."
+}

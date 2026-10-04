@@ -1,0 +1,2467 @@
+{
+  "generated_at": "2026-10-03T06:48:39.476776+00:00",
+  "provider": "whisper",
+  "mode": "realtime",
+  "machine": "Windows-10-10.0.19045-SP0",
+  "python": "3.12.13",
+  "samples": [
+    {
+      "sample": "10-noticias-apertura.wav",
+      "sha256": "6fd1602c5ce1789c32868dbafe00ee0ce172b4edb0a464e383dd92d049ab2282",
+      "audio_s": 30.0,
+      "wall_s": 30.700347600039095,
+      "overall_rtf": 1.0233449200013032,
+      "text": "ここは大人の自主室一体何のために日本だけじゃなく世界も見ていろんな医療のことを勉強したいなと言って私は中を目指していて投稿用のプロットを作りに行きました私はサンドルオンになるんですけど、まずはサイスタートにな",
+      "finals": [
+        {
+          "text": "ここは大人の自主室",
+          "start_s": 0.0,
+          "end_s": 2.74,
+          "arrival_s": 4.013889500172809,
+          "latency_ms": 1273.8895001728088,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 0.0,
+              "end": 0.58,
+              "text": "ここ",
+              "probability": 0.97705078125
+            },
+            {
+              "start": 0.58,
+              "end": 0.92,
+              "text": "は",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 0.94,
+              "end": 1.52,
+              "text": "大",
+              "probability": 0.96728515625
+            },
+            {
+              "start": 1.52,
+              "end": 1.76,
+              "text": "人",
+              "probability": 1.0
+            },
+            {
+              "start": 1.76,
+              "end": 1.96,
+              "text": "の",
+              "probability": 1.0
+            },
+            {
+              "start": 1.96,
+              "end": 2.22,
+              "text": "自",
+              "probability": 0.96142578125
+            },
+            {
+              "start": 2.22,
+              "end": 2.44,
+              "text": "主",
+              "probability": 0.5654296875
+            },
+            {
+              "start": 2.44,
+              "end": 2.74,
+              "text": "室",
+              "probability": 0.999755859375
+            }
+          ]
+        },
+        {
+          "text": "一体何のために",
+          "start_s": 4.1000000000000005,
+          "end_s": 6.54,
+          "arrival_s": 7.656330000143498,
+          "latency_ms": 1116.3300001434982,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 4.1000000000000005,
+              "end": 4.74,
+              "text": "一",
+              "probability": 0.8017578125
+            },
+            {
+              "start": 4.74,
+              "end": 5.06,
+              "text": "体",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 5.06,
+              "end": 5.74,
+              "text": "何",
+              "probability": 0.99609375
+            },
+            {
+              "start": 5.74,
+              "end": 6.0,
+              "text": "の",
+              "probability": 1.0
+            },
+            {
+              "start": 6.0,
+              "end": 6.28,
+              "text": "ため",
+              "probability": 1.0
+            },
+            {
+              "start": 6.28,
+              "end": 6.54,
+              "text": "に",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "text": "日本だけじゃなく世界も見ていろんな医療のことを勉強したいな",
+          "start_s": 7.520000000000001,
+          "end_s": 14.34,
+          "arrival_s": 16.074172800173983,
+          "latency_ms": 1734.172800173983,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 7.520000000000001,
+              "end": 8.200000000000001,
+              "text": "日本",
+              "probability": 0.00036716461181640625
+            },
+            {
+              "start": 8.200000000000001,
+              "end": 8.88,
+              "text": "だけ",
+              "probability": 0.98193359375
+            },
+            {
+              "start": 8.88,
+              "end": 9.08,
+              "text": "じゃ",
+              "probability": 0.9755859375
+            },
+            {
+              "start": 9.08,
+              "end": 9.34,
+              "text": "なく",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 9.34,
+              "end": 10.52,
+              "text": "世界",
+              "probability": 0.65380859375
+            },
+            {
+              "start": 10.52,
+              "end": 10.78,
+              "text": "も",
+              "probability": 0.900390625
+            },
+            {
+              "start": 10.78,
+              "end": 11.12,
+              "text": "見て",
+              "probability": 0.85107421875
+            },
+            {
+              "start": 11.12,
+              "end": 12.18,
+              "text": "い",
+              "probability": 0.90283203125
+            },
+            {
+              "start": 12.18,
+              "end": 12.28,
+              "text": "ろ",
+              "probability": 1.0
+            },
+            {
+              "start": 12.28,
+              "end": 12.56,
+              "text": "んな",
+              "probability": 0.99755859375
+            },
+            {
+              "start": 12.56,
+              "end": 13.04,
+              "text": "医",
+              "probability": 0.993408203125
+            },
+            {
+              "start": 13.04,
+              "end": 13.16,
+              "text": "療",
+              "probability": 1.0
+            },
+            {
+              "start": 13.16,
+              "end": 13.3,
+              "text": "の",
+              "probability": 0.3701171875
+            },
+            {
+              "start": 13.3,
+              "end": 13.56,
+              "text": "こと",
+              "probability": 0.9970703125
+            },
+            {
+              "start": 13.56,
+              "end": 13.68,
+              "text": "を",
+              "probability": 1.0
+            },
+            {
+              "start": 13.68,
+              "end": 13.82,
+              "text": "勉",
+              "probability": 0.99462890625
+            },
+            {
+              "start": 13.82,
+              "end": 13.92,
+              "text": "強",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 13.92,
+              "end": 14.14,
+              "text": "した",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 14.14,
+              "end": 14.22,
+              "text": "い",
+              "probability": 1.0
+            },
+            {
+              "start": 14.22,
+              "end": 14.34,
+              "text": "な",
+              "probability": 0.998046875
+            }
+          ]
+        },
+        {
+          "text": "と言って",
+          "start_s": 14.34,
+          "end_s": 14.879999999999999,
+          "arrival_s": 19.10730509995483,
+          "latency_ms": 4227.30509995483,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 14.34,
+              "end": 14.54,
+              "text": "と",
+              "probability": 0.0966796875
+            },
+            {
+              "start": 14.54,
+              "end": 14.68,
+              "text": "言",
+              "probability": 0.1903076171875
+            },
+            {
+              "start": 14.68,
+              "end": 14.879999999999999,
+              "text": "って",
+              "probability": 0.89990234375
+            }
+          ]
+        },
+        {
+          "text": "私は中を目指していて投稿用のプロットを作りに行きました私はサンドルオンになるんですけど、まずはサイスタートにな",
+          "start_s": 15.34,
+          "end_s": 27.259999999999998,
+          "arrival_s": 28.671467000152916,
+          "latency_ms": 1411.4670001529194,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 15.34,
+              "end": 15.9,
+              "text": "私",
+              "probability": 0.1341552734375
+            },
+            {
+              "start": 15.9,
+              "end": 16.06,
+              "text": "は",
+              "probability": 0.5576171875
+            },
+            {
+              "start": 16.06,
+              "end": 16.3,
+              "text": "中",
+              "probability": 0.29150390625
+            },
+            {
+              "start": 16.3,
+              "end": 16.58,
+              "text": "を",
+              "probability": 0.9375
+            },
+            {
+              "start": 16.58,
+              "end": 16.86,
+              "text": "目",
+              "probability": 0.9853515625
+            },
+            {
+              "start": 16.86,
+              "end": 16.98,
+              "text": "指",
+              "probability": 1.0
+            },
+            {
+              "start": 16.98,
+              "end": 17.34,
+              "text": "して",
+              "probability": 0.99609375
+            },
+            {
+              "start": 17.34,
+              "end": 17.64,
+              "text": "いて",
+              "probability": 0.95361328125
+            },
+            {
+              "start": 19.340000000000003,
+              "end": 19.900000000000002,
+              "text": "投",
+              "probability": 0.0104217529296875
+            },
+            {
+              "start": 19.900000000000002,
+              "end": 20.46,
+              "text": "稿",
+              "probability": 0.997314453125
+            },
+            {
+              "start": 20.46,
+              "end": 20.64,
+              "text": "用",
+              "probability": 0.93798828125
+            },
+            {
+              "start": 20.64,
+              "end": 20.939999999999998,
+              "text": "の",
+              "probability": 0.9521484375
+            },
+            {
+              "start": 20.939999999999998,
+              "end": 21.66,
+              "text": "プ",
+              "probability": 0.84326171875
+            },
+            {
+              "start": 21.66,
+              "end": 21.78,
+              "text": "ロ",
+              "probability": 0.99853515625
+            },
+            {
+              "start": 21.78,
+              "end": 22.02,
+              "text": "ット",
+              "probability": 0.990234375
+            },
+            {
+              "start": 22.0,
+              "end": 22.22,
+              "text": "を",
+              "probability": 0.81005859375
+            },
+            {
+              "start": 22.22,
+              "end": 22.72,
+              "text": "作",
+              "probability": 0.8955078125
+            },
+            {
+              "start": 22.4,
+              "end": 22.88,
+              "text": "り",
+              "probability": 0.70556640625
+            },
+            {
+              "start": 22.88,
+              "end": 22.98,
+              "text": "に",
+              "probability": 0.69873046875
+            },
+            {
+              "start": 22.98,
+              "end": 23.119999999999997,
+              "text": "行",
+              "probability": 0.6435546875
+            },
+            {
+              "start": 23.119999999999997,
+              "end": 23.14,
+              "text": "き",
+              "probability": 0.85009765625
+            },
+            {
+              "start": 23.14,
+              "end": 23.48,
+              "text": "ました",
+              "probability": 0.85888671875
+            },
+            {
+              "start": 23.5,
+              "end": 24.2,
+              "text": "私",
+              "probability": 0.10577392578125
+            },
+            {
+              "start": 24.2,
+              "end": 24.34,
+              "text": "は",
+              "probability": 0.8125
+            },
+            {
+              "start": 24.34,
+              "end": 24.34,
+              "text": "サ",
+              "probability": 0.44140625
+            },
+            {
+              "start": 24.34,
+              "end": 24.42,
+              "text": "ンド",
+              "probability": 0.78955078125
+            },
+            {
+              "start": 24.42,
+              "end": 24.54,
+              "text": "ル",
+              "probability": 0.4580078125
+            },
+            {
+              "start": 24.54,
+              "end": 24.6,
+              "text": "オ",
+              "probability": 0.75048828125
+            },
+            {
+              "start": 24.6,
+              "end": 24.64,
+              "text": "ン",
+              "probability": 0.7939453125
+            },
+            {
+              "start": 24.64,
+              "end": 24.759999999999998,
+              "text": "にな",
+              "probability": 0.7041015625
+            },
+            {
+              "start": 24.759999999999998,
+              "end": 24.88,
+              "text": "る",
+              "probability": 0.90625
+            },
+            {
+              "start": 24.88,
+              "end": 25.02,
+              "text": "んです",
+              "probability": 0.89697265625
+            },
+            {
+              "start": 25.02,
+              "end": 25.3,
+              "text": "けど、",
+              "probability": 0.8583984375
+            },
+            {
+              "start": 25.38,
+              "end": 25.88,
+              "text": "まず",
+              "probability": 0.102294921875
+            },
+            {
+              "start": 25.88,
+              "end": 26.0,
+              "text": "は",
+              "probability": 0.54541015625
+            },
+            {
+              "start": 26.0,
+              "end": 26.54,
+              "text": "サ",
+              "probability": 0.5263671875
+            },
+            {
+              "start": 26.54,
+              "end": 26.619999999999997,
+              "text": "イ",
+              "probability": 0.99462890625
+            },
+            {
+              "start": 26.619999999999997,
+              "end": 26.759999999999998,
+              "text": "ス",
+              "probability": 0.52001953125
+            },
+            {
+              "start": 26.759999999999998,
+              "end": 26.88,
+              "text": "ター",
+              "probability": 0.890625
+            },
+            {
+              "start": 26.88,
+              "end": 27.1,
+              "text": "ト",
+              "probability": 0.455078125
+            },
+            {
+              "start": 27.1,
+              "end": 27.259999999999998,
+              "text": "にな",
+              "probability": 0.210693359375
+            }
+          ]
+        }
+      ],
+      "timestamp_validation": {
+        "timestamps_verified": true,
+        "status": "verified",
+        "text_finals": 5,
+        "checked_words": 78,
+        "single_whole_phrase_word_finals": 0,
+        "all_words_are_whole_phrase": false,
+        "end_bound_tolerance_s": 0.5,
+        "issues": [],
+        "note": "Validity of supplied intervals only; no human alignment reference."
+      },
+      "partial_count": 28,
+      "first_partial_s": 1.079828100046143,
+      "latency_ms": {
+        "name": "final_arrival_minus_recognizer_end_ms",
+        "unit": "ms",
+        "count": 5,
+        "mean": 1952.63,
+        "p50": 1411.47,
+        "p95": 3728.68,
+        "max": 4227.31
+      },
+      "events": [
+        {
+          "kind": "partial",
+          "arrival_s": 1.079828100046143,
+          "committed": "",
+          "tentative": "ここは"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 1.9304596001747996,
+          "committed": "",
+          "tentative": "音の音の音が聞こえます。"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 2.723921300144866,
+          "committed": "ここは",
+          "tentative": "大人の自主"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 3.516649099998176,
+          "committed": "ここは",
+          "tentative": "室"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 4.013852500123903,
+          "committed": "ここは大人の自主",
+          "tentative": ""
+        },
+        {
+          "kind": "final",
+          "text": "ここは大人の自主室",
+          "start_s": 0.0,
+          "end_s": 2.74,
+          "arrival_s": 4.013889500172809,
+          "latency_ms": 1273.8895001728088,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 0.0,
+              "end": 0.58,
+              "text": "ここ",
+              "probability": 0.97705078125
+            },
+            {
+              "start": 0.58,
+              "end": 0.92,
+              "text": "は",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 0.94,
+              "end": 1.52,
+              "text": "大",
+              "probability": 0.96728515625
+            },
+            {
+              "start": 1.52,
+              "end": 1.76,
+              "text": "人",
+              "probability": 1.0
+            },
+            {
+              "start": 1.76,
+              "end": 1.96,
+              "text": "の",
+              "probability": 1.0
+            },
+            {
+              "start": 1.96,
+              "end": 2.22,
+              "text": "自",
+              "probability": 0.96142578125
+            },
+            {
+              "start": 2.22,
+              "end": 2.44,
+              "text": "主",
+              "probability": 0.5654296875
+            },
+            {
+              "start": 2.44,
+              "end": 2.74,
+              "text": "室",
+              "probability": 0.999755859375
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 5.641868800157681,
+          "committed": "",
+          "tentative": "一体"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 6.443114400142804,
+          "committed": "",
+          "tentative": "何の"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 7.241734000155702,
+          "committed": "一体",
+          "tentative": "ために"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 7.656300300033763,
+          "committed": "一体何の",
+          "tentative": ""
+        },
+        {
+          "kind": "final",
+          "text": "一体何のために",
+          "start_s": 4.1000000000000005,
+          "end_s": 6.54,
+          "arrival_s": 7.656330000143498,
+          "latency_ms": 1116.3300001434982,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 4.1000000000000005,
+              "end": 4.74,
+              "text": "一",
+              "probability": 0.8017578125
+            },
+            {
+              "start": 4.74,
+              "end": 5.06,
+              "text": "体",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 5.06,
+              "end": 5.74,
+              "text": "何",
+              "probability": 0.99609375
+            },
+            {
+              "start": 5.74,
+              "end": 6.0,
+              "text": "の",
+              "probability": 1.0
+            },
+            {
+              "start": 6.0,
+              "end": 6.28,
+              "text": "ため",
+              "probability": 1.0
+            },
+            {
+              "start": 6.28,
+              "end": 6.54,
+              "text": "に",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 9.995315100066364,
+          "committed": "",
+          "tentative": "日本だけじゃなくて"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 11.607638400048018,
+          "committed": "",
+          "tentative": "日本だけじゃなく世界も見て"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 13.328407800057903,
+          "committed": "日本だけじゃなく世界も見て",
+          "tentative": "いろんな"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 14.12839030008763,
+          "committed": "日本だけじゃなく世界も見て",
+          "tentative": "医療部のこと"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 14.966448500053957,
+          "committed": "日本だけじゃなく世界も見ていろんな",
+          "tentative": "のことを勉強したいなと"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 15.780418900074437,
+          "committed": "日本だけじゃなく世界も見ていろんな医療",
+          "tentative": "と思っています"
+        },
+        {
+          "kind": "final",
+          "text": "日本だけじゃなく世界も見ていろんな医療のことを勉強したいな",
+          "start_s": 7.520000000000001,
+          "end_s": 14.34,
+          "arrival_s": 16.074172800173983,
+          "latency_ms": 1734.172800173983,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 7.520000000000001,
+              "end": 8.200000000000001,
+              "text": "日本",
+              "probability": 0.00036716461181640625
+            },
+            {
+              "start": 8.200000000000001,
+              "end": 8.88,
+              "text": "だけ",
+              "probability": 0.98193359375
+            },
+            {
+              "start": 8.88,
+              "end": 9.08,
+              "text": "じゃ",
+              "probability": 0.9755859375
+            },
+            {
+              "start": 9.08,
+              "end": 9.34,
+              "text": "なく",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 9.34,
+              "end": 10.52,
+              "text": "世界",
+              "probability": 0.65380859375
+            },
+            {
+              "start": 10.52,
+              "end": 10.78,
+              "text": "も",
+              "probability": 0.900390625
+            },
+            {
+              "start": 10.78,
+              "end": 11.12,
+              "text": "見て",
+              "probability": 0.85107421875
+            },
+            {
+              "start": 11.12,
+              "end": 12.18,
+              "text": "い",
+              "probability": 0.90283203125
+            },
+            {
+              "start": 12.18,
+              "end": 12.28,
+              "text": "ろ",
+              "probability": 1.0
+            },
+            {
+              "start": 12.28,
+              "end": 12.56,
+              "text": "んな",
+              "probability": 0.99755859375
+            },
+            {
+              "start": 12.56,
+              "end": 13.04,
+              "text": "医",
+              "probability": 0.993408203125
+            },
+            {
+              "start": 13.04,
+              "end": 13.16,
+              "text": "療",
+              "probability": 1.0
+            },
+            {
+              "start": 13.16,
+              "end": 13.3,
+              "text": "の",
+              "probability": 0.3701171875
+            },
+            {
+              "start": 13.3,
+              "end": 13.56,
+              "text": "こと",
+              "probability": 0.9970703125
+            },
+            {
+              "start": 13.56,
+              "end": 13.68,
+              "text": "を",
+              "probability": 1.0
+            },
+            {
+              "start": 13.68,
+              "end": 13.82,
+              "text": "勉",
+              "probability": 0.99462890625
+            },
+            {
+              "start": 13.82,
+              "end": 13.92,
+              "text": "強",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 13.92,
+              "end": 14.14,
+              "text": "した",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 14.14,
+              "end": 14.22,
+              "text": "い",
+              "probability": 1.0
+            },
+            {
+              "start": 14.22,
+              "end": 14.34,
+              "text": "な",
+              "probability": 0.998046875
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 17.644304800080135,
+          "committed": "",
+          "tentative": "と言っています私はマンカを目指して"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 18.441342700039968,
+          "committed": "",
+          "tentative": "ますね私は中を目指していて"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 19.107288300059736,
+          "committed": "と言って",
+          "tentative": "私は中を目指していて"
+        },
+        {
+          "kind": "final",
+          "text": "と言って",
+          "start_s": 14.34,
+          "end_s": 14.879999999999999,
+          "arrival_s": 19.10730509995483,
+          "latency_ms": 4227.30509995483,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 14.34,
+              "end": 14.54,
+              "text": "と",
+              "probability": 0.0966796875
+            },
+            {
+              "start": 14.54,
+              "end": 14.68,
+              "text": "言",
+              "probability": 0.1903076171875
+            },
+            {
+              "start": 14.68,
+              "end": 14.879999999999999,
+              "text": "って",
+              "probability": 0.89990234375
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 20.73457009997219,
+          "committed": "私は中を目指していて",
+          "tentative": "投稿"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 22.309190700063482,
+          "committed": "私は中を目指していて",
+          "tentative": "用のプロット"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 23.124570100102574,
+          "committed": "私は中を目指していて投稿",
+          "tentative": "を作る"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 23.94430540013127,
+          "committed": "私は中を目指していて投稿用のプロット",
+          "tentative": "りに行きました"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 24.69995090016164,
+          "committed": "私は中を目指していて投稿用のプロットを作",
+          "tentative": ""
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 25.59014690015465,
+          "committed": "私は中を目指していて投稿用のプロットを作りに行きました",
+          "tentative": ""
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 28.165621400112286,
+          "committed": "私は中を目指していて投稿用のプロットを作りに行きました",
+          "tentative": "私はサンドルオンになるんですけど、まずはサイスタートになるんです"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 28.671375900041312,
+          "committed": "私は中を目指していて投稿用のプロットを作りに行きました",
+          "tentative": "っています"
+        },
+        {
+          "kind": "final",
+          "text": "私は中を目指していて投稿用のプロットを作りに行きました私はサンドルオンになるんですけど、まずはサイスタートにな",
+          "start_s": 15.34,
+          "end_s": 27.259999999999998,
+          "arrival_s": 28.671467000152916,
+          "latency_ms": 1411.4670001529194,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 15.34,
+              "end": 15.9,
+              "text": "私",
+              "probability": 0.1341552734375
+            },
+            {
+              "start": 15.9,
+              "end": 16.06,
+              "text": "は",
+              "probability": 0.5576171875
+            },
+            {
+              "start": 16.06,
+              "end": 16.3,
+              "text": "中",
+              "probability": 0.29150390625
+            },
+            {
+              "start": 16.3,
+              "end": 16.58,
+              "text": "を",
+              "probability": 0.9375
+            },
+            {
+              "start": 16.58,
+              "end": 16.86,
+              "text": "目",
+              "probability": 0.9853515625
+            },
+            {
+              "start": 16.86,
+              "end": 16.98,
+              "text": "指",
+              "probability": 1.0
+            },
+            {
+              "start": 16.98,
+              "end": 17.34,
+              "text": "して",
+              "probability": 0.99609375
+            },
+            {
+              "start": 17.34,
+              "end": 17.64,
+              "text": "いて",
+              "probability": 0.95361328125
+            },
+            {
+              "start": 19.340000000000003,
+              "end": 19.900000000000002,
+              "text": "投",
+              "probability": 0.0104217529296875
+            },
+            {
+              "start": 19.900000000000002,
+              "end": 20.46,
+              "text": "稿",
+              "probability": 0.997314453125
+            },
+            {
+              "start": 20.46,
+              "end": 20.64,
+              "text": "用",
+              "probability": 0.93798828125
+            },
+            {
+              "start": 20.64,
+              "end": 20.939999999999998,
+              "text": "の",
+              "probability": 0.9521484375
+            },
+            {
+              "start": 20.939999999999998,
+              "end": 21.66,
+              "text": "プ",
+              "probability": 0.84326171875
+            },
+            {
+              "start": 21.66,
+              "end": 21.78,
+              "text": "ロ",
+              "probability": 0.99853515625
+            },
+            {
+              "start": 21.78,
+              "end": 22.02,
+              "text": "ット",
+              "probability": 0.990234375
+            },
+            {
+              "start": 22.0,
+              "end": 22.22,
+              "text": "を",
+              "probability": 0.81005859375
+            },
+            {
+              "start": 22.22,
+              "end": 22.72,
+              "text": "作",
+              "probability": 0.8955078125
+            },
+            {
+              "start": 22.4,
+              "end": 22.88,
+              "text": "り",
+              "probability": 0.70556640625
+            },
+            {
+              "start": 22.88,
+              "end": 22.98,
+              "text": "に",
+              "probability": 0.69873046875
+            },
+            {
+              "start": 22.98,
+              "end": 23.119999999999997,
+              "text": "行",
+              "probability": 0.6435546875
+            },
+            {
+              "start": 23.119999999999997,
+              "end": 23.14,
+              "text": "き",
+              "probability": 0.85009765625
+            },
+            {
+              "start": 23.14,
+              "end": 23.48,
+              "text": "ました",
+              "probability": 0.85888671875
+            },
+            {
+              "start": 23.5,
+              "end": 24.2,
+              "text": "私",
+              "probability": 0.10577392578125
+            },
+            {
+              "start": 24.2,
+              "end": 24.34,
+              "text": "は",
+              "probability": 0.8125
+            },
+            {
+              "start": 24.34,
+              "end": 24.34,
+              "text": "サ",
+              "probability": 0.44140625
+            },
+            {
+              "start": 24.34,
+              "end": 24.42,
+              "text": "ンド",
+              "probability": 0.78955078125
+            },
+            {
+              "start": 24.42,
+              "end": 24.54,
+              "text": "ル",
+              "probability": 0.4580078125
+            },
+            {
+              "start": 24.54,
+              "end": 24.6,
+              "text": "オ",
+              "probability": 0.75048828125
+            },
+            {
+              "start": 24.6,
+              "end": 24.64,
+              "text": "ン",
+              "probability": 0.7939453125
+            },
+            {
+              "start": 24.64,
+              "end": 24.759999999999998,
+              "text": "にな",
+              "probability": 0.7041015625
+            },
+            {
+              "start": 24.759999999999998,
+              "end": 24.88,
+              "text": "る",
+              "probability": 0.90625
+            },
+            {
+              "start": 24.88,
+              "end": 25.02,
+              "text": "んです",
+              "probability": 0.89697265625
+            },
+            {
+              "start": 25.02,
+              "end": 25.3,
+              "text": "けど、",
+              "probability": 0.8583984375
+            },
+            {
+              "start": 25.38,
+              "end": 25.88,
+              "text": "まず",
+              "probability": 0.102294921875
+            },
+            {
+              "start": 25.88,
+              "end": 26.0,
+              "text": "は",
+              "probability": 0.54541015625
+            },
+            {
+              "start": 26.0,
+              "end": 26.54,
+              "text": "サ",
+              "probability": 0.5263671875
+            },
+            {
+              "start": 26.54,
+              "end": 26.619999999999997,
+              "text": "イ",
+              "probability": 0.99462890625
+            },
+            {
+              "start": 26.619999999999997,
+              "end": 26.759999999999998,
+              "text": "ス",
+              "probability": 0.52001953125
+            },
+            {
+              "start": 26.759999999999998,
+              "end": 26.88,
+              "text": "ター",
+              "probability": 0.890625
+            },
+            {
+              "start": 26.88,
+              "end": 27.1,
+              "text": "ト",
+              "probability": 0.455078125
+            },
+            {
+              "start": 27.1,
+              "end": 27.259999999999998,
+              "text": "にな",
+              "probability": 0.210693359375
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 29.458650900050998,
+          "committed": "",
+          "tentative": "か、大人の人生というかね"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 30.38809769996442,
+          "committed": "",
+          "tentative": "というか、大人の人生であるんですけどね"
+        }
+      ],
+      "stats": {
+        "passes": 41,
+        "skipped_silent": 0,
+        "rejected": {
+          "low_confidence": 4
+        }
+      },
+      "metrics": {
+        "series": {
+          "asr_window_s": {
+            "name": "asr_window_s",
+            "unit": "s",
+            "count": 41,
+            "mean": 8.2,
+            "p50": 8.1,
+            "p95": 14.76,
+            "max": 15.56
+          },
+          "speech_latency_ms": {
+            "name": "speech_latency_ms",
+            "unit": "ms",
+            "count": 5,
+            "mean": 1952.58,
+            "p50": 1411.42,
+            "p95": 3728.63,
+            "max": 4227.26
+          },
+          "whisper_processing_ms": {
+            "name": "whisper_processing_ms",
+            "unit": "ms",
+            "count": 41,
+            "mean": 353.5,
+            "p50": 339.94,
+            "p95": 486.51,
+            "max": 563.4
+          },
+          "whisper_rtf": {
+            "name": "whisper_rtf",
+            "unit": "ratio",
+            "count": 41,
+            "mean": 0.07,
+            "p50": 0.04,
+            "p95": 0.21,
+            "max": 0.35
+          }
+        },
+        "counters": {
+          "buffer_trims": 2,
+          "committed_words": 78,
+          "final_transcripts": 5,
+          "partial_transcripts": 28,
+          "rejected_low_confidence": 4
+        }
+      }
+    },
+    {
+      "sample": "20-anime-frieren.wav",
+      "sha256": "c811658a3e4ed0cf3b82860ce9edda736e9c6ed907f3dd92b13c4123ced0cc62",
+      "audio_s": 30.0,
+      "wall_s": 30.00369399995543,
+      "overall_rtf": 1.0001231333318477,
+      "text": "魔力も技術もコントロールも私の方が遥かに上",
+      "finals": [
+        {
+          "text": "魔力も技術もコントロールも私の方が遥かに上",
+          "start_s": 3.6999999999999993,
+          "end_s": 8.24,
+          "arrival_s": 9.548751099966466,
+          "latency_ms": 1308.7510999664664,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 3.6999999999999993,
+              "end": 4.1,
+              "text": "魔",
+              "probability": 0.94189453125
+            },
+            {
+              "start": 4.1,
+              "end": 4.34,
+              "text": "力",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 4.34,
+              "end": 4.54,
+              "text": "も",
+              "probability": 0.98828125
+            },
+            {
+              "start": 4.54,
+              "end": 4.76,
+              "text": "技",
+              "probability": 0.95458984375
+            },
+            {
+              "start": 4.76,
+              "end": 4.96,
+              "text": "術",
+              "probability": 1.0
+            },
+            {
+              "start": 4.96,
+              "end": 5.14,
+              "text": "も",
+              "probability": 0.9970703125
+            },
+            {
+              "start": 5.14,
+              "end": 5.4,
+              "text": "コ",
+              "probability": 0.97900390625
+            },
+            {
+              "start": 5.4,
+              "end": 5.5,
+              "text": "ント",
+              "probability": 0.9921875
+            },
+            {
+              "start": 5.5,
+              "end": 5.66,
+              "text": "ロ",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 5.66,
+              "end": 5.82,
+              "text": "ール",
+              "probability": 0.9990234375
+            },
+            {
+              "start": 5.82,
+              "end": 6.04,
+              "text": "も",
+              "probability": 0.99755859375
+            },
+            {
+              "start": 6.04,
+              "end": 6.82,
+              "text": "私",
+              "probability": 0.8427734375
+            },
+            {
+              "start": 6.82,
+              "end": 7.0,
+              "text": "の",
+              "probability": 0.9990234375
+            },
+            {
+              "start": 7.0,
+              "end": 7.16,
+              "text": "方",
+              "probability": 0.97119140625
+            },
+            {
+              "start": 7.16,
+              "end": 7.36,
+              "text": "が",
+              "probability": 0.99365234375
+            },
+            {
+              "start": 7.36,
+              "end": 7.64,
+              "text": "遥",
+              "probability": 0.76416015625
+            },
+            {
+              "start": 7.64,
+              "end": 7.82,
+              "text": "か",
+              "probability": 0.998046875
+            },
+            {
+              "start": 7.82,
+              "end": 7.96,
+              "text": "に",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 7.96,
+              "end": 8.24,
+              "text": "上",
+              "probability": 0.99658203125
+            }
+          ]
+        }
+      ],
+      "timestamp_validation": {
+        "timestamps_verified": true,
+        "status": "verified",
+        "text_finals": 1,
+        "checked_words": 19,
+        "single_whole_phrase_word_finals": 0,
+        "all_words_are_whole_phrase": false,
+        "end_bound_tolerance_s": 0.5,
+        "issues": [],
+        "note": "Validity of supplied intervals only; no human alignment reference."
+      },
+      "partial_count": 7,
+      "first_partial_s": 5.919632599921897,
+      "latency_ms": {
+        "name": "final_arrival_minus_recognizer_end_ms",
+        "unit": "ms",
+        "count": 1,
+        "mean": 1308.75,
+        "p50": 1308.75,
+        "p95": 1308.75,
+        "max": 1308.75
+      },
+      "events": [
+        {
+          "kind": "partial",
+          "arrival_s": 5.919632599921897,
+          "committed": "",
+          "tentative": "魔力も技術もコンプ"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 6.731696499977261,
+          "committed": "",
+          "tentative": "ントロールも"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 7.546154600102454,
+          "committed": "魔力も技術もコ",
+          "tentative": "私の方"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 8.372278599999845,
+          "committed": "魔力も技術もコントロールも",
+          "tentative": "が遥かに"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 9.175452399998903,
+          "committed": "魔力も技術もコントロールも私の方",
+          "tentative": "上"
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 9.548723200103268,
+          "committed": "魔力も技術もコントロールも私の方が遥かに",
+          "tentative": ""
+        },
+        {
+          "kind": "final",
+          "text": "魔力も技術もコントロールも私の方が遥かに上",
+          "start_s": 3.6999999999999993,
+          "end_s": 8.24,
+          "arrival_s": 9.548751099966466,
+          "latency_ms": 1308.7510999664664,
+          "reason": "silence",
+          "words": [
+            {
+              "start": 3.6999999999999993,
+              "end": 4.1,
+              "text": "魔",
+              "probability": 0.94189453125
+            },
+            {
+              "start": 4.1,
+              "end": 4.34,
+              "text": "力",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 4.34,
+              "end": 4.54,
+              "text": "も",
+              "probability": 0.98828125
+            },
+            {
+              "start": 4.54,
+              "end": 4.76,
+              "text": "技",
+              "probability": 0.95458984375
+            },
+            {
+              "start": 4.76,
+              "end": 4.96,
+              "text": "術",
+              "probability": 1.0
+            },
+            {
+              "start": 4.96,
+              "end": 5.14,
+              "text": "も",
+              "probability": 0.9970703125
+            },
+            {
+              "start": 5.14,
+              "end": 5.4,
+              "text": "コ",
+              "probability": 0.97900390625
+            },
+            {
+              "start": 5.4,
+              "end": 5.5,
+              "text": "ント",
+              "probability": 0.9921875
+            },
+            {
+              "start": 5.5,
+              "end": 5.66,
+              "text": "ロ",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 5.66,
+              "end": 5.82,
+              "text": "ール",
+              "probability": 0.9990234375
+            },
+            {
+              "start": 5.82,
+              "end": 6.04,
+              "text": "も",
+              "probability": 0.99755859375
+            },
+            {
+              "start": 6.04,
+              "end": 6.82,
+              "text": "私",
+              "probability": 0.8427734375
+            },
+            {
+              "start": 6.82,
+              "end": 7.0,
+              "text": "の",
+              "probability": 0.9990234375
+            },
+            {
+              "start": 7.0,
+              "end": 7.16,
+              "text": "方",
+              "probability": 0.97119140625
+            },
+            {
+              "start": 7.16,
+              "end": 7.36,
+              "text": "が",
+              "probability": 0.99365234375
+            },
+            {
+              "start": 7.36,
+              "end": 7.64,
+              "text": "遥",
+              "probability": 0.76416015625
+            },
+            {
+              "start": 7.64,
+              "end": 7.82,
+              "text": "か",
+              "probability": 0.998046875
+            },
+            {
+              "start": 7.82,
+              "end": 7.96,
+              "text": "に",
+              "probability": 0.99951171875
+            },
+            {
+              "start": 7.96,
+              "end": 8.24,
+              "text": "上",
+              "probability": 0.99658203125
+            }
+          ]
+        },
+        {
+          "kind": "partial",
+          "arrival_s": 21.272422699956223,
+          "committed": "",
+          "tentative": "魔力も技術も技術も技術も研究している"
+        }
+      ],
+      "stats": {
+        "passes": 25,
+        "skipped_silent": 14,
+        "rejected": {
+          "low_confidence": 10
+        }
+      },
+      "metrics": {
+        "series": {
+          "asr_window_s": {
+            "name": "asr_window_s",
+            "unit": "s",
+            "count": 25,
+            "mean": 10.62,
+            "p50": 10.7,
+            "p95": 14.95,
+            "max": 15.3
+          },
+          "speech_latency_ms": {
+            "name": "speech_latency_ms",
+            "unit": "ms",
+            "count": 1,
+            "mean": 1308.71,
+            "p50": 1308.71,
+            "p95": 1308.71,
+            "max": 1308.71
+          },
+          "whisper_processing_ms": {
+            "name": "whisper_processing_ms",
+            "unit": "ms",
+            "count": 25,
+            "mean": 352.98,
+            "p50": 367.5,
+            "p95": 385.01,
+            "max": 628.2
+          },
+          "whisper_rtf": {
+            "name": "whisper_rtf",
+            "unit": "ratio",
+            "count": 25,
+            "mean": 0.04,
+            "p50": 0.03,
+            "p95": 0.06,
+            "max": 0.13
+          }
+        },
+        "counters": {
+          "buffer_trims": 2,
+          "committed_words": 19,
+          "final_transcripts": 1,
+          "partial_transcripts": 7,
+          "rejected_low_confidence": 10
+        }
+      }
+    },
+    {
+      "sample": "00-silencio.wav",
+      "sha256": "fe04e06676e54a18bce6696508d2696394f172b365445e1f2eb969dc0a10f163",
+      "audio_s": 20.0,
+      "wall_s": 20.003806400112808,
+      "overall_rtf": 1.0001903200056403,
+      "text": "",
+      "finals": [],
+      "timestamp_validation": {
+        "timestamps_verified": null,
+        "status": "no_speech_text",
+        "text_finals": 0,
+        "checked_words": 0,
+        "single_whole_phrase_word_finals": 0,
+        "all_words_are_whole_phrase": false,
+        "end_bound_tolerance_s": 0.5,
+        "issues": [],
+        "note": "Validity of supplied intervals only; no human alignment reference."
+      },
+      "partial_count": 0,
+      "first_partial_s": null,
+      "latency_ms": null,
+      "events": [],
+      "stats": {
+        "passes": 0,
+        "skipped_silent": 26,
+        "rejected": {}
+      },
+      "metrics": {
+        "series": {},
+        "counters": {}
+      }
+    }
+  ],
+  "status": "completed",
+  "input_provenance": [],
+  "limitations": [
+    "No human reference transcripts: CER is not measured.",
+    "Final latency uses model end times; segmentation differs across providers.",
+    "Isolated ASR only; MT/browser live capture are not exercised."
+  ],
+  "config": {
+    "asr_model": "large-v3-turbo",
+    "device": "cuda",
+    "compute_type": "int8_float16",
+    "beam_size": 1,
+    "word_timestamps": true,
+    "vad_min_silence_ms": 500,
+    "min_chunk_s": 0.8,
+    "buffer_trim_s": 15.0
+  },
+  "model_load_ms": 4171.174299903214,
+  "warmup_ms": 4201.486699981615,
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 2060",
+    "total_mb": 6144.0,
+    "baseline_used_mb": 1350.953125,
+    "peak_used_mb": 2756.625,
+    "increment_mb": 1405.671875,
+    "sample_hz": 10,
+    "samples": [
+      1350.953125,
+      1350.953125,
+      1350.953125,
+      1350.953125,
+      1350.953125,
+      1350.953125,
+      1350.953125,
+      1375.578125,
+      1375.578125,
+      1386.15625,
+      1460.15625,
+      1460.15625,
+      1460.15625,
+      1460.15625,
+      1460.15625,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1460.28125,
+      1439.53125,
+      1439.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1435.53125,
+      1627.53125,
+      2171.53125,
+      2459.53125,
+      2484.15625,
+      2486.15625,
+      2486.15625,
+      2486.15625,
+      2486.15625,
+      2486.15625,
+      2486.15625,
+      2486.15625,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2486.28125,
+      2465.59375,
+      2465.53125,
+      2465.53125,
+      2461.53125,
+      2461.53125,
+      2461.53125,
+      2461.53125,
+      2461.53125,
+      2471.53125,
+      2473.53125,
+      2601.53125,
+      2601.53125,
+      2601.53125,
+      2601.53125,
+      2537.53125,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2562.28125,
+      2562.28125,
+      2690.28125,
+      2690.28125,
+      2562.28125,
+      2562.28125,
+      2562.28125,
+      2562.28125,
+      2669.53125,
+      2669.53125,
+      2569.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2665.53125,
+      2665.53125,
+      2569.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2665.53125,
+      2665.53125,
+      2537.53125,
+      2562.15625,
+      2690.15625,
+      2690.15625,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2562.15625,
+      2690.15625,
+      2690.28125,
+      2594.28125,
+      2562.28125,
+      2562.28125,
+      2562.28125,
+      2562.28125,
+      2690.28125,
+      2690.28125,
+      2541.53125,
+      2541.53125,
+      2537.53125,
+      2537.53125,
+      2665.53125,
+      2665.53125,
+      2569.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2665.53125,
+      2665.53125,
+      2569.53125,
+      2537.53125,
+      2665.03125,
+      2665.03125,
+      2561.65625,
+      2561.65625,
+      2561.65625,
+      2561.65625,
+      2689.65625,
+      2689.65625,
+      2593.65625,
+      2561.65625,
+      2561.78125,
+      2561.78125,
+      2561.78125,
+      2689.78125,
+      2593.78125,
+      2561.78125,
+      2561.78125,
+      2561.78125,
+      2541.03125,
+      2669.03125,
+      2665.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2665.03125,
+      2665.03125,
+      2569.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2665.03125,
+      2665.03125,
+      2561.65625,
+      2561.65625,
+      2561.65625,
+      2561.65625,
+      2689.65625,
+      2689.65625,
+      2593.65625,
+      2561.65625,
+      2561.78125,
+      2561.78125,
+      2561.78125,
+      2689.78125,
+      2689.78125,
+      2593.78125,
+      2561.78125,
+      2561.78125,
+      2541.03125,
+      2669.03125,
+      2665.03125,
+      2569.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2665.03125,
+      2569.03125,
+      2569.03125,
+      2537.03125,
+      2537.03125,
+      2537.03125,
+      2665.03125,
+      2665.03125,
+      2593.65625,
+      2595.65625,
+      2691.65625,
+      2691.65625,
+      2563.65625,
+      2563.65625,
+      2563.65625,
+      2628.6875,
+      2756.625,
+      2654.5625,
+      2622.5625,
+      2622.5625,
+      2622.625,
+      2622.625,
+      2750.625,
+      2750.625,
+      2638.1875,
+      2592.4375,
+      2592.4375,
+      2592.4375,
+      2720.5625,
+      2720.5625,
+      2624.5625,
+      2592.5625,
+      2544.375,
+      2544.375,
+      2672.375,
+      2672.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2543.9375,
+      2671.75,
+      2571.65625,
+      2539.65625,
+      2539.65625,
+      2539.65625,
+      2539.65625,
+      2667.65625,
+      2667.65625,
+      2539.65625,
+      2539.65625,
+      2539.65625,
+      2544.125,
+      2672.125,
+      2672.125,
+      2576.125,
+      2544.125,
+      2544.125,
+      2542.5,
+      2542.5,
+      2670.625,
+      2670.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2670.625,
+      2670.625,
+      2574.5625,
+      2542.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.625,
+      2670.625,
+      2574.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2670.625,
+      2670.625,
+      2574.625,
+      2542.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2570.03125,
+      2570.03125,
+      2538.03125,
+      2666.03125,
+      2570.03125,
+      2570.03125,
+      2538.03125,
+      2666.03125,
+      2538.03125,
+      2570.03125,
+      2670.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.5,
+      2574.625,
+      2574.625,
+      2670.625,
+      2670.625,
+      2574.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.3125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2551.125,
+      2551.375,
+      2551.375,
+      2551.375,
+      2551.375,
+      2551.375,
+      2551.375,
+      2551.375,
+      2551.25,
+      2555.5625,
+      2554.4375,
+      2554.4375,
+      2554.4375,
+      2554.4375,
+      2554.4375,
+      2554.4375,
+      2550.375,
+      2550.5,
+      2550.5,
+      2550.5,
+      2550.5,
+      2550.5,
+      2550.5,
+      2550.5,
+      2550.0,
+      2549.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2673.0,
+      2673.0,
+      2673.0,
+      2672.5625,
+      2576.5625,
+      2540.46875,
+      2668.46875,
+      2668.46875,
+      2540.46875,
+      2540.46875,
+      2540.46875,
+      2540.46875,
+      2544.9375,
+      2672.9375,
+      2576.9375,
+      2542.5625,
+      2542.5625,
+      2542.5625,
+      2542.5625,
+      2670.5625,
+      2670.6875,
+      2574.6875,
+      2542.6875,
+      2542.6875,
+      2542.6875,
+      2670.6875,
+      2670.6875,
+      2574.6875,
+      2542.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2570.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.625,
+      2670.625,
+      2670.625,
+      2574.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2670.125,
+      2670.125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2670.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.625,
+      2670.625,
+      2574.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2670.625,
+      2670.625,
+      2542.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2670.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.625,
+      2670.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2670.625,
+      2670.625,
+      2574.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2570.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2666.03125,
+      2666.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2670.5,
+      2574.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2670.625,
+      2670.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.5625,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.625,
+      2542.125,
+      2542.125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2555.5625,
+      2547.1875,
+      2544.75,
+      2540.53125,
+      2540.53125,
+      2540.53125,
+      2540.53125,
+      2540.53125,
+      2540.53125,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.0,
+      2545.125,
+      2545.125,
+      2545.125,
+      2545.125,
+      2545.125,
+      2545.125,
+      2545.125,
+      2545.125,
+      2544.5,
+      2544.5,
+      2540.40625,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2538.03125,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.5,
+      2542.625,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2541.8125,
+      2541.625,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2550.625,
+      2550.625,
+      2550.875,
+      2550.875,
+      2550.875,
+      2555.1875,
+      2555.1875,
+      2555.1875,
+      2555.0625,
+      2555.0625,
+      2555.0625,
+      2555.0625,
+      2555.0625,
+      2555.1875,
+      2555.1875,
+      2554.125,
+      2554.125,
+      2550.0,
+      2550.0,
+      2550.0,
+      2550.0,
+      2550.0,
+      2550.0,
+      2550.0,
+      2549.75,
+      2548.0625,
+      2548.0,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2539.90625,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2544.375,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2542.125,
+      2541.8125,
+      2541.625,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125,
+      2537.53125
+    ],
+    "contended": false,
+    "note": "Total device VRAM sampled by NVML; delta also reflects other processes."
+  },
+  "derived_validation_note": "Timestamp validity/granularity rechecked from saved raw final payloads after inference, without rerunning the model."
+}

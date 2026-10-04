@@ -1,0 +1,21 @@
+{
+  "status": "passed_offline_only",
+  "cloud_request_made": false,
+  "framing": {
+    "chunks": 3,
+    "pcm_bytes": 9600,
+    "end_signal": "empty_text_frame",
+    "paced_s": 0.315
+  },
+  "checks": [
+    "100ms PCM frames",
+    "real-time pacing",
+    "empty text end signal",
+    "final/provisional token handling",
+    "source token latency definition",
+    "translated token timestamp omission",
+    "credential redaction",
+    "missing-key stops before network",
+    "120-second cap"
+  ]
+}

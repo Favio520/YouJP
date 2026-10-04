@@ -31,6 +31,7 @@ from youjp.asr.engine import WhisperEngine
 from youjp.audio.vad import SileroVAD
 from youjp.config import Settings, get_settings
 from youjp.dict.jmdict import Dictionary
+from youjp.history import HistoryRecorder
 from youjp.mt import build_provider
 from youjp.nlp.tokenizer import JapaneseTokenizer
 from youjp.obs.gpu import read_gpu
@@ -373,7 +374,8 @@ async def stream(ws: WebSocket) -> None:
     worker: AsrWorker | None = None
     mt: MtWorker | None = None
     nlp: NlpWorker | None = None
-    sender = asyncio.create_task(_sender(ws, outbox), name=f"sender-{session_id}")
+    recorder: list[HistoryRecorder | None] = [None]
+    sender = asyncio.create_task(_sender(ws, outbox, recorder), name=f"sender-{session_id}")
     ticker: asyncio.Task | None = None
     close_code = 1000
 
@@ -429,6 +431,8 @@ async def stream(ws: WebSocket) -> None:
                 while not outbox.empty():
                     outbox.get_nowait()
                 emitter = LoopEmitter(loop, outbox)
+                recorder[0] = HistoryRecorder(
+                    settings.history_dir, session_id, message)
 
                 mt = MtWorker(
                     state.translator,
@@ -576,11 +580,18 @@ def _fan_out(mt: MtWorker, nlp: NlpWorker):
     return forward
 
 
-async def _sender(ws: WebSocket, outbox: asyncio.Queue[BaseModel]) -> None:
+async def _sender(
+    ws: WebSocket,
+    outbox: asyncio.Queue[BaseModel],
+    recorder: list[HistoryRecorder | None],
+) -> None:
     """Unico punto de envio. Centralizarlo evita escrituras concurrentes sobre
-    el mismo socket, que en Starlette no estan permitidas."""
+    el mismo socket, que en Starlette no estan permitidas. Por el mismo motivo
+    es el sitio donde se anota el historial: ve cada mensaje una sola vez."""
     while True:
         message = await outbox.get()
+        if recorder[0] is not None:
+            recorder[0].record(message)
         try:
             await ws.send_text(message.model_dump_json())
         except (WebSocketDisconnect, RuntimeError, OSError):

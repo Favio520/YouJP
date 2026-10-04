@@ -1,0 +1,5 @@
+﻿{
+    "chat_template":  null,
+    "bos_token":  "\u003c｜hy_begin▁of▁sentence｜\u003e",
+    "eos_token":  "\u003c｜hy_place▁holder▁no▁2｜\u003e"
+}

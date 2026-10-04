@@ -9,6 +9,7 @@ import { uiText, type UiLanguage } from '../i18n';
  */
 
 import type { TargetLanguage, Token } from '../protocol';
+import { Icon } from './Icon';
 
 interface Props {
   language?: UiLanguage;
@@ -45,7 +46,7 @@ export function WordCard({ token, target, onClose, showClose = true, language = 
     <div className="youjp-card" role="dialog" aria-label={`${t('Definición de')} ${entry.headword}`}>
       {showClose && (
         <button type="button" className="youjp-card-close" onClick={onClose} aria-label={t('Cerrar')}>
-          ×
+          <Icon name="close" />
         </button>
       )}
 

@@ -75,9 +75,15 @@ foreach ($match in [regex]::Matches($markup, 'x:Name="([^"]+)"')) {
     if ($control) { $ui[$match.Groups[1].Value] = $control }
 }
 Set-YouJPViewLanguage $window
+# WPF Border.ClipToBounds clips a rectangle; clip the artwork to its rounded frame.
+$ui.HeroSurface.Add_SizeChanged({
+    param($sender, $eventArgs)
+    $sender.Clip = [Windows.Media.RectangleGeometry]::new(
+        [Windows.Rect]::new(0, 0, $sender.ActualWidth, $sender.ActualHeight), 21, 21)
+})
 $window.Title = 'YouJP ' + $script:appVersion
-$window.Width = [Math]::Min(1120, [Windows.SystemParameters]::WorkArea.Width - 32)
-$window.Height = [Math]::Min(800, [Windows.SystemParameters]::WorkArea.Height - 32)
+$window.Width = [Math]::Min(1180, [Windows.SystemParameters]::WorkArea.Width - 32)
+$window.Height = [Math]::Min(850, [Windows.SystemParameters]::WorkArea.Height - 32)
 $ui.VersionLabel.Text = 'YouJP  /  ' + $script:appVersion
 $iconPath = Join-Path $PSScriptRoot 'assets/app-logo.png'
 if (Test-Path -LiteralPath $iconPath) {
@@ -85,11 +91,11 @@ if (Test-Path -LiteralPath $iconPath) {
     $ui.BrandIcon.Source = $brandImage
     $window.Icon = $brandImage
 }
-$mascotPath = Join-Path $PSScriptRoot 'assets/mascot-design-b.png'
+$mascotPath = Join-Path $PSScriptRoot 'assets/mascot-pastel.png'
 if (Test-Path -LiteralPath $mascotPath) {
     $ui.MascotImage.Source = [Windows.Media.Imaging.BitmapImage]::new([Uri]$mascotPath)
 }
-$landscapePath = Join-Path $PSScriptRoot 'assets/fuji-design-b.png'
+$landscapePath = Join-Path $PSScriptRoot 'assets/fuji-pastel.png'
 if (Test-Path -LiteralPath $landscapePath) {
     $ui.HeaderLandscape.ImageSource = [Windows.Media.Imaging.BitmapImage]::new([Uri]$landscapePath)
 }
@@ -104,6 +110,7 @@ function Show-Page([string]$Page) {
     $ui.HomePage.Visibility = 'Collapsed'
     $ui.SettingsPage.Visibility = 'Collapsed'
     $ui.ActivityPage.Visibility = 'Collapsed'
+    $ui.HistoryPage.Visibility = 'Collapsed'
     switch ($Page) {
         'home' {
             $ui.HomePage.Visibility = 'Visible'; $ui.NavHome.IsChecked = $true
@@ -121,9 +128,15 @@ function Show-Page([string]$Page) {
             $ui.PageTitle.Text = (Get-YouJPText 'Actividad'); $ui.PageDescription.Text = (Get-YouJPText 'Mira qué está haciendo YouJP ahora mismo.')
             Update-Log
         }
+        'history' {
+            $ui.HistoryPage.Visibility = 'Visible'; $ui.NavHistory.IsChecked = $true
+            $ui.PageEyebrow.Text = (Get-YouJPText '履歴  /  LO QUE YA HAS VISTO')
+            $ui.PageTitle.Text = (Get-YouJPText 'Historial'); $ui.PageDescription.Text = (Get-YouJPText 'Las páginas que YouJP ha traducido para ti.')
+            Update-History
+        }
     }
     if (-not $SmokeTest) {
-        $pageControl = switch ($Page) { 'home' { $ui.HomePage } 'settings' { $ui.SettingsPage } 'activity' { $ui.ActivityPage } }
+        $pageControl = switch ($Page) { 'home' { $ui.HomePage } 'settings' { $ui.SettingsPage } 'activity' { $ui.ActivityPage } 'history' { $ui.HistoryPage } }
         $fade = [Windows.Media.Animation.DoubleAnimation]::new(0, 1, [Windows.Duration]::new([TimeSpan]::FromMilliseconds(160)))
         $pageControl.BeginAnimation([Windows.UIElement]::OpacityProperty, $fade)
     }
@@ -181,16 +194,26 @@ function Update-Panel {
         elseif ($script:installed) { (Get-YouJPText 'Tu equipo está preparado. Actualiza solo si cambias estas opciones o la versión de YouJP.') }
         else { (Get-YouJPText 'Cuando termine la preparación, vuelve a Tu sesión para iniciar YouJP.') }
     $colors = switch ($view.Tone) {
-        'green' { @('#176956', '#E7EEE5', '#A6D4B7') }
-        'red' { @('#B53F2D', '#FBE7DF', '#F0AA93') }
-        'blue' { @('#315D6B', '#E7EFF0', '#AECED6') }
-        default { @('#52665C', '#EBEEE5', '#B6CAB9') }
+        'green' { @('#336749', '#EDF7F0', '#83BA99') }
+        'red' { @('#AE3B2C', '#FFE8E1', '#FF705E') }
+        'blue' { @('#6450A4', '#F1ECFD', '#B9A2F4') }
+        default { @('#5C6B7E', '#F1EDE8', '#B9A2F4') }
     }
     $brush = [Windows.Media.BrushConverter]::new()
     $ui.StatusDot.Fill = $brush.ConvertFromString($colors[0])
     $ui.SidebarDot.Fill = $brush.ConvertFromString($colors[2])
     $ui.StatusLabel.Foreground = $brush.ConvertFromString($colors[0])
     $ui.StatusPill.Background = $brush.ConvertFromString($colors[1])
+    $ui.StatusPill.BorderBrush = $brush.ConvertFromString($colors[1])
+    $needsAttention = $view.Tone -eq 'red'
+    $ui.StatusDetailBox.Background = if ($needsAttention) { $brush.ConvertFromString('#FFE8E1') } else { [Windows.Media.Brushes]::Transparent }
+    $ui.StatusDetailBox.Padding = if ($needsAttention) { [Windows.Thickness]::new(12) } else { [Windows.Thickness]::new(0) }
+    $ui.StatusNoticeIcon.Visibility = if ($needsAttention) { 'Visible' } else { 'Collapsed' }
+    $ui.StatusDetail.Foreground = $brush.ConvertFromString($(if ($needsAttention) { '#AE3B2C' } else { '#5C6B7E' }))
+    $ui.HomeActivityNotice.Background = $brush.ConvertFromString($colors[1])
+    $ui.HomeActivityStatus.Foreground = $brush.ConvertFromString($colors[0])
+    $ui.ActivitySummary.Background = $brush.ConvertFromString($colors[1])
+    $ui.ActivitySummary.BorderBrush = $brush.ConvertFromString($colors[1])
     $model = (Get-YouJPText 'Por iniciar'); $device = [string]$script:runtime.asr_device; $provider = [string]$script:runtime.mt_provider
     if (Test-YouJPHealth $script:health) {
         $fields = @($script:health.PSObject.Properties.Name)
@@ -216,6 +239,10 @@ function Update-Panel {
         'idle' { (Get-YouJPText 'YouJP espera a que inicies una sesión.') }
         'unprepared' { (Get-YouJPText 'Prepara tu equipo desde Configuración.') }
         'error' { (Get-YouJPText 'Revisa Actividad para ver qué ocurrió.') }
+        'starting' { (Get-YouJPText 'Cargando los modelos en tu equipo.') }
+        'setup' { (Get-YouJPText 'Sigue el progreso de la preparación en Actividad.') }
+        'stopping' { (Get-YouJPText 'Liberando los recursos de tu equipo.') }
+        'conflict' { (Get-YouJPText 'Revisa Actividad para comprobar la conexión.') }
         default { $view.Detail }
     }
     $ui.HomeSessionCount.Text = [string]$sessionCount
@@ -260,6 +287,48 @@ function Update-Log {
         $ui.CopyFeedback.Text = ''
     }
     $ui.CopyLogsButton.IsEnabled = $true
+}
+
+function Update-History {
+    $selectedPath = if ($ui.HistoryList.SelectedItem) { $ui.HistoryList.SelectedItem.Tag.Path } else { $null }
+    $ui.HistoryList.Items.Clear()
+    $sessions = @(Get-YouJPHistorySessions)
+    foreach ($session in $sessions) {
+        $name = if ($session.VideoId) { (Get-YouJPText 'Vídeo') + ' ' + $session.VideoId } else { (Get-YouJPText 'Página sin identificar') }
+        $when = if ($session.StartedAt -gt [DateTime]::MinValue) { $session.StartedAt.ToString('yyyy-MM-dd HH:mm') } else { '' }
+        $preview = if ($session.Preview.Length -gt 36) { $session.Preview.Substring(0, 36) + '…' } else { $session.Preview }
+        $item = [Windows.Controls.ListBoxItem]::new()
+        $item.Tag = $session
+        $item.Padding = [Windows.Thickness]::new(10, 8, 10, 8)
+        $text = [Windows.Controls.TextBlock]::new()
+        $text.TextWrapping = 'Wrap'
+        $title = [Windows.Documents.Run]::new($name); $title.FontWeight = 'SemiBold'
+        $text.Inlines.Add($title)
+        $text.Inlines.Add([Windows.Documents.Run]::new("`n$when  ·  " + (Get-YouJPText "$($session.Count) frases")))
+        $text.Inlines.Add([Windows.Documents.Run]::new("`n$preview"))
+        $item.Content = $text
+        $null = $ui.HistoryList.Items.Add($item)
+        if ($session.Path -eq $selectedPath) { $ui.HistoryList.SelectedItem = $item }
+    }
+    $ui.HistoryEmpty.Visibility = if ($sessions.Count) { 'Collapsed' } else { 'Visible' }
+    if (-not $ui.HistoryList.SelectedItem -and $sessions.Count) { $ui.HistoryList.SelectedIndex = 0 }
+    if (-not $sessions.Count) { Show-HistorySession $null }
+}
+
+function Show-HistorySession($Session) {
+    $ui.HistoryFeedback.Text = ''
+    if (-not $Session) {
+        $ui.HistoryTitle.Text = ''; $ui.HistoryMeta.Text = ''; $ui.HistoryText.Text = ''
+        $ui.OpenVideoButton.IsEnabled = $false; $ui.CopyHistoryButton.IsEnabled = $false
+        return
+    }
+    try { $data = Read-YouJPHistoryFile $Session.Path } catch { $data = $null }
+    if (-not $data) { $ui.HistoryText.Text = (Get-YouJPText 'No se pudo leer este historial.'); return }
+    $ui.HistoryTitle.Text = if ($Session.VideoId) { (Get-YouJPText 'Vídeo') + ' ' + $Session.VideoId } else { (Get-YouJPText 'Página sin identificar') }
+    $ui.HistoryMeta.Text = $(if ($Session.Url) { $Session.Url } else { $Session.StartedAt.ToString('yyyy-MM-dd HH:mm') })
+    $ui.HistoryText.Text = Format-YouJPHistorySession $data
+    $ui.OpenVideoButton.IsEnabled = [bool](Get-YouJPHistoryVideoUrl $Session.Url)
+    $ui.CopyHistoryButton.IsEnabled = $true
 }
 
 function Start-Setup {
@@ -347,6 +416,25 @@ $ui.UiLanguageChoice.Add_SelectionChanged({
 $ui.NavHome.Add_Checked({ Show-Page 'home' })
 $ui.NavSettings.Add_Checked({ Show-Page 'settings' })
 $ui.NavActivity.Add_Checked({ Show-Page 'activity' })
+$ui.NavHistory.Add_Checked({ Show-Page 'history' })
+$ui.HistoryList.Add_SelectionChanged({
+    if ($ui.HistoryList.SelectedItem) { Show-HistorySession $ui.HistoryList.SelectedItem.Tag }
+})
+$ui.RefreshHistoryButton.Add_Click({ Update-History })
+$ui.OpenHistoryFolderButton.Add_Click({
+    $dir = Get-YouJPHistoryDir
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    Open-LocalFolder $dir
+})
+$ui.OpenVideoButton.Add_Click({
+    $item = $ui.HistoryList.SelectedItem
+    $url = if ($item) { Get-YouJPHistoryVideoUrl $item.Tag.Url } else { $null }
+    if ($url -and -not $Preview) { try { Start-Process $url } catch { $ui.HistoryFeedback.Text = $_.Exception.Message } }
+})
+$ui.CopyHistoryButton.Add_Click({
+    try { [Windows.Clipboard]::SetText($ui.HistoryText.Text); $ui.HistoryFeedback.Text = (Get-YouJPText 'Copiado') }
+    catch { $ui.HistoryFeedback.Text = (Get-YouJPText 'No se pudo copiar. Inténtalo de nuevo.') }
+})
 $ui.ViewActivityButton.Add_Click({ Show-Page 'activity' })
 $ui.GuideButton.Add_Click({ Show-Page 'home'; $ui.GuideSection.BringIntoView() })
 $ui.ResourcesButton.Add_Click({ Show-Page 'home'; $ui.GuideExpander.IsExpanded = $true; $ui.GuideSection.BringIntoView() })
@@ -468,7 +556,7 @@ try {
             Update-Panel
             if (-not $ui.StatusTitle.Text) { throw "Estado sin título: $kind" }
         }
-        foreach ($page in @('home', 'settings', 'activity')) {
+        foreach ($page in @('home', 'settings', 'activity', 'history')) {
             Show-Page $page
             $window.Measure([Windows.Size]::new(1100, 800))
             $window.Arrange([Windows.Rect]::new(0, 0, 1100, 800))
@@ -488,7 +576,7 @@ try {
         if ($ui.PageTitle.Text -ne 'Configuración') { throw 'Spanish settings page did not restore.' }
         Update-Panel
         if ($ui.StatusLabel.Text -ne 'Listo') { throw 'Spanish engine state did not restore.' }
-        Write-Output "Panel WPF OK: $($ui.Count) controles, 7 estados y 3 pantallas, versión $script:appVersion"
+        Write-Output "Panel WPF OK: $($ui.Count) controles, 7 estados y 4 pantallas, versión $script:appVersion"
     } else {
         if (-not $Preview) { $timer.Start() }
         $null = $application.Run($window)

@@ -98,6 +98,24 @@ try {
         try { Invoke-Doctor 6>$null } catch { $failed = $_.Exception.Message -eq 'Falta algo de lo marcado arriba.' }
         Assert $failed 'Doctor must report missing dependencies rather than claiming everything is ready'
     }
+    $historyDir = Join-Path $script:RuntimeDir 'history'
+    New-Item -ItemType Directory -Path $historyDir -Force | Out-Null
+    Assert (@(Get-YouJPHistorySessions).Count -eq 0) 'Sin historial no debe haber sesiones'
+    $rows = @(
+        '{"kind":"session","id":"a1","started_at":"2026-10-03T10:00:00","video_id":"abc","url":"https://www.youtube.com/watch?v=abc","target":"es"}',
+        '{"kind":"line","id":1,"start_ms":65000,"ja":"こんにちは"}',
+        '{"kind":"tr","id":1,"text":"Hola"}',
+        '{"kind":"line","id":2,"start_ms":70000,"ja":"はい"}',
+        '{"kind":"line","id":3,"start_ms":7'
+    )
+    [IO.File]::WriteAllLines((Join-Path $historyDir '20261003-100000-a1.jsonl'), $rows)
+    [IO.File]::WriteAllText((Join-Path $historyDir '20261003-090000-empty.jsonl'), '{"kind":"session","id":"b2"}')
+    $found = @(Get-YouJPHistorySessions)
+    Assert ($found.Count -eq 1 -and $found[0].Count -eq 2 -and $found[0].VideoId -eq 'abc') 'El historial debe ignorar sesiones vacías y líneas a medias'
+    $text = Format-YouJPHistorySession (Read-YouJPHistoryFile $found[0].Path)
+    Assert ($text -match '\[1:05\] こんにちは' -and $text -match 'Hola') 'La traducción debe aparecer bajo su frase'
+    Assert ((Get-YouJPHistoryVideoUrl $found[0].Url) -eq 'https://www.youtube.com/watch?v=abc') 'Un enlace https debe poder abrirse'
+    Assert ($null -eq (Get-YouJPHistoryVideoUrl 'file:///C:/Windows/System32/calc.exe')) 'Solo se abren enlaces https'
 } finally {
     $script:ProjectRoot = $originalRoot
     $script:RuntimeDir = $originalRuntime

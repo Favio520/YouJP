@@ -378,7 +378,7 @@ latency nearly doubled. The benchmark reports contention but cannot remove it.
 
 ```text
 backend/youjp/
-  audio/      Audio buffers and voice activity detection
+    audio/      Audio buffers and voice activity detection
   asr/        Whisper, LocalAgreement, segmentation, hallucination filters
   pipeline/   Streaming orchestration
   obs/        Metrics, GPU monitoring, and logging

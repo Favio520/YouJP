@@ -1,0 +1,3123 @@
+{
+  "generated_at": "2026-10-03T06:52:25.805526+00:00",
+  "provider": "nemotron",
+  "mode": "realtime",
+  "machine": "Windows-10-10.0.19045-SP0",
+  "python": "3.12.13",
+  "samples": [
+    {
+      "sample": "10-noticias-apertura.wav",
+      "sha256": "6fd1602c5ce1789c32868dbafe00ee0ce172b4edb0a464e383dd92d049ab2282",
+      "audio_s": 30.0,
+      "wall_s": 31.134468199918047,
+      "overall_rtf": 1.0378156066639348,
+      "text": "ここは大人の自習室一体何のために本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってますなんか目指していて投稿用のプロット作りに行きました。女なんですけど、そういうサイスタッテっていう大事の",
+      "finals": [
+        {
+          "text": "ここは",
+          "start_s": 0.64,
+          "end_s": 1.04,
+          "arrival_s": 1.7126283999532461,
+          "latency_ms": 672.6283999532461,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 1.04,
+              "start": 0.64,
+              "word": "ここは"
+            }
+          ]
+        },
+        {
+          "text": "大人の自習室",
+          "start_s": 1.68,
+          "end_s": 3.04,
+          "arrival_s": 3.9918459998443723,
+          "latency_ms": 951.8459998443723,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 3.04,
+              "start": 1.68,
+              "word": "大人の自習室"
+            }
+          ]
+        },
+        {
+          "text": "一体",
+          "start_s": 5.12,
+          "end_s": 5.36,
+          "arrival_s": 6.170045000035316,
+          "latency_ms": 810.0450000353154,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 5.36,
+              "start": 5.12,
+              "word": "一体"
+            }
+          ]
+        },
+        {
+          "text": "何のために",
+          "start_s": 6.08,
+          "end_s": 6.64,
+          "arrival_s": 7.467017899965867,
+          "latency_ms": 827.0178999658677,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 6.64,
+              "start": 6.08,
+              "word": "何のために"
+            }
+          ]
+        },
+        {
+          "text": "本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってます",
+          "start_s": 8.88,
+          "end_s": 15.36,
+          "arrival_s": 16.176100800046697,
+          "latency_ms": 816.1008000466978,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 15.36,
+              "start": 8.88,
+              "word": "本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってます"
+            }
+          ]
+        },
+        {
+          "text": "なんか目指していて",
+          "start_s": 16.48,
+          "end_s": 17.76,
+          "arrival_s": 18.695080499863252,
+          "latency_ms": 935.0804998632505,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 17.76,
+              "start": 16.48,
+              "word": "なんか目指していて"
+            }
+          ]
+        },
+        {
+          "text": "投稿用の",
+          "start_s": 20.32,
+          "end_s": 21.04,
+          "arrival_s": 21.880308999912813,
+          "latency_ms": 840.3089999128142,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 21.04,
+              "start": 20.32,
+              "word": "投稿用の"
+            }
+          ]
+        },
+        {
+          "text": "プロット",
+          "start_s": 21.76,
+          "end_s": 22.08,
+          "arrival_s": 22.881773500004783,
+          "latency_ms": 801.773500004785,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 22.08,
+              "start": 21.76,
+              "word": "プロット"
+            }
+          ]
+        },
+        {
+          "text": "作りに行きました。",
+          "start_s": 22.72,
+          "end_s": 23.6,
+          "arrival_s": 24.448457999853417,
+          "latency_ms": 848.4579998534159,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 23.6,
+              "start": 22.72,
+              "word": "作りに行きました。"
+            }
+          ]
+        },
+        {
+          "text": "女なんですけど、",
+          "start_s": 24.48,
+          "end_s": 25.52,
+          "arrival_s": 26.39061259990558,
+          "latency_ms": 870.6125999055807,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 25.52,
+              "start": 24.48,
+              "word": "女なんですけど、"
+            }
+          ]
+        },
+        {
+          "text": "そういうサイスタッテっていう",
+          "start_s": 26.24,
+          "end_s": 27.6,
+          "arrival_s": 28.295231099938974,
+          "latency_ms": 695.2310999389724,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 27.6,
+              "start": 26.24,
+              "word": "そういうサイスタッテっていう"
+            }
+          ]
+        },
+        {
+          "text": "大事の",
+          "start_s": 28.24,
+          "end_s": 28.56,
+          "arrival_s": 29.242443499853835,
+          "latency_ms": 682.4434998538358,
+          "words": [
+            {
+              "confidence": 1,
+              "end": 28.56,
+              "start": 28.24,
+              "word": "大事の"
+            }
+          ]
+        },
+        {
+          "text": "",
+          "start_s": null,
+          "end_s": null,
+          "arrival_s": 30.106478600064293,
+          "latency_ms": null,
+          "words": []
+        }
+      ],
+      "timestamp_validation": {
+        "timestamps_verified": true,
+        "status": "verified",
+        "text_finals": 12,
+        "checked_words": 12,
+        "single_whole_phrase_word_finals": 12,
+        "all_words_are_whole_phrase": true,
+        "end_bound_tolerance_s": 0.5,
+        "issues": [],
+        "note": "Validity of supplied intervals only; no human alignment reference."
+      },
+      "partial_count": 203,
+      "first_partial_s": 1.0165239998605102,
+      "latency_ms": {
+        "name": "final_arrival_minus_recognizer_end_ms",
+        "unit": "ms",
+        "count": 12,
+        "mean": 812.63,
+        "p50": 821.56,
+        "p95": 942.62,
+        "max": 951.85
+      },
+      "events": [
+        {
+          "arrival_s": 1.0165239998605102,
+          "sent_audio_s": 1.0,
+          "raw": {
+            "audio_processed": 1,
+            "delta": "ここ",
+            "event_id": "event_11",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.1137808999046683,
+          "sent_audio_s": 1.1,
+          "raw": {
+            "audio_processed": 1.100000023841858,
+            "delta": "",
+            "event_id": "event_12",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.206715599866584,
+          "sent_audio_s": 1.2,
+          "raw": {
+            "audio_processed": 1.2000000476837158,
+            "delta": "",
+            "event_id": "event_13",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.3264118998777121,
+          "sent_audio_s": 1.3,
+          "raw": {
+            "audio_processed": 1.2999999523162842,
+            "delta": "は",
+            "event_id": "event_14",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.4257592000067234,
+          "sent_audio_s": 1.4,
+          "raw": {
+            "audio_processed": 1.399999976158142,
+            "delta": "",
+            "event_id": "event_15",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.5176140000112355,
+          "sent_audio_s": 1.5,
+          "raw": {
+            "audio_processed": 1.5,
+            "delta": "",
+            "event_id": "event_16",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.594798899954185,
+          "sent_audio_s": 1.6,
+          "raw": {
+            "audio_processed": 1.600000023841858,
+            "delta": "",
+            "event_id": "event_17",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 1.7126283999532461,
+          "sent_audio_s": 1.7,
+          "raw": {
+            "audio_processed": 1.7000000476837158,
+            "event_id": "event_18",
+            "transcript": "ここは",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 1.04,
+                "start": 0.64,
+                "word": "ここは"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 2.059055799851194,
+          "sent_audio_s": 2.0,
+          "raw": {
+            "audio_processed": 2,
+            "delta": "大",
+            "event_id": "event_19",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.1073944999370724,
+          "sent_audio_s": 2.1,
+          "raw": {
+            "audio_processed": 2.0999999046325684,
+            "delta": "",
+            "event_id": "event_20",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.217329300008714,
+          "sent_audio_s": 2.2,
+          "raw": {
+            "audio_processed": 2.200000047683716,
+            "delta": "",
+            "event_id": "event_21",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.3478139999788254,
+          "sent_audio_s": 2.3,
+          "raw": {
+            "audio_processed": 2.299999952316284,
+            "delta": "人の",
+            "event_id": "event_22",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.401353199966252,
+          "sent_audio_s": 2.4,
+          "raw": {
+            "audio_processed": 2.4000000953674316,
+            "delta": "",
+            "event_id": "event_23",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.5103470999747515,
+          "sent_audio_s": 2.5,
+          "raw": {
+            "audio_processed": 2.5,
+            "delta": "",
+            "event_id": "event_24",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.6534207998774946,
+          "sent_audio_s": 2.6,
+          "raw": {
+            "audio_processed": 2.5999999046325684,
+            "delta": "",
+            "event_id": "event_25",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.713678600033745,
+          "sent_audio_s": 2.7,
+          "raw": {
+            "audio_processed": 2.700000047683716,
+            "delta": "",
+            "event_id": "event_26",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.8073929999955,
+          "sent_audio_s": 2.8,
+          "raw": {
+            "audio_processed": 2.799999952316284,
+            "delta": "",
+            "event_id": "event_27",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 2.9553684999700636,
+          "sent_audio_s": 2.9,
+          "raw": {
+            "audio_processed": 2.9000000953674316,
+            "delta": "自習",
+            "event_id": "event_28",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.0089286998845637,
+          "sent_audio_s": 3.0,
+          "raw": {
+            "audio_processed": 3,
+            "delta": "",
+            "event_id": "event_29",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.117779199965298,
+          "sent_audio_s": 3.1,
+          "raw": {
+            "audio_processed": 3.0999999046325684,
+            "delta": "",
+            "event_id": "event_30",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.2099591000005603,
+          "sent_audio_s": 3.2,
+          "raw": {
+            "audio_processed": 3.200000047683716,
+            "delta": "",
+            "event_id": "event_31",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.397896100068465,
+          "sent_audio_s": 3.4,
+          "raw": {
+            "audio_processed": 3.299999952316284,
+            "delta": "室",
+            "event_id": "event_32",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.3997843000106514,
+          "sent_audio_s": 3.4,
+          "raw": {
+            "audio_processed": 3.4000000953674316,
+            "delta": "",
+            "event_id": "event_33",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.5061892999801785,
+          "sent_audio_s": 3.5,
+          "raw": {
+            "audio_processed": 3.5,
+            "delta": "",
+            "event_id": "event_34",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.6893539999146014,
+          "sent_audio_s": 3.7,
+          "raw": {
+            "audio_processed": 3.5999999046325684,
+            "delta": "",
+            "event_id": "event_35",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.6912609999999404,
+          "sent_audio_s": 3.7,
+          "raw": {
+            "audio_processed": 3.700000047683716,
+            "delta": "",
+            "event_id": "event_36",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.818247799994424,
+          "sent_audio_s": 3.8,
+          "raw": {
+            "audio_processed": 3.799999952316284,
+            "delta": "",
+            "event_id": "event_37",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 3.9918459998443723,
+          "sent_audio_s": 4.0,
+          "raw": {
+            "audio_processed": 3.9000000953674316,
+            "event_id": "event_38",
+            "transcript": "大人の自習室",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 3.04,
+                "start": 1.68,
+                "word": "大人の自習室"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 5.542207499966025,
+          "sent_audio_s": 5.5,
+          "raw": {
+            "audio_processed": 5.5,
+            "delta": "一体",
+            "event_id": "event_39",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 5.615904399892315,
+          "sent_audio_s": 5.6,
+          "raw": {
+            "audio_processed": 5.599999904632568,
+            "delta": "",
+            "event_id": "event_40",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 5.708744900068268,
+          "sent_audio_s": 5.7,
+          "raw": {
+            "audio_processed": 5.699999809265137,
+            "delta": "",
+            "event_id": "event_41",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 5.853321099886671,
+          "sent_audio_s": 5.8,
+          "raw": {
+            "audio_processed": 5.800000190734863,
+            "delta": "",
+            "event_id": "event_42",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 5.910910399863496,
+          "sent_audio_s": 5.9,
+          "raw": {
+            "audio_processed": 5.900000095367432,
+            "delta": "",
+            "event_id": "event_43",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.018627400044352,
+          "sent_audio_s": 6.0,
+          "raw": {
+            "audio_processed": 6,
+            "delta": "",
+            "event_id": "event_44",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.170045000035316,
+          "sent_audio_s": 6.1,
+          "raw": {
+            "audio_processed": 6.099999904632568,
+            "event_id": "event_45",
+            "transcript": "一体",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 5.36,
+                "start": 5.12,
+                "word": "一体"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 6.58985810005106,
+          "sent_audio_s": 6.6,
+          "raw": {
+            "audio_processed": 6.5,
+            "delta": "何のた",
+            "event_id": "event_46",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.591977000003681,
+          "sent_audio_s": 6.6,
+          "raw": {
+            "audio_processed": 6.599999904632568,
+            "delta": "",
+            "event_id": "event_47",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.720246799988672,
+          "sent_audio_s": 6.7,
+          "raw": {
+            "audio_processed": 6.699999809265137,
+            "delta": "",
+            "event_id": "event_48",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.8789889998734,
+          "sent_audio_s": 6.9,
+          "raw": {
+            "audio_processed": 6.800000190734863,
+            "delta": "めに",
+            "event_id": "event_49",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 6.881110099842772,
+          "sent_audio_s": 6.9,
+          "raw": {
+            "audio_processed": 6.900000095367432,
+            "delta": "",
+            "event_id": "event_50",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 7.019314700039104,
+          "sent_audio_s": 7.0,
+          "raw": {
+            "audio_processed": 7,
+            "delta": "",
+            "event_id": "event_51",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 7.191447699908167,
+          "sent_audio_s": 7.2,
+          "raw": {
+            "audio_processed": 7.099999904632568,
+            "delta": "",
+            "event_id": "event_52",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 7.19348039990291,
+          "sent_audio_s": 7.2,
+          "raw": {
+            "audio_processed": 7.199999809265137,
+            "delta": "",
+            "event_id": "event_53",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 7.315738099860027,
+          "sent_audio_s": 7.3,
+          "raw": {
+            "audio_processed": 7.300000190734863,
+            "delta": "",
+            "event_id": "event_54",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 7.467017899965867,
+          "sent_audio_s": 7.4,
+          "raw": {
+            "audio_processed": 7.400000095367432,
+            "event_id": "event_55",
+            "transcript": "何のために",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 6.64,
+                "start": 6.08,
+                "word": "何のために"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 9.081918200012296,
+          "sent_audio_s": 9.1,
+          "raw": {
+            "audio_processed": 9,
+            "delta": "本",
+            "event_id": "event_56",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.08479360002093,
+          "sent_audio_s": 9.1,
+          "raw": {
+            "audio_processed": 9.100000381469727,
+            "delta": "",
+            "event_id": "event_57",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.220816700020805,
+          "sent_audio_s": 9.2,
+          "raw": {
+            "audio_processed": 9.199999809265137,
+            "delta": "",
+            "event_id": "event_58",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.380151699995622,
+          "sent_audio_s": 9.4,
+          "raw": {
+            "audio_processed": 9.300000190734863,
+            "delta": "だけ",
+            "event_id": "event_59",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.383334100013599,
+          "sent_audio_s": 9.4,
+          "raw": {
+            "audio_processed": 9.399999618530273,
+            "delta": "",
+            "event_id": "event_60",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.5176969000604,
+          "sent_audio_s": 9.5,
+          "raw": {
+            "audio_processed": 9.5,
+            "delta": "",
+            "event_id": "event_61",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.59490909986198,
+          "sent_audio_s": 9.6,
+          "raw": {
+            "audio_processed": 9.600000381469727,
+            "delta": "",
+            "event_id": "event_62",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.79017399996519,
+          "sent_audio_s": 9.8,
+          "raw": {
+            "audio_processed": 9.699999809265137,
+            "delta": "じゃなく",
+            "event_id": "event_63",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.792074400000274,
+          "sent_audio_s": 9.8,
+          "raw": {
+            "audio_processed": 9.800000190734863,
+            "delta": "",
+            "event_id": "event_64",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 9.908182400045916,
+          "sent_audio_s": 9.9,
+          "raw": {
+            "audio_processed": 9.899999618530273,
+            "delta": "",
+            "event_id": "event_65",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.074430200038478,
+          "sent_audio_s": 10.0,
+          "raw": {
+            "audio_processed": 10,
+            "delta": "",
+            "event_id": "event_66",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.110729800071567,
+          "sent_audio_s": 10.1,
+          "raw": {
+            "audio_processed": 10.100000381469727,
+            "delta": "",
+            "event_id": "event_67",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.218767799902707,
+          "sent_audio_s": 10.2,
+          "raw": {
+            "audio_processed": 10.199999809265137,
+            "delta": "",
+            "event_id": "event_68",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.39507109997794,
+          "sent_audio_s": 10.4,
+          "raw": {
+            "audio_processed": 10.300000190734863,
+            "delta": "なんか",
+            "event_id": "event_69",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.397087699966505,
+          "sent_audio_s": 10.4,
+          "raw": {
+            "audio_processed": 10.399999618530273,
+            "delta": "",
+            "event_id": "event_70",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.512778899865225,
+          "sent_audio_s": 10.5,
+          "raw": {
+            "audio_processed": 10.5,
+            "delta": "",
+            "event_id": "event_71",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.681962099857628,
+          "sent_audio_s": 10.6,
+          "raw": {
+            "audio_processed": 10.600000381469727,
+            "delta": "",
+            "event_id": "event_72",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.714890300063416,
+          "sent_audio_s": 10.7,
+          "raw": {
+            "audio_processed": 10.699999809265137,
+            "delta": "",
+            "event_id": "event_73",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.807768499944359,
+          "sent_audio_s": 10.8,
+          "raw": {
+            "audio_processed": 10.800000190734863,
+            "delta": "",
+            "event_id": "event_74",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.997949999989942,
+          "sent_audio_s": 11.0,
+          "raw": {
+            "audio_processed": 10.899999618530273,
+            "delta": "世界",
+            "event_id": "event_75",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 10.999920099973679,
+          "sent_audio_s": 11.0,
+          "raw": {
+            "audio_processed": 11,
+            "delta": "",
+            "event_id": "event_76",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.119719200069085,
+          "sent_audio_s": 11.1,
+          "raw": {
+            "audio_processed": 11.100000381469727,
+            "delta": "",
+            "event_id": "event_77",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.213866299949586,
+          "sent_audio_s": 11.2,
+          "raw": {
+            "audio_processed": 11.199999809265137,
+            "delta": "",
+            "event_id": "event_78",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.386153999948874,
+          "sent_audio_s": 11.3,
+          "raw": {
+            "audio_processed": 11.300000190734863,
+            "delta": "",
+            "event_id": "event_79",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.416865299921483,
+          "sent_audio_s": 11.4,
+          "raw": {
+            "audio_processed": 11.399999618530273,
+            "delta": "",
+            "event_id": "event_80",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.509837999939919,
+          "sent_audio_s": 11.5,
+          "raw": {
+            "audio_processed": 11.5,
+            "delta": "",
+            "event_id": "event_81",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.696578499861062,
+          "sent_audio_s": 11.7,
+          "raw": {
+            "audio_processed": 11.600000381469727,
+            "delta": "も",
+            "event_id": "event_82",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.698630699887872,
+          "sent_audio_s": 11.7,
+          "raw": {
+            "audio_processed": 11.699999809265137,
+            "delta": "",
+            "event_id": "event_83",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 11.819923599949107,
+          "sent_audio_s": 11.8,
+          "raw": {
+            "audio_processed": 11.800000190734863,
+            "delta": "",
+            "event_id": "event_84",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.005227799993008,
+          "sent_audio_s": 12.0,
+          "raw": {
+            "audio_processed": 11.899999618530273,
+            "delta": "ってちょ",
+            "event_id": "event_85",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.007283299928531,
+          "sent_audio_s": 12.0,
+          "raw": {
+            "audio_processed": 12,
+            "delta": "",
+            "event_id": "event_86",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.11802599998191,
+          "sent_audio_s": 12.1,
+          "raw": {
+            "audio_processed": 12.100000381469727,
+            "delta": "",
+            "event_id": "event_87",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.29499109997414,
+          "sent_audio_s": 12.2,
+          "raw": {
+            "audio_processed": 12.199999809265137,
+            "delta": "っと",
+            "event_id": "event_88",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.318153399974108,
+          "sent_audio_s": 12.3,
+          "raw": {
+            "audio_processed": 12.300000190734863,
+            "delta": "",
+            "event_id": "event_89",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.412234799936414,
+          "sent_audio_s": 12.4,
+          "raw": {
+            "audio_processed": 12.399999618530273,
+            "delta": "",
+            "event_id": "event_90",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.591566100018099,
+          "sent_audio_s": 12.5,
+          "raw": {
+            "audio_processed": 12.5,
+            "delta": "い",
+            "event_id": "event_91",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.613635399844497,
+          "sent_audio_s": 12.6,
+          "raw": {
+            "audio_processed": 12.600000381469727,
+            "delta": "",
+            "event_id": "event_92",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.70777289988473,
+          "sent_audio_s": 12.7,
+          "raw": {
+            "audio_processed": 12.699999809265137,
+            "delta": "",
+            "event_id": "event_93",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.817828899947926,
+          "sent_audio_s": 12.8,
+          "raw": {
+            "audio_processed": 12.800000190734863,
+            "delta": "",
+            "event_id": "event_94",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 12.947764500044286,
+          "sent_audio_s": 12.9,
+          "raw": {
+            "audio_processed": 12.899999618530273,
+            "delta": "ろんな",
+            "event_id": "event_95",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.018599699949846,
+          "sent_audio_s": 13.0,
+          "raw": {
+            "audio_processed": 13,
+            "delta": "",
+            "event_id": "event_96",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.110601000022143,
+          "sent_audio_s": 13.1,
+          "raw": {
+            "audio_processed": 13.100000381469727,
+            "delta": "",
+            "event_id": "event_97",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.252488299971446,
+          "sent_audio_s": 13.2,
+          "raw": {
+            "audio_processed": 13.199999809265137,
+            "delta": "",
+            "event_id": "event_98",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.295651899883524,
+          "sent_audio_s": 13.3,
+          "raw": {
+            "audio_processed": 13.300000190734863,
+            "delta": "",
+            "event_id": "event_99",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.41861979989335,
+          "sent_audio_s": 13.4,
+          "raw": {
+            "audio_processed": 13.399999618530273,
+            "delta": "",
+            "event_id": "event_100",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.547517899889499,
+          "sent_audio_s": 13.5,
+          "raw": {
+            "audio_processed": 13.5,
+            "delta": "医療",
+            "event_id": "event_101",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.620542800053954,
+          "sent_audio_s": 13.6,
+          "raw": {
+            "audio_processed": 13.600000381469727,
+            "delta": "",
+            "event_id": "event_102",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.715722099877894,
+          "sent_audio_s": 13.7,
+          "raw": {
+            "audio_processed": 13.699999809265137,
+            "delta": "",
+            "event_id": "event_103",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.846320699900389,
+          "sent_audio_s": 13.8,
+          "raw": {
+            "audio_processed": 13.800000190734863,
+            "delta": "家な",
+            "event_id": "event_104",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 13.90371960005723,
+          "sent_audio_s": 13.9,
+          "raw": {
+            "audio_processed": 13.899999618530273,
+            "delta": "",
+            "event_id": "event_105",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.010660799918696,
+          "sent_audio_s": 14.0,
+          "raw": {
+            "audio_processed": 14,
+            "delta": "",
+            "event_id": "event_106",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.157177499961108,
+          "sent_audio_s": 14.1,
+          "raw": {
+            "audio_processed": 14.100000381469727,
+            "delta": "ことを",
+            "event_id": "event_107",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.213603999931365,
+          "sent_audio_s": 14.2,
+          "raw": {
+            "audio_processed": 14.199999809265137,
+            "delta": "",
+            "event_id": "event_108",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.3085807999596,
+          "sent_audio_s": 14.3,
+          "raw": {
+            "audio_processed": 14.300000190734863,
+            "delta": "",
+            "event_id": "event_109",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.416239199927077,
+          "sent_audio_s": 14.4,
+          "raw": {
+            "audio_processed": 14.399999618530273,
+            "delta": "",
+            "event_id": "event_110",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.593973099952564,
+          "sent_audio_s": 14.6,
+          "raw": {
+            "audio_processed": 14.5,
+            "delta": "勉強",
+            "event_id": "event_111",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.596067599952221,
+          "sent_audio_s": 14.6,
+          "raw": {
+            "audio_processed": 14.600000381469727,
+            "delta": "",
+            "event_id": "event_112",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.69916610000655,
+          "sent_audio_s": 14.7,
+          "raw": {
+            "audio_processed": 14.699999809265137,
+            "delta": "",
+            "event_id": "event_113",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.895140500040725,
+          "sent_audio_s": 14.9,
+          "raw": {
+            "audio_processed": 14.800000190734863,
+            "delta": "したいな",
+            "event_id": "event_114",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 14.897029799874872,
+          "sent_audio_s": 14.9,
+          "raw": {
+            "audio_processed": 14.899999618530273,
+            "delta": "",
+            "event_id": "event_115",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.010170300025493,
+          "sent_audio_s": 15.0,
+          "raw": {
+            "audio_processed": 15,
+            "delta": "",
+            "event_id": "event_116",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.199744499986991,
+          "sent_audio_s": 15.2,
+          "raw": {
+            "audio_processed": 15.100000381469727,
+            "delta": "と思",
+            "event_id": "event_117",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.201648799935356,
+          "sent_audio_s": 15.2,
+          "raw": {
+            "audio_processed": 15.199999809265137,
+            "delta": "",
+            "event_id": "event_118",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.31926460005343,
+          "sent_audio_s": 15.3,
+          "raw": {
+            "audio_processed": 15.300000190734863,
+            "delta": "",
+            "event_id": "event_119",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.500201700022444,
+          "sent_audio_s": 15.5,
+          "raw": {
+            "audio_processed": 15.399999618530273,
+            "delta": "ってます",
+            "event_id": "event_120",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.502058999845758,
+          "sent_audio_s": 15.5,
+          "raw": {
+            "audio_processed": 15.5,
+            "delta": "",
+            "event_id": "event_121",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.597837199922651,
+          "sent_audio_s": 15.6,
+          "raw": {
+            "audio_processed": 15.600000381469727,
+            "delta": "",
+            "event_id": "event_122",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.792753400048241,
+          "sent_audio_s": 15.7,
+          "raw": {
+            "audio_processed": 15.699999809265137,
+            "delta": "",
+            "event_id": "event_123",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.817169700050727,
+          "sent_audio_s": 15.8,
+          "raw": {
+            "audio_processed": 15.800000190734863,
+            "delta": "",
+            "event_id": "event_124",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 15.90895970002748,
+          "sent_audio_s": 15.9,
+          "raw": {
+            "audio_processed": 15.899999618530273,
+            "delta": "",
+            "event_id": "event_125",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 16.001810600049794,
+          "sent_audio_s": 16.0,
+          "raw": {
+            "audio_processed": 16,
+            "delta": "",
+            "event_id": "event_126",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 16.176100800046697,
+          "sent_audio_s": 16.2,
+          "raw": {
+            "audio_processed": 16.100000381469727,
+            "event_id": "event_127",
+            "transcript": "本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってます",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 15.36,
+                "start": 8.88,
+                "word": "本だけじゃなくなんか世界もってちょっといろんな医療家なことを勉強したいなと思ってます"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 16.744641300057992,
+          "sent_audio_s": 16.7,
+          "raw": {
+            "audio_processed": 16.700000762939453,
+            "delta": "なんか",
+            "event_id": "event_128",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 16.813879000023007,
+          "sent_audio_s": 16.8,
+          "raw": {
+            "audio_processed": 16.799999237060547,
+            "delta": "",
+            "event_id": "event_129",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 16.890649300068617,
+          "sent_audio_s": 16.9,
+          "raw": {
+            "audio_processed": 16.899999618530273,
+            "delta": "",
+            "event_id": "event_130",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.048408000031486,
+          "sent_audio_s": 17.0,
+          "raw": {
+            "audio_processed": 17,
+            "delta": "",
+            "event_id": "event_131",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.122554400004447,
+          "sent_audio_s": 17.1,
+          "raw": {
+            "audio_processed": 17.100000381469727,
+            "delta": "",
+            "event_id": "event_132",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.21568110003136,
+          "sent_audio_s": 17.2,
+          "raw": {
+            "audio_processed": 17.200000762939453,
+            "delta": "",
+            "event_id": "event_133",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.34539549984038,
+          "sent_audio_s": 17.3,
+          "raw": {
+            "audio_processed": 17.299999237060547,
+            "delta": "目",
+            "event_id": "event_134",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.418578899931163,
+          "sent_audio_s": 17.4,
+          "raw": {
+            "audio_processed": 17.399999618530273,
+            "delta": "",
+            "event_id": "event_135",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.51067900005728,
+          "sent_audio_s": 17.5,
+          "raw": {
+            "audio_processed": 17.5,
+            "delta": "",
+            "event_id": "event_136",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.61949439998716,
+          "sent_audio_s": 17.6,
+          "raw": {
+            "audio_processed": 17.600000381469727,
+            "delta": "",
+            "event_id": "event_137",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.75351159996353,
+          "sent_audio_s": 17.7,
+          "raw": {
+            "audio_processed": 17.700000762939453,
+            "delta": "指して",
+            "event_id": "event_138",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.80856280005537,
+          "sent_audio_s": 17.8,
+          "raw": {
+            "audio_processed": 17.799999237060547,
+            "delta": "",
+            "event_id": "event_139",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 17.917370199924335,
+          "sent_audio_s": 17.9,
+          "raw": {
+            "audio_processed": 17.899999618530273,
+            "delta": "",
+            "event_id": "event_140",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.047795899910852,
+          "sent_audio_s": 18.0,
+          "raw": {
+            "audio_processed": 18,
+            "delta": "いて",
+            "event_id": "event_141",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.11811330006458,
+          "sent_audio_s": 18.1,
+          "raw": {
+            "audio_processed": 18.100000381469727,
+            "delta": "",
+            "event_id": "event_142",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.211493500042707,
+          "sent_audio_s": 18.2,
+          "raw": {
+            "audio_processed": 18.200000762939453,
+            "delta": "",
+            "event_id": "event_143",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.379166499944404,
+          "sent_audio_s": 18.3,
+          "raw": {
+            "audio_processed": 18.299999237060547,
+            "delta": "",
+            "event_id": "event_144",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.413326099980623,
+          "sent_audio_s": 18.4,
+          "raw": {
+            "audio_processed": 18.399999618530273,
+            "delta": "",
+            "event_id": "event_145",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.506345599889755,
+          "sent_audio_s": 18.5,
+          "raw": {
+            "audio_processed": 18.5,
+            "delta": "",
+            "event_id": "event_146",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 18.695080499863252,
+          "sent_audio_s": 18.7,
+          "raw": {
+            "audio_processed": 18.600000381469727,
+            "event_id": "event_147",
+            "transcript": "なんか目指していて",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 17.76,
+                "start": 16.48,
+                "word": "なんか目指していて"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 20.589451799867675,
+          "sent_audio_s": 20.5,
+          "raw": {
+            "audio_processed": 20.5,
+            "delta": "投稿",
+            "event_id": "event_148",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 20.6276443998795,
+          "sent_audio_s": 20.6,
+          "raw": {
+            "audio_processed": 20.600000381469727,
+            "delta": "",
+            "event_id": "event_149",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 20.69073769985698,
+          "sent_audio_s": 20.7,
+          "raw": {
+            "audio_processed": 20.700000762939453,
+            "delta": "",
+            "event_id": "event_150",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 20.800493799848482,
+          "sent_audio_s": 20.8,
+          "raw": {
+            "audio_processed": 20.799999237060547,
+            "delta": "",
+            "event_id": "event_151",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 20.96844520000741,
+          "sent_audio_s": 20.9,
+          "raw": {
+            "audio_processed": 20.899999618530273,
+            "delta": "用",
+            "event_id": "event_152",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.019577899947762,
+          "sent_audio_s": 21.0,
+          "raw": {
+            "audio_processed": 21,
+            "delta": "",
+            "event_id": "event_153",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.11068969988264,
+          "sent_audio_s": 21.1,
+          "raw": {
+            "audio_processed": 21.100000381469727,
+            "delta": "",
+            "event_id": "event_154",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.277254899963737,
+          "sent_audio_s": 21.2,
+          "raw": {
+            "audio_processed": 21.200000762939453,
+            "delta": "の",
+            "event_id": "event_155",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.310749399941415,
+          "sent_audio_s": 21.3,
+          "raw": {
+            "audio_processed": 21.299999237060547,
+            "delta": "",
+            "event_id": "event_156",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.418378399917856,
+          "sent_audio_s": 21.4,
+          "raw": {
+            "audio_processed": 21.399999618530273,
+            "delta": "",
+            "event_id": "event_157",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.589687899919227,
+          "sent_audio_s": 21.6,
+          "raw": {
+            "audio_processed": 21.5,
+            "delta": "",
+            "event_id": "event_158",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.591470699990168,
+          "sent_audio_s": 21.6,
+          "raw": {
+            "audio_processed": 21.600000381469727,
+            "delta": "",
+            "event_id": "event_159",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.717837099917233,
+          "sent_audio_s": 21.7,
+          "raw": {
+            "audio_processed": 21.700000762939453,
+            "delta": "",
+            "event_id": "event_160",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 21.880308999912813,
+          "sent_audio_s": 21.9,
+          "raw": {
+            "audio_processed": 21.799999237060547,
+            "event_id": "event_161",
+            "transcript": "投稿用の",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 21.04,
+                "start": 20.32,
+                "word": "投稿用の"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 22.187675799941644,
+          "sent_audio_s": 22.1,
+          "raw": {
+            "audio_processed": 22.100000381469727,
+            "delta": "プロット",
+            "event_id": "event_162",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.21583510003984,
+          "sent_audio_s": 22.2,
+          "raw": {
+            "audio_processed": 22.200000762939453,
+            "delta": "",
+            "event_id": "event_163",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.307408799882978,
+          "sent_audio_s": 22.3,
+          "raw": {
+            "audio_processed": 22.299999237060547,
+            "delta": "",
+            "event_id": "event_164",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.418722399976104,
+          "sent_audio_s": 22.4,
+          "raw": {
+            "audio_processed": 22.399999618530273,
+            "delta": "",
+            "event_id": "event_165",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.585758900037035,
+          "sent_audio_s": 22.6,
+          "raw": {
+            "audio_processed": 22.5,
+            "delta": "",
+            "event_id": "event_166",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.58759730006568,
+          "sent_audio_s": 22.6,
+          "raw": {
+            "audio_processed": 22.600000381469727,
+            "delta": "",
+            "event_id": "event_167",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.714552500052378,
+          "sent_audio_s": 22.7,
+          "raw": {
+            "audio_processed": 22.700000762939453,
+            "delta": "",
+            "event_id": "event_168",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 22.881773500004783,
+          "sent_audio_s": 22.9,
+          "raw": {
+            "audio_processed": 22.799999237060547,
+            "event_id": "event_169",
+            "transcript": "プロット",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 22.08,
+                "start": 21.76,
+                "word": "プロット"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 23.18118830001913,
+          "sent_audio_s": 23.1,
+          "raw": {
+            "audio_processed": 23.100000381469727,
+            "delta": "作り",
+            "event_id": "event_170",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.214126999955624,
+          "sent_audio_s": 23.2,
+          "raw": {
+            "audio_processed": 23.200000762939453,
+            "delta": "",
+            "event_id": "event_171",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.307267299853265,
+          "sent_audio_s": 23.3,
+          "raw": {
+            "audio_processed": 23.299999237060547,
+            "delta": "",
+            "event_id": "event_172",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.497519599972293,
+          "sent_audio_s": 23.5,
+          "raw": {
+            "audio_processed": 23.399999618530273,
+            "delta": "に行き",
+            "event_id": "event_173",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.49926680000499,
+          "sent_audio_s": 23.5,
+          "raw": {
+            "audio_processed": 23.5,
+            "delta": "",
+            "event_id": "event_174",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.618730299873278,
+          "sent_audio_s": 23.6,
+          "raw": {
+            "audio_processed": 23.600000381469727,
+            "delta": "",
+            "event_id": "event_175",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.756275200052187,
+          "sent_audio_s": 23.7,
+          "raw": {
+            "audio_processed": 23.700000762939453,
+            "delta": "ました。",
+            "event_id": "event_176",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.80464019998908,
+          "sent_audio_s": 23.8,
+          "raw": {
+            "audio_processed": 23.799999237060547,
+            "delta": "",
+            "event_id": "event_177",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 23.912745099980384,
+          "sent_audio_s": 23.9,
+          "raw": {
+            "audio_processed": 23.899999618530273,
+            "delta": "",
+            "event_id": "event_178",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.00883789989166,
+          "sent_audio_s": 24.0,
+          "raw": {
+            "audio_processed": 24,
+            "delta": "",
+            "event_id": "event_179",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.154371799901128,
+          "sent_audio_s": 24.1,
+          "raw": {
+            "audio_processed": 24.100000381469727,
+            "delta": "",
+            "event_id": "event_180",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.20892530004494,
+          "sent_audio_s": 24.2,
+          "raw": {
+            "audio_processed": 24.200000762939453,
+            "delta": "",
+            "event_id": "event_181",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.317003200063482,
+          "sent_audio_s": 24.3,
+          "raw": {
+            "audio_processed": 24.299999237060547,
+            "delta": "",
+            "event_id": "event_182",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.448457999853417,
+          "sent_audio_s": 24.4,
+          "raw": {
+            "audio_processed": 24.399999618530273,
+            "event_id": "event_183",
+            "transcript": "作りに行きました。",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 23.6,
+                "start": 22.72,
+                "word": "作りに行きました。"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 24.751133400015533,
+          "sent_audio_s": 24.7,
+          "raw": {
+            "audio_processed": 24.700000762939453,
+            "delta": "女",
+            "event_id": "event_184",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.82072009984404,
+          "sent_audio_s": 24.8,
+          "raw": {
+            "audio_processed": 24.799999237060547,
+            "delta": "",
+            "event_id": "event_185",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 24.914900599978864,
+          "sent_audio_s": 24.9,
+          "raw": {
+            "audio_processed": 24.899999618530273,
+            "delta": "",
+            "event_id": "event_186",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.041853700065985,
+          "sent_audio_s": 25.0,
+          "raw": {
+            "audio_processed": 25,
+            "delta": "",
+            "event_id": "event_187",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.115551099879667,
+          "sent_audio_s": 25.1,
+          "raw": {
+            "audio_processed": 25.100000381469727,
+            "delta": "",
+            "event_id": "event_188",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.208113400032744,
+          "sent_audio_s": 25.2,
+          "raw": {
+            "audio_processed": 25.200000762939453,
+            "delta": "",
+            "event_id": "event_189",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.365512399934232,
+          "sent_audio_s": 25.3,
+          "raw": {
+            "audio_processed": 25.299999237060547,
+            "delta": "なん",
+            "event_id": "event_190",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.41047540004365,
+          "sent_audio_s": 25.4,
+          "raw": {
+            "audio_processed": 25.399999618530273,
+            "delta": "",
+            "event_id": "event_191",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.50468509993516,
+          "sent_audio_s": 25.5,
+          "raw": {
+            "audio_processed": 25.5,
+            "delta": "",
+            "event_id": "event_192",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.611627100035548,
+          "sent_audio_s": 25.6,
+          "raw": {
+            "audio_processed": 25.600000381469727,
+            "delta": "",
+            "event_id": "event_193",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.79233990004286,
+          "sent_audio_s": 25.8,
+          "raw": {
+            "audio_processed": 25.700000762939453,
+            "delta": "ですけど",
+            "event_id": "event_194",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.794360999949276,
+          "sent_audio_s": 25.8,
+          "raw": {
+            "audio_processed": 25.799999237060547,
+            "delta": "",
+            "event_id": "event_195",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 25.90654299990274,
+          "sent_audio_s": 25.9,
+          "raw": {
+            "audio_processed": 25.899999618530273,
+            "delta": "",
+            "event_id": "event_196",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.091778100002557,
+          "sent_audio_s": 26.1,
+          "raw": {
+            "audio_processed": 26,
+            "delta": "、",
+            "event_id": "event_197",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.093826900003478,
+          "sent_audio_s": 26.1,
+          "raw": {
+            "audio_processed": 26.100000381469727,
+            "delta": "",
+            "event_id": "event_198",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.21872549992986,
+          "sent_audio_s": 26.2,
+          "raw": {
+            "audio_processed": 26.200000762939453,
+            "delta": "",
+            "event_id": "event_199",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.39061259990558,
+          "sent_audio_s": 26.4,
+          "raw": {
+            "audio_processed": 26.299999237060547,
+            "event_id": "event_200",
+            "transcript": "女なんですけど、",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 25.52,
+                "start": 24.48,
+                "word": "女なんですけど、"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 26.693257400067523,
+          "sent_audio_s": 26.7,
+          "raw": {
+            "audio_processed": 26.600000381469727,
+            "delta": "そういう",
+            "event_id": "event_201",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.695229799952358,
+          "sent_audio_s": 26.7,
+          "raw": {
+            "audio_processed": 26.700000762939453,
+            "delta": "",
+            "event_id": "event_202",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.80942129995674,
+          "sent_audio_s": 26.8,
+          "raw": {
+            "audio_processed": 26.799999237060547,
+            "delta": "",
+            "event_id": "event_203",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.99304259987548,
+          "sent_audio_s": 27.0,
+          "raw": {
+            "audio_processed": 26.899999618530273,
+            "delta": "",
+            "event_id": "event_204",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 26.99534530006349,
+          "sent_audio_s": 27.0,
+          "raw": {
+            "audio_processed": 27,
+            "delta": "",
+            "event_id": "event_205",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.11961349984631,
+          "sent_audio_s": 27.1,
+          "raw": {
+            "audio_processed": 27.100000381469727,
+            "delta": "",
+            "event_id": "event_206",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.213450900046155,
+          "sent_audio_s": 27.2,
+          "raw": {
+            "audio_processed": 27.200000762939453,
+            "delta": "",
+            "event_id": "event_207",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.390249599935487,
+          "sent_audio_s": 27.3,
+          "raw": {
+            "audio_processed": 27.299999237060547,
+            "delta": "サイス",
+            "event_id": "event_208",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.415987099986523,
+          "sent_audio_s": 27.4,
+          "raw": {
+            "audio_processed": 27.399999618530273,
+            "delta": "",
+            "event_id": "event_209",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.509047399973497,
+          "sent_audio_s": 27.5,
+          "raw": {
+            "audio_processed": 27.5,
+            "delta": "",
+            "event_id": "event_210",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.704472000012174,
+          "sent_audio_s": 27.7,
+          "raw": {
+            "audio_processed": 27.600000381469727,
+            "delta": "タッテって",
+            "event_id": "event_211",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.706455699866638,
+          "sent_audio_s": 27.7,
+          "raw": {
+            "audio_processed": 27.700000762939453,
+            "delta": "",
+            "event_id": "event_212",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 27.806893900036812,
+          "sent_audio_s": 27.8,
+          "raw": {
+            "audio_processed": 27.799999237060547,
+            "delta": "",
+            "event_id": "event_213",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.001680799992755,
+          "sent_audio_s": 28.0,
+          "raw": {
+            "audio_processed": 27.899999618530273,
+            "delta": "いう",
+            "event_id": "event_214",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.003541299840435,
+          "sent_audio_s": 28.0,
+          "raw": {
+            "audio_processed": 28,
+            "delta": "",
+            "event_id": "event_215",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.119993099942803,
+          "sent_audio_s": 28.1,
+          "raw": {
+            "audio_processed": 28.100000381469727,
+            "delta": "",
+            "event_id": "event_216",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.295231099938974,
+          "sent_audio_s": 28.3,
+          "raw": {
+            "audio_processed": 28.200000762939453,
+            "event_id": "event_217",
+            "transcript": "そういうサイスタッテっていう",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 27.6,
+                "start": 26.24,
+                "word": "そういうサイスタッテっていう"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 28.54661179985851,
+          "sent_audio_s": 28.5,
+          "raw": {
+            "audio_processed": 28.5,
+            "delta": "大事",
+            "event_id": "event_218",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.616330199874938,
+          "sent_audio_s": 28.6,
+          "raw": {
+            "audio_processed": 28.600000381469727,
+            "delta": "",
+            "event_id": "event_219",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.70949969999492,
+          "sent_audio_s": 28.7,
+          "raw": {
+            "audio_processed": 28.700000762939453,
+            "delta": "",
+            "event_id": "event_220",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.818048499990255,
+          "sent_audio_s": 28.8,
+          "raw": {
+            "audio_processed": 28.799999237060547,
+            "delta": "",
+            "event_id": "event_221",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 28.94754990004003,
+          "sent_audio_s": 28.9,
+          "raw": {
+            "audio_processed": 28.899999618530273,
+            "delta": "の",
+            "event_id": "event_222",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 29.021447999868542,
+          "sent_audio_s": 29.0,
+          "raw": {
+            "audio_processed": 29,
+            "delta": "",
+            "event_id": "event_223",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 29.115584600018337,
+          "sent_audio_s": 29.1,
+          "raw": {
+            "audio_processed": 29.100000381469727,
+            "delta": "",
+            "event_id": "event_224",
+            "type": "conversation.item.input_audio_transcription.delta"
+          },
+          "kind": "partial"
+        },
+        {
+          "arrival_s": 29.242443499853835,
+          "sent_audio_s": 29.2,
+          "raw": {
+            "audio_processed": 29.200000762939453,
+            "event_id": "event_225",
+            "transcript": "大事の",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": [
+              {
+                "confidence": 1,
+                "end": 28.56,
+                "start": 28.24,
+                "word": "大事の"
+              }
+            ]
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 30.106478600064293,
+          "sent_audio_s": 30.0,
+          "raw": {
+            "audio_processed": 30,
+            "event_id": "event_226",
+            "transcript": "",
+            "type": "conversation.item.input_audio_transcription.completed",
+            "words": []
+          },
+          "kind": "final"
+        },
+        {
+          "arrival_s": 30.106508000055328,
+          "sent_audio_s": 30.0,
+          "raw": {
+            "event_id": "event_227",
+            "type": "input_audio_buffer.committed"
+          }
+        }
+      ],
+      "audio_send_s": 30.000664700055495,
+      "collector_settle_s": 1.0279605998657644,
+      "stream_rtf_excluding_collector_settle": 1.003550253335076
+    }
+  ],
+  "status": "completed",
+  "input_provenance": [],
+  "limitations": [
+    "No human reference transcripts: CER is not measured.",
+    "Final latency uses model end times; segmentation differs across providers.",
+    "Isolated ASR only; MT/browser live capture are not exercised.",
+    "Qwen was GPU-resident in this bounded trial; concurrent MT inference was not exercised."
+  ],
+  "config": {
+    "model": "D:\\youJP-ESP\\models\\trials\\nemotron-3.5-asr\\nemotron-3.5-asr-streaming-0.6b.q8_0.gguf",
+    "device": "cuda:0",
+    "rnnt_right_context": 3,
+    "endpointing_ms": 500,
+    "frame_ms": 100,
+    "language": "ja-JP",
+    "batching": false,
+    "vad": "runtime token-silence endpointing; no external VAD",
+    "word_timestamps": "final events"
+  },
+  "command": [
+    "D:\\youJP-ESP\\.youjp\\trials\\asr\\runtime\\nemo-speech-0.2.0-windows-x86_64-cuda\\bin\\nemo-speech.exe",
+    "serve",
+    "--asr-model",
+    "D:\\youJP-ESP\\models\\trials\\nemotron-3.5-asr\\nemotron-3.5-asr-streaming-0.6b.q8_0.gguf",
+    "--device",
+    "cuda:0",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18080",
+    "--asr.streaming.rnnt_right_context",
+    "3",
+    "--asr.batching.enabled=false",
+    "--asr.endpointing.enable=true",
+    "--asr.endpointing.stop_history_eou_ms",
+    "500",
+    "--no-ui"
+  ],
+  "server_pid": 37172,
+  "ready": {
+    "capabilities": [
+      "asr"
+    ],
+    "device": "cuda:0",
+    "ready": true
+  },
+  "model_load_and_server_ready_ms": 1228.2089001964778,
+  "version": {
+    "version": "0.2.0"
+  },
+  "warmup": {
+    "sample": "_warmup_silence_2s.wav",
+    "sha256": "20eaebffe1816e0ffa6f7f854f5ef4ea80d5349faaf0ce1fec1b713e7fde58fa",
+    "audio_s": 2.0,
+    "wall_s": 3.0699459998868406,
+    "overall_rtf": 1.5349729999434203,
+    "text": "",
+    "finals": [
+      {
+        "text": "",
+        "start_s": null,
+        "end_s": null,
+        "arrival_s": 2.0431613998953253,
+        "latency_ms": null,
+        "words": []
+      }
+    ],
+    "timestamp_validation": {
+      "timestamps_verified": null,
+      "status": "no_speech_text",
+      "text_finals": 0,
+      "checked_words": 0,
+      "single_whole_phrase_word_finals": 0,
+      "all_words_are_whole_phrase": false,
+      "end_bound_tolerance_s": 0.5,
+      "issues": [],
+      "note": "Validity of supplied intervals only; no human alignment reference."
+    },
+    "partial_count": 0,
+    "first_partial_s": null,
+    "latency_ms": null,
+    "events": [
+      {
+        "arrival_s": 2.0431613998953253,
+        "sent_audio_s": 2.0,
+        "raw": {
+          "audio_processed": 2,
+          "event_id": "event_6",
+          "transcript": "",
+          "type": "conversation.item.input_audio_transcription.completed",
+          "words": []
+        },
+        "kind": "final"
+      },
+      {
+        "arrival_s": 2.0431949000339955,
+        "sent_audio_s": 2.0,
+        "raw": {
+          "event_id": "event_7",
+          "type": "input_audio_buffer.committed"
+        }
+      }
+    ],
+    "audio_send_s": 2.015111699933186,
+    "collector_settle_s": 1.0267517999745905,
+    "stream_rtf_excluding_collector_settle": 1.021597099956125
+  },
+  "warmup_ms": 3104.7032000496984,
+  "server_cleanup": "terminated_by_harness",
+  "server_exit_code": 1,
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 2060",
+    "total_mb": 6144.0,
+    "baseline_used_mb": 4200.90625,
+    "peak_used_mb": 5288.5859375,
+    "increment_mb": 1087.6796875,
+    "sample_hz": 10,
+    "samples": [
+      4211.484375,
+      4779.484375,
+      5263.2109375,
+      5263.2109375,
+      5277.7109375,
+      5277.7109375,
+      5277.7109375,
+      5278.7734375,
+      5278.7734375,
+      5288.3359375,
+      5288.3359375,
+      5288.5859375,
+      5288.5859375,
+      5288.5859375,
+      5288.5859375,
+      5288.5859375,
+      5288.5859375,
+      5288.5859375,
+      5288.2734375,
+      5285.1484375,
+      5272.9609375,
+      5272.9609375,
+      5272.9609375,
+      5272.9609375,
+      5272.9609375,
+      5272.9609375,
+      5222.7734375,
+      5222.3984375,
+      5219.0859375,
+      5219.0859375,
+      5219.0859375,
+      5219.0859375,
+      5219.0859375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5219.2734375,
+      5223.5234375,
+      5223.5234375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.5859375,
+      5222.7109375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.8984375,
+      5221.6484375,
+      5216.2734375,
+      5216.0234375,
+      5211.859375,
+      5211.859375,
+      5211.859375,
+      5211.859375,
+      5211.859375,
+      5211.859375,
+      5211.859375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5213.6484375,
+      5213.6484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5213.6484375,
+      5213.6484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5213.6484375,
+      5213.6484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5213.671875,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5213.6484375,
+      5213.6484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.0234375,
+      5213.6484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5209.484375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.2734375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.3984375,
+      5214.0859375,
+      5213.6484375,
+      5209.484375,
+      5209.484375
+    ],
+    "contended": true,
+    "note": "Total device VRAM sampled by NVML; delta also reflects other processes.",
+    "intentional_resident": "qwen3:4b-instruct-2507-q4_K_M",
+    "contention_note": "The >1500MiB threshold flags the intentionally loaded Qwen. No MT generation ran during ASR; the flag is not proof of concurrent compute contention."
+  }
+}

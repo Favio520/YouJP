@@ -11,8 +11,8 @@ $script:previewKind = $State
 Update-Panel
 $previewDir = Join-Path $script:RuntimeDir 'ui-previews'
 New-Item -ItemType Directory -Force -Path $previewDir | Out-Null
-foreach ($size in @(@(1100, 760), @(880, 580))) {
-    foreach ($page in @('home', 'settings', 'activity')) {
+foreach ($size in @(@(1180, 828), @(1120, 778), @(880, 580))) {
+    foreach ($page in @('home', 'settings', 'activity', 'history')) {
         Show-Page $page
         $surface = $window.Content
         $surface.Measure([Windows.Size]::new($size[0], $size[1]))

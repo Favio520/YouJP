@@ -8,6 +8,7 @@ function Get-YouJPText([string]$Text) {
     if ($Text -match '^Hay (\d+) pestañas conectadas\. Sigue los subtítulos desde YouTube\.$') {
         return "$($Matches[1]) tabs are connected. Follow the subtitles on YouTube."
     }
+    if ($Text -match '^(\d+) frases$') { return "$($Matches[1]) sentences" }
     if ($Text -match '^(\d+) de 2 pasos$') { return "$($Matches[1]) of 2 steps" }
     if ($Text -match '^El puerto (\d+) ya está ocupado\.') { return "Port $($Matches[1]) is busy. Check Activity before starting." }
     return $Text

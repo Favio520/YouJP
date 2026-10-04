@@ -76,8 +76,8 @@ class FakeNlp:
 
 
 @pytest.fixture
-def client(monkeypatch):
-    state = SimpleNamespace(settings=Settings(_env_file=None,
+def client(monkeypatch, tmp_path):
+    state = SimpleNamespace(settings=Settings(_env_file=None, history_dir=tmp_path / "history",
                                              allowed_extension_ids=DEFAULT_ALLOWED_EXTENSION_IDS), translator=Translator(),
                             engine=None, new_vad=lambda: None, new_analyzer=lambda: None, sessions=0)
     monkeypatch.setattr(server.app.state, "youjp", state, raising=False)

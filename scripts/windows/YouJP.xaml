@@ -1,7 +1,7 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="YouJP" Width="1120" Height="800" MinWidth="880" MinHeight="620" WindowStartupLocation="CenterScreen" Background="#F7F5EF" FontFamily="Segoe UI" FontSize="14" Foreground="#203B35" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="YouJP" Width="1180" Height="850" MinWidth="880" MinHeight="620" WindowStartupLocation="CenterScreen" Background="#FFF9F2" FontFamily="Segoe UI" FontSize="14" Foreground="#25364A" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
   <Window.Resources>
-    <SolidColorBrush x:Key="Accent" Color="#C34632" />
-    <SolidColorBrush x:Key="Muted" Color="#60736A" />
+    <SolidColorBrush x:Key="Accent" Color="#FF705E" />
+    <SolidColorBrush x:Key="Muted" Color="#5C6B7E" />
     <Style TargetType="ScrollBar">
       <Setter Property="Width" Value="8" />
       <Setter Property="Template">
@@ -15,7 +15,7 @@
                 <Thumb MinHeight="24">
                   <Thumb.Template>
                     <ControlTemplate TargetType="Thumb">
-                      <Border Background="#A0B3A6" Width="5" HorizontalAlignment="Center" CornerRadius="10" Margin="1,2" />
+                      <Border Background="#CBC4D6" Width="5" HorizontalAlignment="Center" CornerRadius="10" Margin="1,2" />
                     </ControlTemplate>
                   </Thumb.Template>
                 </Thumb>
@@ -31,6 +31,7 @@
     <Style TargetType="TextBlock">
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
+    <Style TargetType="Label"><Setter Property="Foreground" Value="#25364A" /></Style>
     <Style x:Key="Caption" TargetType="TextBlock">
       <Setter Property="Foreground" Value="{StaticResource Muted}" />
       <Setter Property="FontSize" Value="11" />
@@ -39,15 +40,16 @@
     </Style>
     <Style x:Key="Card" TargetType="Border">
       <Setter Property="Background" Value="White" />
-      <Setter Property="BorderBrush" Value="#DCDDD2" />
+      <Setter Property="BorderBrush" Value="#F0E7DC" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="CornerRadius" Value="22" />
+      <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#695342" BlurRadius="20" ShadowDepth="4" Opacity="0.06" /></Setter.Value></Setter>
       <Setter Property="Padding" Value="24" />
     </Style>
     <Style TargetType="Button">
       <Setter Property="Background" Value="White" />
-      <Setter Property="Foreground" Value="#203B35" />
-      <Setter Property="BorderBrush" Value="#C9D3C8" />
+      <Setter Property="Foreground" Value="#25364A" />
+      <Setter Property="BorderBrush" Value="#E4DED7" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="Padding" Value="20,12" />
       <Setter Property="MinHeight" Value="44" />
@@ -56,22 +58,22 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9" Padding="{TemplateBinding Padding}">
+            <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="15" Padding="{TemplateBinding Padding}">
               <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.9" />
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#B9A2F4" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.65" />
+                <Setter TargetName="ButtonBorder" Property="RenderTransform"><Setter.Value><TranslateTransform Y="1" /></Setter.Value></Setter>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.42" />
                 <Setter Property="Cursor" Value="Arrow" />
               </Trigger>
               <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#176956" />
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#6450A4" />
                 <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" />
               </Trigger>
             </ControlTemplate.Triggers>
@@ -81,31 +83,32 @@
     </Style>
     <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
       <Setter Property="Background" Value="{StaticResource Accent}" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="#25364A" />
       <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+      <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#FF816F" /></Trigger></Style.Triggers>
     </Style>
     <Style x:Key="Nav" TargetType="RadioButton">
-      <Setter Property="Foreground" Value="#C6D5CA" />
+      <Setter Property="Foreground" Value="#25364A" />
       <Setter Property="Margin" Value="0,0,0,7" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="NavBorder" CornerRadius="10" Background="Transparent" Padding="12,10" BorderThickness="3,0,0,0" BorderBrush="Transparent">
+            <Border x:Name="NavBorder" CornerRadius="15" Background="Transparent" Padding="12,13" BorderThickness="3,0,0,0" BorderBrush="Transparent">
               <ContentPresenter />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="NavBorder" Property="Background" Value="#284C42" />
+                <Setter TargetName="NavBorder" Property="Background" Value="#FFF0EA" />
               </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="NavBorder" Property="Background" Value="#31584B" />
-                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#E9B59A" />
-                <Setter Property="Foreground" Value="#FFFFFF" />
+                <Setter TargetName="NavBorder" Property="Background" Value="#FFE3DD" />
+                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#FF705E" />
+                <Setter Property="Foreground" Value="#AE3B2C" />
                 <Setter Property="FontWeight" Value="SemiBold" />
               </Trigger>
               <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#176956" />
+                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#FF705E" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -115,7 +118,7 @@
     <Style x:Key="SidebarLink" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="Transparent" />
-      <Setter Property="Foreground" Value="#C6D5CA" />
+      <Setter Property="Foreground" Value="#25364A" />
       <Setter Property="HorizontalContentAlignment" Value="Left" />
       <Setter Property="Padding" Value="16,12" />
       <Setter Property="FontWeight" Value="Normal" />
@@ -127,10 +130,10 @@
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="LinkBorder" Property="Background" Value="#284C42" />
+                <Setter TargetName="LinkBorder" Property="Background" Value="#FFF0EA" />
               </Trigger>
               <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="LinkBorder" Property="BorderBrush" Value="#176956" />
+                <Setter TargetName="LinkBorder" Property="BorderBrush" Value="#FF705E" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -147,10 +150,10 @@
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsHighlighted" Value="True">
-                <Setter TargetName="Item" Property="Background" Value="#284C42" />
+                <Setter TargetName="Item" Property="Background" Value="#EDF7F0" />
               </Trigger>
               <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Foreground" Value="#176956" />
+                <Setter Property="Foreground" Value="#6450A4" />
                 <Setter Property="FontWeight" Value="SemiBold" />
               </Trigger>
             </ControlTemplate.Triggers>
@@ -160,6 +163,7 @@
     </Style>
     <Style TargetType="ComboBox">
       <Setter Property="MinHeight" Value="42" />
+      <Setter Property="Foreground" Value="#25364A" />
       <Setter Property="Padding" Value="12,8" />
       <Setter Property="FontSize" Value="14" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -168,19 +172,19 @@
         <Setter.Value>
           <ControlTemplate TargetType="ComboBox">
             <Grid>
-              <Border x:Name="ChoiceBorder" Background="#FFFFFF" BorderBrush="#C9D3C8" BorderThickness="1" CornerRadius="12" />
+              <Border x:Name="ChoiceBorder" Background="#FFFFFF" BorderBrush="#E4DED7" BorderThickness="1" CornerRadius="12" />
               <ToggleButton IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Focusable="False" ClickMode="Press">
                 <ToggleButton.Template>
                   <ControlTemplate TargetType="ToggleButton">
                     <Border Background="Transparent">
-                      <Path Data="M 0,0 L 4,4 L 8,0" Stroke="#60736A" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0" />
+                      <Path Data="M 0,0 L 4,4 L 8,0" Stroke="#5C6B7E" StrokeThickness="1.5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0" />
                     </Border>
                   </ControlTemplate>
                 </ToggleButton.Template>
               </ToggleButton>
               <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="12,8,35,8" VerticalAlignment="Center" IsHitTestVisible="False" />
               <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
-                <Border Background="#FFFFFF" BorderBrush="#C9D3C8" BorderThickness="1" CornerRadius="12" Padding="4" Margin="0,4,0,0" MinWidth="{TemplateBinding ActualWidth}">
+                <Border Background="#FFFFFF" BorderBrush="#E4DED7" BorderThickness="1" CornerRadius="12" Padding="4" Margin="0,4,0,0" MinWidth="{TemplateBinding ActualWidth}">
                   <ScrollViewer MaxHeight="250" CanContentScroll="True">
                     <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                   </ScrollViewer>
@@ -189,7 +193,7 @@
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="ChoiceBorder" Property="BorderBrush" Value="#176956" />
+                <Setter TargetName="ChoiceBorder" Property="BorderBrush" Value="#6450A4" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5" />
@@ -199,7 +203,7 @@
         </Setter.Value>
       </Setter>
     </Style>
-    <Style TargetType="ProgressBar">
+    <Style x:Key="ThinProgress" TargetType="ProgressBar">
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar">
         <Grid ClipToBounds="True"><Border x:Name="PART_Track" Background="{TemplateBinding Background}" CornerRadius="3" />
           <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left" />
@@ -208,20 +212,20 @@
     </Style>
   </Window.Resources>
 
-  <Grid Background="#F7F5EF">
+  <Grid Background="#FFF9F2">
     <Grid.ColumnDefinitions><ColumnDefinition Width="196" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-    <Border Background="#193B32">
-      <Grid Margin="16,26,16,20">
+    <Border Background="#FFFCF8" BorderBrush="#F0E7DC" BorderThickness="0,0,1,0">
+      <Grid Margin="12,30,12,20">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
         <StackPanel>
-          <StackPanel Margin="10,0,0,32">
+          <StackPanel Margin="12,0,0,35">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-              <Border Background="#F7F5EF" CornerRadius="12" Padding="6" Margin="0,0,11,0"><Image x:Name="BrandIcon" Width="34" Height="34" RenderOptions.BitmapScalingMode="HighQuality" /></Border>
-              <TextBlock Text="YouJP" Foreground="#F7F5EF" FontSize="26" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <Image x:Name="BrandIcon" Width="44" Height="49" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality" />
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="You" Foreground="#25364A" FontSize="28" FontWeight="Bold"/><TextBlock Text="JP" Foreground="#FF705E" FontSize="28" FontWeight="Bold"/></StackPanel>
             </StackPanel>
-            <TextBlock Text="JAPONÉS EN CONTEXTO" FontSize="9" FontWeight="SemiBold" Foreground="#B6CAB9" />
+            <TextBlock Text="JAPONÉS EN CONTEXTO" FontSize="9" FontWeight="SemiBold" Foreground="#5C6B7E" />
           </StackPanel>
-          <TextBlock Text="EXPLORA" Foreground="#A1B6A7" FontSize="10" FontWeight="SemiBold" Margin="16,0,0,14" />
+          <TextBlock Text="EXPLORA" Foreground="#5C6B7E" FontSize="10" FontWeight="SemiBold" Margin="16,0,0,14" />
           <RadioButton x:Name="NavHome" Style="{StaticResource Nav}" GroupName="Navigation" IsChecked="True" AutomationProperties.Name="Tu sesión">
             <StackPanel Orientation="Horizontal">
               <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
@@ -240,8 +244,14 @@
               <TextBlock Text="Actividad" />
             </StackPanel>
           </RadioButton>
-          <Border Height="1" Background="#345549" Margin="10,10,10,14" />
-          <TextBlock Text="APRENDE" Foreground="#A1B6A7" FontSize="11" FontWeight="SemiBold" Margin="16,0,0,13" />
+          <RadioButton x:Name="NavHistory" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Historial">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
+              <TextBlock Text="Historial" />
+            </StackPanel>
+          </RadioButton>
+          <Border Height="1" Background="#E4DED7" Margin="10,10,10,14" />
+          <TextBlock Text="APRENDE" Foreground="#5C6B7E" FontSize="11" FontWeight="SemiBold" Margin="16,0,0,13" />
           <Button x:Name="ResourcesButton" Style="{StaticResource SidebarLink}" Margin="0,0,0,6" AutomationProperties.Name="Recursos">
             <StackPanel Orientation="Horizontal">
               <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
@@ -256,92 +266,122 @@
           </Button>
 
         </StackPanel>
+        <Grid Grid.Row="1" ClipToBounds="True" IsHitTestVisible="False"><Canvas Width="170" Height="120" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,18" Opacity="0.36">
+          <Path Data="M0,116 Q18,72 38,38 M12,91 Q38,68 66,73" Stroke="#F4B2BA" StrokeThickness="3" />
+          <Path Fill="#FFB7BE" Data="M25,45 C10,43 8,24 17,21 C22,20 24,24 26,28 C26,13 41,12 43,23 C45,34 32,43 25,45 Z M53,74 C42,62 52,49 60,54 C64,57 62,62 61,65 C71,56 82,64 77,72 C70,81 59,77 53,74 Z M9,97 C-4,98 -6,82 0,78 C7,74 11,84 9,86 C21,77 28,85 21,94 C19,97 13,98 9,97 Z M91,45 C93,29 110,20 118,24 C110,40 104,44 91,45 Z M119,93 C126,78 141,75 147,78 C140,89 132,94 119,93 Z" />
+        </Canvas></Grid>
         <StackPanel Grid.Row="2" Margin="8,0">
-          <Border BorderBrush="#345549" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,0,0,20">
+          <Border Background="#EDF7F0" CornerRadius="16" Padding="12,15" Margin="0,0,0,14">
             <StackPanel>
-              <StackPanel Orientation="Horizontal"><Ellipse x:Name="SidebarDot" Fill="#9BC4AD" Width="6" Height="6" Margin="0,0,8,0" /><TextBlock x:Name="SidebarStatus" Text="Comprobando" Foreground="#F7F5EF" FontWeight="SemiBold" FontSize="12" /></StackPanel>
-              <TextBlock Text="Tu audio permanece en este equipo" Foreground="#B6CAB9" FontSize="11" Margin="0,8,0,0" LineHeight="17" />
+              <StackPanel Orientation="Horizontal"><Ellipse x:Name="SidebarDot" Fill="#9BC4AD" Width="6" Height="6" Margin="0,0,8,0" /><TextBlock x:Name="SidebarStatus" Text="Comprobando" Foreground="#25364A" FontWeight="SemiBold" FontSize="12" /></StackPanel>
+              <TextBlock Text="Tu audio permanece en este equipo" Foreground="#5C6B7E" FontSize="11" Margin="0,8,0,0" LineHeight="17" />
             </StackPanel>
           </Border>
-          <TextBlock x:Name="VersionLabel" Foreground="#A1B6A7" FontSize="10" />
-          <TextBlock x:Name="PreviewLabel" Text="VISTA PREVIA" Foreground="#E9B59A" FontSize="10" Margin="0,7,0,0" Visibility="Collapsed" />
+          <TextBlock x:Name="VersionLabel" Foreground="#5C6B7E" FontSize="10" />
+          <TextBlock x:Name="PreviewLabel" Text="VISTA PREVIA" Foreground="#FF705E" FontSize="10" Margin="0,7,0,0" Visibility="Collapsed" />
         </StackPanel>
       </Grid>
     </Border>
-    <Grid Grid.Column="1" Margin="30,24,24,18">
+    <Grid Grid.Column="1" Margin="24,30,20,18">
       <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-      <Grid Margin="0,0,8,25">
+      <Grid Margin="0,0,8,18">
         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
         <StackPanel>
-          <TextBlock x:Name="PageEyebrow" Text="今日の日本語  /  TU JAPONÉS DE HOY" Foreground="#60736A" FontSize="10" Margin="0,0,0,10" />
-          <TextBlock x:Name="PageTitle" Text="Tu espacio de japonés" FontWeight="SemiBold" FontSize="31" Foreground="#203B35" LineHeight="38" />
-          <TextBlock x:Name="PageDescription" Text="Un poco de japonés. A tu ritmo." Foreground="#60736A" Margin="0,7,0,0" FontSize="13" />
+          <TextBlock x:Name="PageEyebrow" Text="今日の日本語  /  TU JAPONÉS DE HOY" Foreground="#5C6B7E" FontSize="10" Margin="0,0,0,10" />
+          <TextBlock x:Name="PageTitle" Text="Tu espacio de japonés" FontWeight="Bold" FontSize="34" Foreground="#25364A" LineHeight="41" />
+          <TextBlock x:Name="PageDescription" Text="Un poco de japonés. A tu ritmo." Foreground="#5C6B7E" Margin="0,7,0,0" FontSize="15" />
         </StackPanel>
-        <Border x:Name="StatusPill" Grid.Column="1" Background="#E7EEE5" BorderBrush="#C9D3C8" BorderThickness="1" CornerRadius="16" Padding="12,7" VerticalAlignment="Top" Margin="16,1,0,0">
-          <StackPanel Orientation="Horizontal"><Ellipse x:Name="StatusDot" Width="6" Height="6" Fill="#176956" Margin="0,0,8,0" /><TextBlock x:Name="StatusLabel" Text="Comprobando" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+        <Border x:Name="StatusPill" Grid.Column="1" Background="#EDF7F0" BorderBrush="#E4DED7" BorderThickness="1" CornerRadius="18" Padding="13,8" VerticalAlignment="Top" Margin="16,1,0,0">
+          <StackPanel Orientation="Horizontal"><Ellipse x:Name="StatusDot" Width="6" Height="6" Fill="#6450A4" Margin="0,0,8,0" /><TextBlock x:Name="StatusLabel" Text="Comprobando" FontSize="12" FontWeight="SemiBold" /></StackPanel>
         </Border>
       </Grid>
       <ScrollViewer x:Name="HomePage" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,4">
         <StackPanel>
-          <Border Background="#F0EFE5" CornerRadius="18" BorderBrush="#D6DCCE" BorderThickness="1" Margin="0,0,0,18" ClipToBounds="True">
-            <Grid MinHeight="244">
-              <Grid.Background><ImageBrush x:Name="HeaderLandscape" Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center" Opacity="0.9" /></Grid.Background>
-              <Border IsHitTestVisible="False"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#FFF7F5EF" Offset="0"/><GradientStop Color="#FFF7F5EF" Offset="0.4"/><GradientStop Color="#CFF7F5EF" Offset="0.62"/><GradientStop Color="#00F7F5EF" Offset="1"/></LinearGradientBrush></Border.Background></Border>
-              <Grid Margin="26,25">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="154" /></Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                  <TextBlock Text="聴く  /  ESCUCHA. DESCUBRE. APRENDE." Foreground="#176956" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,19" />
-                  <TextBlock x:Name="StatusTitle" Text="Preparando tu sesión." Foreground="#203B35" FontWeight="SemiBold" FontSize="29" LineHeight="36" />
-                  <TextBlock x:Name="StatusDetail" Foreground="#52665C" Margin="0,10,0,20" FontSize="13" LineHeight="20" MaxWidth="450" HorizontalAlignment="Left" />
-                  <WrapPanel><Button x:Name="PrimaryAction" Content="Iniciar YouJP" Style="{StaticResource Primary}" Margin="0,0,10,6" /><Button x:Name="StopButton" Content="Detener" Background="#F7F5EF" Foreground="#203B35" BorderBrush="#A1B6A7" Margin="0,0,0,6" Visibility="Collapsed" /></WrapPanel>
-                  <ProgressBar x:Name="BusyProgress" Height="3" IsIndeterminate="True" Foreground="#176956" Background="#D6DCCE" Visibility="Collapsed" Margin="0,9,10,0" />
+          <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,16" ClipToBounds="True">
+            <Grid x:Name="HeroSurface" MinHeight="248">
+              <Grid.Background><ImageBrush x:Name="HeaderLandscape" Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center" /></Grid.Background>
+              <Border IsHitTestVisible="False"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#FFFFF9F2" Offset="0"/><GradientStop Color="#FFFFF9F2" Offset="0.34"/><GradientStop Color="#EFFFF9F2" Offset="0.49"/><GradientStop Color="#00FFF9F2" Offset="0.76"/></LinearGradientBrush></Border.Background></Border>
+              <Image x:Name="MascotImage" Width="242" Height="258" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,7,0" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="HighQuality" />
+              <Grid Margin="24,22"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="218"/></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                  <Border Background="#EEE5FF" CornerRadius="22" Padding="12,6" HorizontalAlignment="Left" Margin="0,0,0,13"><TextBlock Text="ESCUCHA · DESCUBRE · APRENDE" Foreground="#6450A4" FontSize="10" FontWeight="SemiBold" /></Border>
+                  <TextBlock x:Name="StatusTitle" Text="Preparando tu sesión." FontWeight="Bold" FontSize="30" LineHeight="37" />
+                  <Border x:Name="StatusDetailBox" CornerRadius="13" Padding="0" Margin="0,10,0,15" MaxWidth="460" HorizontalAlignment="Left"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border x:Name="StatusNoticeIcon" Background="#FF705E" CornerRadius="22" Width="28" Height="28" Margin="0,0,11,0" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock Text="!" Foreground="#25364A" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><TextBlock x:Name="StatusDetail" Grid.Column="1" Foreground="#5C6B7E" FontSize="14" LineHeight="21" /></Grid></Border>
+                  <WrapPanel><Button x:Name="PrimaryAction" Content="Iniciar YouJP" Style="{StaticResource Primary}" Padding="22,12" FontSize="14" Margin="0,0,10,0" /><Button x:Name="StopButton" Content="Detener" Background="#FFF9F2" BorderBrush="#E4DED7" Visibility="Collapsed" /></WrapPanel>
+                  <ProgressBar x:Name="BusyProgress" Height="3" IsIndeterminate="True" Foreground="#B9A2F4" Background="#EEE5FF" Visibility="Collapsed" Margin="0,9,10,0" />
                 </StackPanel>
-                <Grid Grid.Column="1" VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="0,0,-10,-8">
-                  <Image x:Name="MascotImage" Width="145" Height="151" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
-                </Grid>
               </Grid>
             </Grid>
           </Border>
-          <Border Background="#FFFFFF" BorderBrush="#DCDDD2" BorderThickness="1" CornerRadius="12" Margin="0,0,0,22"><UniformGrid Columns="4"><Border Padding="14,16" BorderBrush="#DCDDD2" BorderThickness="0" ToolTip="Texto original en japonés.">
-  <StackPanel><TextBlock Text="聴   Transcripción" Foreground="#60736A" FontSize="12" Margin="0,0,0,9" />
-    <TextBlock x:Name="ModelValue" Text="Por iniciar" Foreground="#203B35" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-  </StackPanel></Border>
-<Border Padding="14,16" BorderBrush="#DCDDD2" BorderThickness="1,0,0,0" ToolTip="Análisis en tu equipo.">
-  <StackPanel><TextBlock Text="⚡   Procesamiento" Foreground="#60736A" FontSize="12" Margin="0,0,0,9" />
-    <TextBlock x:Name="DeviceValue" Text="Automático" Foreground="#203B35" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-  </StackPanel></Border>
-<Border Padding="14,16" BorderBrush="#DCDDD2" BorderThickness="1,0,0,0" ToolTip="Significado en tu idioma.">
-  <StackPanel><TextBlock Text="文   Traducción" Foreground="#60736A" FontSize="12" Margin="0,0,0,9" />
-    <TextBlock x:Name="TranslationValue" Text="Por iniciar" Foreground="#203B35" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-  </StackPanel></Border>
-<Border Padding="14,16" BorderBrush="#DCDDD2" BorderThickness="1,0,0,0" ToolTip="Explora palabras al mirar.">
-  <StackPanel><TextBlock Text="辞   Vocabulario" Foreground="#60736A" FontSize="12" Margin="0,0,0,9" />
-    <TextBlock  Text="En la extensión" Foreground="#203B35" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-  </StackPanel></Border></UniformGrid></Border>
+          <UniformGrid Columns="4" Margin="0,0,0,16">
+            <Border ToolTip="Transcripción" Background="#ECFBF3" BorderBrush="#C8E8D3" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="0,0,5,0">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Background="#C8E8D3" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
+                  <Path Data="M3,1 L17,1 L17,23 L3,23 Z M6,6 L14,6 M6,10 L14,10 M6,14 L12,14" Stroke="#25364A" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="Transcripción" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                  <TextBlock x:Name="ModelValue" Text="Por iniciar" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border ToolTip="Procesamiento" Background="#F3EEFF" BorderBrush="#E4D8FC" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,5,0">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Background="#E4D8FC" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
+                  <Path Data="M14,1 L3,14 L10,14 L7,25 L20,10 L13,10 Z" Stroke="#6450A4" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="Procesamiento" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                  <TextBlock x:Name="DeviceValue" Text="Automático" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border ToolTip="Traducción" Background="#FFF0EB" BorderBrush="#FFDBD0" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,5,0">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Background="#FFDBD0" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
+                  <TextBlock Text="文" Foreground="#AE3B2C" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="Traducción" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                  <TextBlock x:Name="TranslationValue" Text="Por iniciar" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border ToolTip="Vocabulario" Background="#EDF4FF" BorderBrush="#D9E8FB" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,0,0">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Background="#D9E8FB" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
+                  <Path Data="M1,3 L3,3 M7,3 L21,3 M1,11 L3,11 M7,11 L21,11 M1,19 L3,19 M7,19 L21,19" Stroke="#25364A" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="Vocabulario" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                  <TextBlock Text="En la extensión" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </UniformGrid>
           <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.6*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-            <Border Style="{StaticResource Card}" Padding="22,21">
+            <Border Style="{StaticResource Card}" Padding="22,18">
               <StackPanel>
-                <Grid><TextBlock Text="Tu sesión" FontWeight="SemiBold" FontSize="17" /><TextBlock x:Name="SessionProgress" Text="0 de 2 pasos" Foreground="#176956" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-                <ProgressBar x:Name="SessionProgressBar" Minimum="0" Maximum="2" Value="0" Height="4" Foreground="#176956" Background="#E7EEE5" Margin="0,14,0,0" />
-                <Border x:Name="GuideSection" Background="Transparent" Margin="0,19,0,0">
+                <Grid><TextBlock Text="Tu sesión" FontWeight="Bold" FontSize="21" /><Border Background="#EDF7F0" CornerRadius="14" Padding="10,5" HorizontalAlignment="Right" VerticalAlignment="Center"><TextBlock x:Name="SessionProgress" Text="0 de 2 pasos" Foreground="#336749" FontSize="12" /></Border></Grid>
+                <ProgressBar x:Name="SessionProgressBar" Style="{StaticResource ThinProgress}" Minimum="0" Maximum="2" Value="0" Height="8" Foreground="#84BD9B" Background="#E1F0E7" Margin="0,14,0,0" />
+                <Border x:Name="GuideSection" Background="Transparent" Margin="0,20,0,0">
                   <StackPanel>
-                    <TextBlock Text="Empieza en dos pasos" Foreground="#60736A" FontSize="12" Margin="0,0,0,16" />
-                    <Grid Margin="0,0,0,19"><Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <TextBlock Text="01" Foreground="#176956" FontSize="22" FontFamily="Georgia" />
-                      <StackPanel Grid.Column="1"><TextBlock Text="Abre algo que te guste" FontWeight="SemiBold" FontSize="13" /><TextBlock Text="Un vídeo, una entrevista o un directo en japonés." Foreground="#60736A" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
+                    <Grid Margin="0,0,0,13"><Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Background="#E4F3EB" CornerRadius="19" Width="38" Height="38" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="01" Foreground="#25364A" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                      <StackPanel Grid.Column="1"><TextBlock Text="Abre algo que te guste" FontWeight="SemiBold" FontSize="14" /><TextBlock Text="Un vídeo, una entrevista o un directo en japonés." Foreground="#5C6B7E" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
                     </Grid>
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <TextBlock Text="02" Foreground="#176956" FontSize="22" FontFamily="Georgia" />
-                      <StackPanel Grid.Column="1"><TextBlock Text="Activa YouJP en el navegador" FontWeight="SemiBold" FontSize="13" /><TextBlock Text="Pulsa su icono para empezar. Vuelve a pulsarlo para detener la captura." Foreground="#60736A" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Background="#E4F3EB" CornerRadius="19" Width="38" Height="38" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="02" Foreground="#25364A" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                      <StackPanel Grid.Column="1"><TextBlock Text="Activa YouJP en el navegador" FontWeight="SemiBold" FontSize="14" /><TextBlock Text="Pulsa su icono para empezar. Vuelve a pulsarlo para detener la captura." Foreground="#5C6B7E" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
                     </Grid>
-                    <Border BorderBrush="#DCDDD2" BorderThickness="0,1,0,0" Margin="0,20,0,0" Padding="0,15,0,0">
-                      <Expander x:Name="GuideExpander" Header="¿Primera vez con la extensión?" FontSize="12" Foreground="#176956">
+                    <Border BorderBrush="#F0E7DC" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,11,0,0">
+                      <Expander x:Name="GuideExpander" Header="¿Primera vez con la extensión?" FontSize="12" Foreground="#6450A4">
                         <StackPanel Margin="22,13,0,0">
                           <TextBlock Text="Abre la página de extensiones de Chrome, Edge o Brave. Activa Modo de desarrollador, elige Cargar descomprimida y selecciona la carpeta de YouJP." LineHeight="20" />
                           <TextBlock Text="Si acabas de actualizarla, pulsa Recargar en esa misma página y recarga YouTube." Margin="0,8,0,13" LineHeight="20" />
                           <Button x:Name="ExtensionFolder" Content="Abrir carpeta de la extensión" HorizontalAlignment="Left" FontSize="12" />
-                          <TextBlock Text="En YouTube: Alt + S abre los ajustes; Alt + H, el historial; Alt + Mayús + S traduce una zona de la pantalla. Pulsa una palabra para explorarla." Foreground="#60736A" FontSize="11" Margin="0,13,0,0" />
+                          <TextBlock Text="En YouTube: Alt + S abre los ajustes; Alt + H, el historial; Alt + Mayús + S traduce una zona de la pantalla. Pulsa una palabra para explorarla." Foreground="#5C6B7E" FontSize="11" Margin="0,13,0,0" />
                         </StackPanel>
                       </Expander>
                     </Border>
@@ -349,32 +389,35 @@
                 </Border>
               </StackPanel>
             </Border>
-            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="22,21" Background="#EAF0E7" BorderBrush="#D6DCCE">
-              <StackPanel>
-                <TextBlock Text="Actividad reciente" FontWeight="SemiBold" FontSize="17" Margin="0,0,0,22" />
-                <TextBlock x:Name="HomeActivityStatus" Text="Comprobando" Foreground="#176956" FontWeight="SemiBold" FontSize="13" />
-                <TextBlock x:Name="HomeActivityDetail" Text="Preparando el estado de tu sesión." Foreground="#52665C" FontSize="12" LineHeight="19" Margin="0,7,0,23" />
-                <Border BorderBrush="#CAD6C8" BorderThickness="0,1,0,0" Padding="0,17,0,0"><StackPanel><TextBlock x:Name="HomeSessionCount" Text="0" Foreground="#203B35" FontFamily="Georgia" FontSize="38" /><TextBlock Text="Pestañas conectadas" Foreground="#52665C" FontSize="12" Margin="0,4,0,0" /></StackPanel></Border>
-                <Button x:Name="ViewActivityButton" Content="Ver actividad  →" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Padding="0,8" MinHeight="36" FontSize="12" Foreground="#176956" Margin="0,17,0,0" />
-              </StackPanel>
+            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="22,16" Background="#F1ECFD" BorderBrush="#EAE0D6">
+              <Grid><Canvas Width="95" Height="198" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False" Opacity="0.26">
+                <Path Fill="#FFAAB8" Data="M61,28 C60,13 76,6 85,3 C86,21 74,29 61,28 Z M34,55 C37,43 49,40 56,41 C49,52 44,54 34,55 Z M76,112 C79,100 91,98 97,99 C94,109 85,112 76,112 Z M45,171 C45,153 59,145 68,142 C70,160 59,172 45,171 Z M4,197 C6,184 17,174 27,174 C25,189 14,198 4,197 Z" />
+              </Canvas><StackPanel>
+                <TextBlock Text="Actividad reciente" FontWeight="Bold" FontSize="20" Margin="0,0,0,10" />
+                <Border x:Name="HomeActivityNotice" CornerRadius="14" Padding="8"><StackPanel>
+                <TextBlock x:Name="HomeActivityStatus" Text="Comprobando" Foreground="#6450A4" FontWeight="SemiBold" FontSize="14" />
+                <TextBlock x:Name="HomeActivityDetail" Text="Preparando el estado de tu sesión." Foreground="#5C6B7E" FontSize="13" LineHeight="20" Margin="0,6,0,0" /></StackPanel></Border>
+                <Border BorderBrush="#DAD0F2" BorderThickness="0,1,0,0" Padding="0,10,0,0" Margin="0,12,0,0"><StackPanel><TextBlock x:Name="HomeSessionCount" Text="0" Foreground="#25364A" FontFamily="Georgia" FontSize="42" /><TextBlock Text="Pestañas conectadas" Foreground="#5C6B7E" FontSize="12" Margin="0,2,0,0" /></StackPanel></Border>
+                <Button x:Name="ViewActivityButton" Content="Ver actividad  →" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Padding="0,7" MinHeight="30" FontSize="13" Foreground="#6450A4" Margin="0,4,0,0" />
+              </StackPanel></Grid>
             </Border>
           </Grid>
         </StackPanel>
       </ScrollViewer>
       <ScrollViewer x:Name="SettingsPage" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,10,4" Visibility="Collapsed">
         <StackPanel>
-          <Border CornerRadius="14" BorderBrush="#C9D3C8" BorderThickness="1" Padding="25,20" Margin="0,0,0,16" Background="#E7EEE5">
+          <Border CornerRadius="22" BorderBrush="#E4DED7" BorderThickness="1" Padding="25,20" Margin="0,0,0,16" Background="#EDF7F0">
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <StackPanel>
-                <TextBlock Text="HECHO PARA TU EQUIPO" Foreground="#176956" FontSize="10" FontWeight="Bold" Margin="0,0,0,7" />
-                <TextBlock Text="Hazlo tuyo." Foreground="#203B35" FontFamily="Segoe UI Semibold" FontSize="24" FontWeight="Bold" />
-                <TextBlock Text="Elige cómo quieres escuchar y traducir. Puedes cambiarlo cuando quieras." Foreground="#60736A" FontSize="12" Margin="0,7,0,0" />
+                <TextBlock Text="HECHO PARA TU EQUIPO" Foreground="#6450A4" FontSize="10" FontWeight="Bold" Margin="0,0,0,7" />
+                <TextBlock Text="Hazlo tuyo." Foreground="#25364A" FontFamily="Segoe UI Semibold" FontSize="24" FontWeight="Bold" />
+                <TextBlock Text="Elige cómo quieres escuchar y traducir. Puedes cambiarlo cuando quieras." Foreground="#5C6B7E" FontSize="12" Margin="0,7,0,0" />
               </StackPanel>
-              <TextBlock Grid.Column="1" Text="桜" FontFamily="Yu Mincho" Foreground="#AEC6B5" Opacity="0.55" FontSize="76" Margin="14,-10,9,-10" VerticalAlignment="Center" IsHitTestVisible="False" />
+              <TextBlock Grid.Column="1" Text="桜" FontFamily="Yu Mincho" Foreground="#B9A2F4" Opacity="0.55" FontSize="76" Margin="14,-10,9,-10" VerticalAlignment="Center" IsHitTestVisible="False" />
             </Grid>
           </Border>
           <Border Style="{StaticResource Card}" Margin="0,0,0,18">
@@ -414,8 +457,8 @@
                   <TextBlock Text="El idioma de traducción se elige desde los ajustes de la extensión." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,10,0,0" LineHeight="19" />
                 </StackPanel>
               </Grid>
-              <Border Background="#FBF0E3" BorderBrush="#E5D3BC" BorderThickness="1" CornerRadius="12" Padding="15" Margin="0,25,0,22">
-                <TextBlock Text="※  La primera preparación descarga los modelos y diccionarios. Puede ocupar varios GB y tardar unos minutos." Foreground="#8A5A35" FontSize="12" LineHeight="20" />
+              <Border Background="#FFF0EA" BorderBrush="#F8D7CE" BorderThickness="1" CornerRadius="12" Padding="15" Margin="0,25,0,22">
+                <TextBlock Text="※  La primera preparación descarga los modelos y diccionarios. Puede ocupar varios GB y tardar unos minutos." Foreground="#913F31" FontSize="12" LineHeight="20" />
               </Border>
               <WrapPanel>
                 <Button x:Name="InstallButton" Content="Preparar / actualizar" Style="{StaticResource Primary}" Margin="0,0,13,8" />
@@ -425,7 +468,7 @@
             </StackPanel>
           </Border>
           <Border Style="{StaticResource Card}" Padding="22,18">
-            <Expander Header="Configuración avanzada" Foreground="#176956" FontSize="13">
+            <Expander Header="Configuración avanzada" Foreground="#6450A4" FontSize="13">
               <TextBlock Text="Si has personalizado el archivo .env o las variables de entorno, esos valores tienen prioridad sobre las opciones de esta ventana. Los cambios de arriba se aplican al pulsar Preparar / actualizar." Margin="25,12,0,0" LineHeight="21" />
             </Expander>
           </Border>
@@ -437,31 +480,59 @@
           <RowDefinition Height="*" />
           <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border Background="#E7EEE5" BorderBrush="#C9D3C8" BorderThickness="1" CornerRadius="14" Padding="20,17" Margin="0,0,0,16">
+        <Border x:Name="ActivitySummary" Background="#EDF7F0" BorderBrush="#E4DED7" BorderThickness="1" CornerRadius="22" Padding="20,17" Margin="0,0,0,16">
           <StackPanel>
-            <TextBlock Text="✦  ESTADO DEL MOTOR" FontFamily="Segoe UI Symbol" Foreground="#176956" FontSize="11" FontWeight="Bold" Margin="0,0,0,7" />
-            <TextBlock x:Name="ActivityStatus" Foreground="#203B35" FontFamily="Segoe UI Semibold" FontSize="20" FontWeight="Bold" />
-            <TextBlock x:Name="ActivityDetail" Foreground="#60736A" FontSize="12" Margin="0,5,0,0" LineHeight="19" />
+            <TextBlock Text="✦  ESTADO DEL MOTOR" FontFamily="Segoe UI Symbol" Foreground="#6450A4" FontSize="11" FontWeight="Bold" Margin="0,0,0,7" />
+            <TextBlock x:Name="ActivityStatus" Foreground="#25364A" FontFamily="Segoe UI Semibold" FontSize="20" FontWeight="Bold" />
+            <TextBlock x:Name="ActivityDetail" Foreground="#5C6B7E" FontSize="12" Margin="0,5,0,0" LineHeight="19" />
           </StackPanel>
         </Border>
-        <Border Grid.Row="1" Background="#193B32" BorderBrush="#345549" BorderThickness="1" CornerRadius="14" Padding="20">
+        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#F0E7DC" BorderThickness="1" CornerRadius="22" Padding="20">
           <Grid>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Text="REGISTRO RECIENTE" Foreground="#C9D3C8" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,15" />
-            <TextBox x:Name="LogText" Grid.Row="1" Background="Transparent" Foreground="#E9EEE5" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Registro de actividad" />
+            <TextBlock Text="REGISTRO RECIENTE" Foreground="#5C6B7E" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,15" />
+            <TextBox x:Name="LogText" Grid.Row="1" Background="Transparent" Foreground="#25364A" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Registro de actividad" />
           </Grid>
         </Border>
         <WrapPanel Grid.Row="2" Margin="0,17,0,0">
           <Button x:Name="OpenLogsButton" Content="Abrir carpeta de registros" Margin="0,0,10,5" />
           <Button x:Name="CopyLogsButton" Content="Copiar registro" Margin="0,0,0,5" />
-          <TextBlock x:Name="CopyFeedback" Foreground="#2E8B62" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,5" />
+          <TextBlock x:Name="CopyFeedback" Foreground="#336749" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,5" />
         </WrapPanel>
       </Grid>
 
-      <Grid Grid.Row="2" Margin="0,18,8,0"><TextBlock x:Name="FooterHint" Text="Al cerrar esta ventana, YouJP sigue disponible en la bandeja del sistema." Foreground="#60736A" FontSize="10" /></Grid>
+      <Grid x:Name="HistoryPage" Grid.Row="1" Visibility="Collapsed" Margin="0,0,10,4">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="300" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+        <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <Border Background="#FFFFFF" BorderBrush="#F0E7DC" BorderThickness="1" CornerRadius="22" Padding="12" Margin="0,0,14,0">
+          <Grid>
+            <ListBox x:Name="HistoryList" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Páginas traducidas" />
+            <TextBlock x:Name="HistoryEmpty" Text="Todavía no hay páginas traducidas. Cuando YouJP transcriba un vídeo, aparecerá aquí." Foreground="#5C6B7E" FontSize="12" LineHeight="19" TextWrapping="Wrap" Margin="10,12" />
+          </Grid>
+        </Border>
+        <Border Grid.Column="1" Background="#FFFFFF" BorderBrush="#F0E7DC" BorderThickness="1" CornerRadius="22" Padding="20">
+          <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,14">
+              <TextBlock x:Name="HistoryTitle" Foreground="#25364A" FontSize="18" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+              <TextBlock x:Name="HistoryMeta" Foreground="#5C6B7E" FontSize="12" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <TextBox x:Name="HistoryText" Grid.Row="1" Background="Transparent" Foreground="#25364A" BorderThickness="0" IsReadOnly="True" FontSize="14" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Frases de la página" />
+          </Grid>
+        </Border>
+        <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,17,0,0">
+          <Button x:Name="OpenVideoButton" Content="Abrir vídeo" Margin="0,0,10,5" />
+          <Button x:Name="CopyHistoryButton" Content="Copiar texto" Margin="0,0,10,5" />
+          <Button x:Name="RefreshHistoryButton" Content="Actualizar" Margin="0,0,10,5" />
+          <Button x:Name="OpenHistoryFolderButton" Content="Abrir carpeta del historial" Margin="0,0,0,5" />
+          <TextBlock x:Name="HistoryFeedback" Foreground="#336749" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,5" />
+        </WrapPanel>
+      </Grid>
+
+      <Grid Grid.Row="2" Margin="0,14,8,0"><TextBlock x:Name="FooterHint" Text="Al cerrar esta ventana, YouJP sigue disponible en la bandeja del sistema." Foreground="#5C6B7E" FontSize="10" /></Grid>
     </Grid>
   </Grid>
 </Window>

@@ -30,6 +30,7 @@ import { TranscriptPanel } from './TranscriptPanel';
 import type { Line, Selection } from './types';
 import { useDrag } from './useDrag';
 import { WordInspector } from './WordInspector';
+import { Icon } from './Icon';
 
 const MAX_LINES = 4; // la actual mas tres de historial en el overlay
 
@@ -262,6 +263,7 @@ export function Overlay() {
           el otro. */}
       {showTranscript && (
         <TranscriptPanel
+          withDictionary={selected !== null && !settings.wordPanelPosition}
           language={settings.settingsLanguage}
           lines={history}
           position={settings.transcriptPosition}
@@ -289,6 +291,7 @@ export function Overlay() {
 
       {selected && (
         <WordInspector
+          withHistory={showTranscript && !settings.transcriptPosition}
           language={settings.settingsLanguage}
           token={selected.token}
           target={settings.targetLanguage}
@@ -371,23 +374,25 @@ export function Overlay() {
           title={t('Arrastrar para mover los subtítulos')}
           aria-label={t('Mover los subtítulos')}
         >
-          ⠿
+          <Icon name="move" />
         </button>
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowTranscript((value) => !value)}
           title={`${t('Historial de la sesión')} · ${history.length} ${t('frases')} (Alt+H)`}
           aria-label={t('Historial de la sesión')}
+          aria-expanded={showTranscript}
         >
-          ☰
+          <Icon name="history" />
         </button>
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowSettings((value) => !value)}
-          title={t('Ajustes de subtítulos (Alt+S)')}
+          title={`${t('Ajustes de subtítulos')} (Alt+S)`}
           aria-label={t('Ajustes de subtítulos')}
+          aria-expanded={showSettings}
         >
-          ⚙
+          <Icon name="settings" />
         </button>
       </div>
 
