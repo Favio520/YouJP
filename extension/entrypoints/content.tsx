@@ -13,6 +13,8 @@ import { findPlayerRoot, snapshot, watchPlayer } from '@/src/player';
 import type { ExtensionMessage } from '@/src/messages';
 import { loadSettings, onSettingsChanged } from '@/src/settings';
 import { uiText, type UiLanguage } from '@/src/i18n';
+import { INITIAL_UI_STATE, UI_STATE_EVENT, type UiState } from '@/src/ui/uiState';
+import { buildSvg, ICONS, type IconShape } from '@/src/ui/iconShapes';
 
 export default defineContentScript({
   matches: ['*://www.youtube.com/*'],
@@ -56,61 +58,162 @@ export default defineContentScript({
     // Acceso a los ajustes en la barra del reproductor, junto al volumen.
     // YouTube reconstruye sus controles al cambiar de vídeo, así que el mismo
     // observador que remonta el overlay vuelve a colocar el botón si falta.
-    let settingsButton: HTMLButtonElement | null = null;
     let language: UiLanguage = 'es';
     let settingsChanged = false;
-    const updateButtonLabel = () => {
-      if (!settingsButton) return;
-      const label = uiText(language, 'Ajustes de YouJP');
-      settingsButton.title = label;
-      settingsButton.setAttribute('aria-label', label);
+    let uiState: UiState = INITIAL_UI_STATE;
+
+    const RING = 2 * Math.PI * 9;
+    const badge = (fill: string, mark: string, markColor: string): IconShape[] => [
+      { tag: 'circle', attrs: { cx: 19, cy: 5.5, r: 4.2, fill, stroke: '#0e1522', strokeWidth: 1.2 } },
+      { tag: 'path', attrs: { d: mark, stroke: markColor, strokeWidth: 1.6, fill: 'none' } },
+    ];
+
+    /** Dibujo, texto y color del botón de traducir según el estado del vídeo.
+     *  `key` identifica el aspecto: si no cambia, no se toca el DOM. */
+    const translateView = (video: UiState['video']) => {
+      const text = (es: string, en: string) => uiText(language, es, en);
+      const percent = Math.round(video.progress * 100);
+      let shapes: IconShape[] = ICONS.translate;
+      let label = text('Traducir el vídeo completo', 'Translate the whole video');
+      let color = '#c8e8d3';
+      let pressed: boolean | null = null;
+      let key = 'none';
+      if (video.phase === 'working') {
+        // Anillo que se llena con el progreso; sin progreso aún, gira.
+        const arc: IconShape = video.progress > 0.02
+          ? { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: '#c8e8d3', strokeWidth: 2.4,
+            strokeDasharray: `${(RING * video.progress).toFixed(1)} ${RING.toFixed(1)}`, transform: 'rotate(-90 12 12)', fill: 'none' } }
+          : { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: '#c8e8d3', strokeWidth: 2.4,
+            strokeDasharray: '14 43', fill: 'none' }, spin: true };
+        shapes = [
+          { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, strokeWidth: 2.4, opacity: 0.28, fill: 'none' } },
+          arc,
+          { tag: 'rect', attrs: { x: 9.2, y: 9.2, width: 5.6, height: 5.6, rx: 1.3 }, tone: 'solid' },
+        ];
+        label = percent > 0
+          ? text(`Traduciendo el vídeo… ${percent} %. Pulsa para detener`, `Translating the video… ${percent}%. Click to stop`)
+          : text('Preparando la traducción. Pulsa para detener', 'Getting the translation ready. Click to stop');
+        color = '#e6f4ec';
+        key = `work:${percent > 0 ? percent : 'spin'}`;
+      } else if (video.phase === 'ready' && video.enabled) {
+        shapes = [...ICONS.translate, ...badge('#7ed6a0', 'm17.2 5.6 1.3 1.3 2.3-2.5', '#0d2a1b')];
+        label = text('Vídeo traducido, subtítulos encendidos. Pulsa para apagarlos', 'Video translated, subtitles on. Click to turn them off');
+        pressed = true;
+        key = 'on';
+      } else if (video.phase === 'ready') {
+        shapes = [
+          ...ICONS.translate.map((shape) => ({ ...shape, attrs: { ...shape.attrs, opacity: 0.55 } })),
+          { tag: 'path', attrs: { d: 'M4 20 20 4', strokeWidth: 2 } },
+        ];
+        label = text('Subtítulos apagados. Pulsa para encenderlos', 'Subtitles off. Click to turn them on');
+        pressed = false;
+        key = 'off';
+      } else if (video.phase === 'error') {
+        shapes = [...ICONS.translate, ...badge('#ffb4a8', 'M19 3.6v2.2M19 7.4v.1', '#4a160e')];
+        label = text('No se pudo traducir. Pulsa para reintentar', 'Could not translate. Click to try again');
+        color = '#ffd1ca';
+        key = 'error';
+      }
+      return { shapes, label, color, pressed, key: `${key}|${language}` };
     };
+
+    interface PlayerButton {
+      attr: string; event: string; element: HTMLButtonElement | null;
+      icon: IconShape[]; label: string; state: 'settings' | 'translate';
+      /** Lo último que se pintó: sin esto, repintar dispara el observador y entra en bucle. */
+      painted?: string;
+    }
+    const buttons: PlayerButton[] = [
+      { attr: 'youjpSettings', icon: ICONS.settings, label: 'Ajustes de YouJP',
+        event: 'youjp:toggle-settings', element: null, state: 'settings' },
+      // Traduce el vídeo entero de antemano (no es para directos).
+      { attr: 'youjpPrepare', icon: ICONS.translate, label: 'Traducir el vídeo completo',
+        event: 'youjp:prepare-video', element: null, state: 'translate' },
+    ];
+
+    const paintButtons = () => {
+      for (const item of buttons) {
+        const element = item.element;
+        if (!element) continue;
+        if (item.state === 'translate') {
+          const view = translateView(uiState.video);
+          if (item.painted === view.key) continue;
+          item.painted = view.key;
+          element.replaceChildren(buildSvg(view.shapes));
+          element.title = view.label;
+          element.setAttribute('aria-label', view.label);
+          element.style.color = view.color;
+          if (view.pressed === null) element.removeAttribute('aria-pressed');
+          else element.setAttribute('aria-pressed', String(view.pressed));
+          element.dataset.youjpState = uiState.video.phase;
+        } else {
+          const label = uiText(language, item.label, 'YouJP settings');
+          const key = `${language}|${uiState.settingsOpen}`;
+          if (item.painted === key) continue;
+          item.painted = key;
+          element.title = label;
+          element.setAttribute('aria-label', label);
+          element.setAttribute('aria-pressed', String(uiState.settingsOpen));
+          // Abierto: se marca con un fondo lila para saber que el panel es suyo.
+          element.style.background = uiState.settingsOpen ? 'rgba(185,162,244,.3)' : '';
+          element.style.color = uiState.settingsOpen ? '#e6dcff' : '#c8e8d3';
+        }
+      }
+    };
+    const onUiState = (event: Event) => {
+      uiState = (event as CustomEvent<UiState>).detail;
+      paintButtons();
+    };
+    window.addEventListener(UI_STATE_EVENT, onUiState);
+
     const stopSettings = onSettingsChanged((settings) => {
       settingsChanged = true;
       language = settings.settingsLanguage;
-      updateButtonLabel();
+      paintButtons();
     });
     void loadSettings().then((settings) => {
       if (!settingsChanged) language = settings.settingsLanguage;
-      updateButtonLabel();
+      paintButtons();
     });
-    const ensureSettingsButton = () => {
+    const ensureButtons = () => {
       const player = findPlayerRoot();
       const controls = player?.querySelector<HTMLElement>('.ytp-left-controls');
-      if (!controls || controls.querySelector('[data-youjp-settings]')) return;
+      if (!controls) return;
+      // A la derecha del minutero (0:42 / 5:10); si YouTube no lo muestra, junto al volumen.
+      let anchor: Element | null = controls.querySelector('.ytp-time-display')
+        ?? controls.querySelector('.ytp-volume-area');
+      for (const item of buttons) {
+        const attribute = item.attr.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+        const existing = controls.querySelector(`[data-${attribute}]`);
+        if (existing) {
+          item.element = existing as HTMLButtonElement;
+          // Si YouTube recolocó los controles, vuelve a ponerse tras el minutero.
+          if (anchor && anchor.nextElementSibling !== existing && anchor !== existing) anchor.after(existing);
+          anchor = existing;
+          continue;
+        }
+        item.painted = undefined;
 
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'ytp-button';
-      button.dataset.youjpSettings = '';
-      button.setAttribute('aria-haspopup', 'dialog');
-      button.style.cssText = 'display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:#c8e8d3;vertical-align:top;cursor:pointer;';
-      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      icon.setAttribute('viewBox', '0 0 24 24');
-      icon.setAttribute('width', '22');
-      icon.setAttribute('height', '22');
-      icon.setAttribute('fill', 'none');
-      icon.setAttribute('stroke', 'currentColor');
-      icon.setAttribute('stroke-width', '1.5');
-      icon.setAttribute('stroke-linecap', 'round');
-      icon.setAttribute('aria-hidden', 'true');
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', 'M4 7h16M4 17h16M9 4v6m6 4v6');
-      icon.append(path);
-      button.append(icon);
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        window.dispatchEvent(new Event('youjp:toggle-settings'));
-      });
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'ytp-button';
+        button.dataset[item.attr] = '';
+        button.style.cssText = 'display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:#c8e8d3;vertical-align:top;cursor:pointer;border-radius:8px;';
+        button.append(buildSvg(item.icon));
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.dispatchEvent(new Event(item.event));
+        });
 
-      const volume = controls.querySelector('.ytp-volume-area');
-      if (volume) volume.after(button);
-      else controls.append(button);
-      settingsButton = button;
-      updateButtonLabel();
+        if (anchor) anchor.after(button);
+        else controls.append(button);
+        anchor = button;
+        item.element = button;
+      }
+      paintButtons();
     };
-    ensureSettingsButton();
+    ensureButtons();
 
     // Si YouTube reemplaza el reproductor al navegar entre vídeos, el overlay
     // se queda colgado de un nodo huérfano. Volver a montarlo es barato.
@@ -120,7 +223,7 @@ export default defineContentScript({
         ui.remove();
         ui.mount();
       }
-      ensureSettingsButton();
+      ensureButtons();
     });
     remount.observe(document.body, { childList: true, subtree: true });
 
@@ -161,7 +264,8 @@ export default defineContentScript({
       stopSettings();
       remount.disconnect();
       ui.remove();
-      settingsButton?.remove();
+      window.removeEventListener(UI_STATE_EVENT, onUiState);
+      for (const item of buttons) item.element?.remove();
     });
   },
 });

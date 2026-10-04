@@ -124,6 +124,7 @@ function Read-YouJPHistoryFile {
     param([string]$Path)
     # El backend escribe línea a línea: una línea a medias no debe ocultar el resto.
     $session = $null
+    $meta = $null
     $lines = [Collections.Generic.List[object]]::new()
     $translations = @{}
     foreach ($raw in [IO.File]::ReadLines($Path, [Text.Encoding]::UTF8)) {
@@ -131,13 +132,21 @@ function Read-YouJPHistoryFile {
         if ($null -eq $row -or 'kind' -notin $row.PSObject.Properties.Name) { continue }
         switch ($row.kind) {
             'session' { $session = $row }
+            'meta' { $meta = $row }
             'line' { $lines.Add([pscustomobject]@{ Id = [int]$row.id; StartMs = [int]$row.start_ms; Japanese = [string]$row.ja; Translation = '' }) }
             'tr' { $translations[[int]$row.id] = [string]$row.text }
         }
     }
     if ($null -eq $session) { return $null }
     foreach ($line in $lines) { if ($translations.ContainsKey($line.Id)) { $line.Translation = $translations[$line.Id] } }
-    [pscustomobject]@{ Path = $Path; Session = $session; Lines = @($lines) }
+    $names = @($session.PSObject.Properties.Name)
+    $metaNames = if ($meta) { @($meta.PSObject.Properties.Name) } else { @() }
+    [pscustomobject]@{
+        Path = $Path; Session = $session; Lines = @($lines)
+        Title = $(if ('title' -in $metaNames) { [string]$meta.title } else { '' })
+        Channel = $(if ('channel' -in $metaNames) { [string]$meta.channel } else { '' })
+        Full = ('source' -in $names -and [bool]$session.source)
+    }
 }
 
 function Get-YouJPHistorySessions {
@@ -151,6 +160,7 @@ function Get-YouJPHistorySessions {
         [pscustomobject]@{
             Path = $file.FullName; StartedAt = $started; VideoId = [string]$data.Session.video_id
             Url = [string]$data.Session.url; Count = $data.Lines.Count; Preview = $data.Lines[0].Japanese
+            Title = $data.Title; Channel = $data.Channel; Full = $data.Full
         }
     }
     @($sessions)

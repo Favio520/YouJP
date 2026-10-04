@@ -105,6 +105,7 @@ try {
         '{"kind":"session","id":"a1","started_at":"2026-10-03T10:00:00","video_id":"abc","url":"https://www.youtube.com/watch?v=abc","target":"es"}',
         '{"kind":"line","id":1,"start_ms":65000,"ja":"こんにちは"}',
         '{"kind":"tr","id":1,"text":"Hola"}',
+        '{"kind":"meta","title":"Mi vídeo","channel":"Mi canal"}',
         '{"kind":"line","id":2,"start_ms":70000,"ja":"はい"}',
         '{"kind":"line","id":3,"start_ms":7'
     )
@@ -112,6 +113,7 @@ try {
     [IO.File]::WriteAllText((Join-Path $historyDir '20261003-090000-empty.jsonl'), '{"kind":"session","id":"b2"}')
     $found = @(Get-YouJPHistorySessions)
     Assert ($found.Count -eq 1 -and $found[0].Count -eq 2 -and $found[0].VideoId -eq 'abc') 'El historial debe ignorar sesiones vacías y líneas a medias'
+    Assert ($found[0].Title -eq 'Mi vídeo' -and $found[0].Channel -eq 'Mi canal' -and -not $found[0].Full) 'El historial debe leer título y canal'
     $text = Format-YouJPHistorySession (Read-YouJPHistoryFile $found[0].Path)
     Assert ($text -match '\[1:05\] こんにちは' -and $text -match 'Hola') 'La traducción debe aparecer bajo su frase'
     Assert ((Get-YouJPHistoryVideoUrl $found[0].Url) -eq 'https://www.youtube.com/watch?v=abc') 'Un enlace https debe poder abrirse'

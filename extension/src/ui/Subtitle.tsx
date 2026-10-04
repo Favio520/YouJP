@@ -31,6 +31,22 @@ function needsFurigana(token: Token, mode: FuriganaMode): boolean {
   return !token.entry?.common;
 }
 
+/**
+ * Categoría gramatical de la palabra, para el estilo "Gramática".
+ * Sale del análisis (Sudachi), no de ningún modelo: es un dato, no una opinión.
+ */
+export function grammarClass(token: Token): string {
+  switch (token.pos[0]) {
+    case '名詞': case '代名詞': return 'n';
+    case '動詞': return 'v';
+    case '形容詞': case '形状詞': return 'adj';
+    case '副詞': case '連体詞': return 'adv';
+    case '助詞': return 'p';
+    case '助動詞': return 'aux';
+    default: return 'o';
+  }
+}
+
 interface Props {
   text: string;
   tokens: Token[];
@@ -59,7 +75,7 @@ export function Subtitle({ text, tokens, furigana, selectedIndex, onSelect }: Pr
         if (!token.clickable) {
           // Partículas, auxiliares y puntuación: se pintan, no se pulsan.
           return (
-            <span key={token.i} className="youjp-token youjp-token--plain">
+            <span key={token.i} className="youjp-token youjp-token--plain" data-k={grammarClass(token)}>
               {cuerpo}
             </span>
           );
@@ -73,6 +89,7 @@ export function Subtitle({ text, tokens, furigana, selectedIndex, onSelect }: Pr
             }
             onClick={() => onSelect(token)}
             title={token.kana || undefined}
+            data-k={grammarClass(token)}
           >
             {cuerpo}
           </button>

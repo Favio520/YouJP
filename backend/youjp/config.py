@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     bench_dir: Path = PROJECT_ROOT / "bench"
     history_dir: Path = PROJECT_ROOT / ".youjp" / "history"
     """Sesiones traducidas; las lee la pestaña Historial del lanzador."""
+    library_dir: Path = PROJECT_ROOT / ".youjp" / "library"
+    """Vídeos completos ya traducidos, para no repetir el trabajo."""
 
     # --- audio -------------------------------------------------------------
     sample_rate: int = SAMPLE_RATE

@@ -23,7 +23,11 @@ import {
   toCssVars,
   type OverlaySettings,
 } from '../settings';
-import { findVideo } from '../player';
+import { currentVideoId, findVideo, isLive } from '../player';
+import {
+  cueIndexAt, cueToLine, requestVideo, type VideoSnapshot,
+} from '../video';
+import type { TargetLanguage } from '../protocol';
 import { SettingsPanel } from './SettingsPanel';
 import { Subtitle } from './Subtitle';
 import { TranscriptPanel } from './TranscriptPanel';
@@ -31,12 +35,39 @@ import type { Line, Selection } from './types';
 import { useDrag } from './useDrag';
 import { WordInspector } from './WordInspector';
 import { Icon } from './Icon';
+import { UI_STATE_EVENT, type UiState } from './uiState';
 
 const MAX_LINES = 4; // la actual mas tres de historial en el overlay
 
 /** Frases que se conservan para el historial completo. Una sesion larga de
  *  estudio son unos cientos; mas alla no se consulta y solo ocupa. */
 const MAX_LOG = 300;
+
+/** Tras el final de una frase, cuánto sigue en pantalla si no llega otra. */
+const CUE_LINGER_MS = 2500;
+const POLL_MS = 1500;
+/** Cuánto dura el aviso de "vídeo listo". */
+const READY_TOAST_MS = 4000;
+
+const requestVideoToggle = () => window.dispatchEvent(new Event('youjp:prepare-video'));
+
+interface Prepared {
+  phase: 'none' | 'working' | 'ready' | 'error';
+  videoId: string;
+  lines: Line[];
+  progress: number;
+  source: string;
+  message: string;
+}
+
+const noPrepared = (videoId: string): Prepared =>
+  ({ phase: 'none', videoId, lines: [], progress: 0, source: '', message: '' });
+
+const errorText = (error: unknown) => error instanceof Error ? error.message : String(error);
+
+const GRAMMAR_KEYS: Array<[string, string]> = [
+  ['n', 'sustantivo'], ['v', 'verbo'], ['adj', 'adjetivo'], ['adv', 'adverbio'], ['p', 'partícula'],
+];
 
 const STATUS_LABEL: Record<CaptureStatus, string> = {
   idle: 'inactivo',
@@ -52,7 +83,7 @@ export function Overlay() {
   const [detail, setDetail] = useState('');
   const [model, setModel] = useState('');
   const [partial, setPartial] = useState<AsrPartial | null>(null);
-  const [history, setHistory] = useState<Line[]>([]);
+  const [liveHistory, setHistory] = useState<Line[]>([]);
   const [metrics, setMetrics] = useState<MetricsTick | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [rateWarning, setRateWarning] = useState<number | null>(null);
@@ -65,6 +96,147 @@ export function Overlay() {
   const lastFinal = useRef(0);
 
   const closeCard = useCallback(() => setSelected(null), []);
+
+  // -- Vídeo completo traducido de antemano ------------------------------------
+  const [videoId, setVideoId] = useState(currentVideoId);
+  const [prepared, setPrepared] = useState<Prepared>(() => noPrepared(currentVideoId()));
+  const preparedRef = useRef(prepared);
+  preparedRef.current = prepared;
+  const [active, setActive] = useState({ index: -1, gap: true });
+  // Subtítulos del vídeo ya traducido: se pueden apagar sin perder el trabajo.
+  const [preparedOn, setPreparedOn] = useState(true);
+  const [readyToast, setReadyToast] = useState(false);
+  const previousPhase = useRef<Prepared['phase']>('none');
+  const liveActive = status !== 'idle' || liveHistory.length > 0;
+
+  const applySnapshot = useCallback((snap: VideoSnapshot, id: string, target: TargetLanguage) => {
+    setPrepared((prev) => {
+      if (prev.videoId !== id) return prev;
+      // Idempotente: una respuesta repetida o atrasada no duplica frases.
+      let lines = prev.lines;
+      for (const cue of snap.cues ?? []) {
+        if (cue.i !== lines.length) continue;
+        if (lines === prev.lines) lines = prev.lines.slice();
+        lines.push(cueToLine(cue, target));
+      }
+      const phase = snap.status === 'none' ? 'none' : snap.status === 'error' ? 'error'
+        : snap.status === 'done' ? 'ready' : 'working';
+      return { ...prev, phase, lines, progress: snap.progress ?? prev.progress,
+        source: snap.source ?? '', message: snap.error ?? '' };
+    });
+  }, []);
+
+  useEffect(() => {
+    const onVideo = () => setVideoId(currentVideoId());
+    window.addEventListener('youjp:video', onVideo);
+    return () => window.removeEventListener('youjp:video', onVideo);
+  }, []);
+
+  // Al abrir un vídeo (o cambiar el idioma) se pregunta si ya está preparado:
+  // si lo está, se ve sincronizado sin hacer nada.
+  useEffect(() => {
+    setPrepared(noPrepared(videoId));
+    setActive({ index: -1, gap: true });
+    setPreparedOn(true);
+    if (!videoId) return;
+    let stale = false;
+    const target = settings.targetLanguage;
+    requestVideo('poll', videoId, target)
+      .then((snap) => { if (!stale) applySnapshot(snap, videoId, target); })
+      .catch(() => {});
+    return () => { stale = true; };
+  }, [videoId, settings.targetLanguage, applySnapshot]);
+
+  useEffect(() => {
+    if (prepared.phase !== 'working') return;
+    const id = prepared.videoId;
+    const target = settings.targetLanguage;
+    let stopped = false;
+    let busy = false;
+    const tick = async () => {
+      if (busy) return;
+      busy = true;
+      try {
+        const snap = await requestVideo('poll', id, target, preparedRef.current.lines.length);
+        if (!stopped) applySnapshot(snap, id, target);
+      } catch (error) {
+        if (!stopped) setPrepared((prev) => prev.videoId === id
+          ? { ...prev, phase: 'error', message: errorText(error) } : prev);
+      } finally {
+        busy = false;
+      }
+    };
+    const timer = setInterval(() => void tick(), POLL_MS);
+    return () => { stopped = true; clearInterval(timer); };
+  }, [prepared.phase, prepared.videoId, settings.targetLanguage, applySnapshot]);
+
+  // Botón de la barra del reproductor: prepara el vídeo o cancela si ya está en marcha.
+  useEffect(() => {
+    const toggle = async () => {
+      const id = currentVideoId();
+      const target = settingsRef.current.targetLanguage;
+      const current = preparedRef.current;
+      if (!id) return;
+      if (current.phase === 'ready') {
+        setPreparedOn((value) => !value);
+        return;
+      }
+      if (isLive(findVideo())) {
+        setPrepared({ ...noPrepared(id), phase: 'error',
+          message: 'Es un directo: se traduce en tiempo real con el icono de YouJP.' });
+        return;
+      }
+      if (current.phase === 'working') {
+        setPrepared(noPrepared(id));
+        await requestVideo('cancel', id, target).catch(() => {});
+        return;
+      }
+      setPrepared({ ...noPrepared(id), phase: 'working' });
+      try {
+        applySnapshot(await requestVideo('prepare', id, target), id, target);
+      } catch (error) {
+        setPrepared({ ...noPrepared(id), phase: 'error', message: errorText(error) });
+      }
+    };
+    const listener = () => void toggle();
+    window.addEventListener('youjp:prepare-video', listener);
+    return () => window.removeEventListener('youjp:prepare-video', listener);
+  }, [applySnapshot]);
+
+  useEffect(() => {
+    const finished = previousPhase.current === 'working' && prepared.phase === 'ready';
+    previousPhase.current = prepared.phase;
+    if (!finished) return;
+    setReadyToast(true);
+    const timer = setTimeout(() => setReadyToast(false), READY_TOAST_MS);
+    return () => clearTimeout(timer);
+  }, [prepared.phase]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent<UiState>(UI_STATE_EVENT, {
+      detail: {
+        settingsOpen: showSettings,
+        video: { phase: prepared.phase, progress: prepared.progress, enabled: preparedOn, message: prepared.message },
+      },
+    }));
+  }, [showSettings, prepared.phase, prepared.progress, prepared.message, preparedOn]);
+
+  // Qué frase toca según el reproductor. Se compara antes de guardar: el
+  // sondeo corre varias veces por segundo y casi siempre no cambia nada.
+  useEffect(() => {
+    if (prepared.lines.length === 0 || liveActive || !preparedOn) return;
+    const update = () => {
+      const video = findVideo();
+      if (!video) return;
+      const time = video.currentTime * 1000;
+      const index = cueIndexAt(prepared.lines, time);
+      const gap = index < 0 || time > (prepared.lines[index]?.mediaEndMs ?? 0) + CUE_LINGER_MS;
+      setActive((current) => current.index === index && current.gap === gap ? current : { index, gap });
+    };
+    update();
+    const timer = setInterval(update, 150);
+    return () => clearInterval(timer);
+  }, [prepared.lines, liveActive, preparedOn]);
 
   const patchSettings = useCallback((patch: Partial<OverlaySettings>) => {
     const next = normalizeSettings({ ...settingsRef.current, ...patch });
@@ -237,10 +409,20 @@ export function Overlay() {
   }, []);
 
   const t = (value: string) => uiText(settings.settingsLanguage, value);
-  const hasCaptureUi = status !== 'idle' || history.length > 0;
+  const videoShown = prepared.phase !== 'none' && !(prepared.phase === 'ready' && !preparedOn);
+  const hasCaptureUi = liveActive || videoShown;
   if (!hasCaptureUi && !showSettings && !showTranscript && !selected) return null;
 
-  const visible = settings.history >= MAX_LINES ? history : history.slice(-(settings.history + 1));
+  // En un vídeo preparado las "frases anteriores" son las que ya han pasado, y
+  // el historial es el vídeo entero: así se puede saltar a cualquier punto.
+  const preparedMode = !liveActive && preparedOn && prepared.lines.length > 0;
+  const history = preparedMode ? prepared.lines.slice(0, active.index + 1) : liveHistory;
+  const transcriptLines = preparedMode ? prepared.lines : liveHistory;
+  const visible = preparedMode && active.gap ? []
+    : settings.history >= MAX_LINES ? history : history.slice(-(settings.history + 1));
+  const progressPercent = Math.round(prepared.progress * 100);
+  const preparingLabel = prepared.source === 'captions' ? 'con el transcript de YouTube'
+    : prepared.source === 'whisper' ? 'transcribiendo el audio' : '';
   const committed = partial?.committed ?? '';
   const tentative = settings.showTentative ? (partial?.tentative ?? '') : '';
   const showJa = settings.languages !== 'translation';
@@ -265,7 +447,8 @@ export function Overlay() {
         <TranscriptPanel
           withDictionary={selected !== null && !settings.wordPanelPosition}
           language={settings.settingsLanguage}
-          lines={history}
+          lines={transcriptLines}
+          activeId={preparedMode && active.index >= 0 ? active.index : undefined}
           position={settings.transcriptPosition}
           onMove={(transcriptPosition) => patchSettings({ transcriptPosition })}
           onResetPosition={() => patchSettings({ transcriptPosition: null })}
@@ -285,6 +468,9 @@ export function Overlay() {
             settings={settings}
             onChange={patchSettings}
             onClose={() => setShowSettings(false)}
+            video={{ phase: prepared.phase, progress: prepared.progress, source: prepared.source,
+              enabled: preparedOn, message: prepared.message, live: liveActive }}
+            onVideoAction={requestVideoToggle}
           />
         </div>
       )}
@@ -306,7 +492,8 @@ export function Overlay() {
       <div
         className={[
           'youjp-root',
-          `youjp-bg--${settings.backdrop}`,
+          `youjp-skin--${settings.skin}`,
+          settings.skin !== 'paper' ? `youjp-bg--${settings.backdrop}` : '',
           libre ? 'youjp-root--free' : '',
           dragging ? 'youjp-root--dragging' : '',
         ]
@@ -314,11 +501,44 @@ export function Overlay() {
           .join(' ')}
         style={estilo}
       >
-      {status !== 'running' && (
+      {liveActive && status !== 'running' && (
         <div className={`youjp-status youjp-status--${status}`}>
           <span className="youjp-dot" />
           {t(STATUS_LABEL[status])}
           {detail && <span className="youjp-detail">{t(detail)}</span>}
+        </div>
+      )}
+
+      {!liveActive && prepared.phase === 'working' && (
+        <div className="youjp-status youjp-status--working" role="status">
+          <span className="youjp-dot" />
+          <span className="youjp-status-text">
+            {t('Traduciendo el vídeo…')} {progressPercent > 0 && <b>{progressPercent}%</b>}
+            {preparingLabel && <span className="youjp-detail">{t(preparingLabel)}</span>}
+          </span>
+          <button type="button" className="youjp-status-action" onClick={requestVideoToggle}>
+            {t('Detener')}
+          </button>
+          <span className="youjp-status-meter" aria-hidden="true">
+            <i style={{ width: `${Math.max(3, progressPercent)}%` }} />
+          </span>
+        </div>
+      )}
+
+      {!liveActive && prepared.phase === 'ready' && readyToast && (
+        <div className="youjp-status youjp-status--ready" role="status">
+          <span className="youjp-dot" />
+          {t('Vídeo traducido')}
+          <span className="youjp-detail">{t('Los subtítulos siguen el vídeo.')}</span>
+        </div>
+      )}
+
+      {!liveActive && prepared.phase === 'error' && (
+        <div className="youjp-status youjp-status--error" role="alert">
+          <span className="youjp-status-text">{t(prepared.message)}</span>
+          <button type="button" className="youjp-status-action" onClick={requestVideoToggle}>
+            {t('Reintentar')}
+          </button>
         </div>
       )}
 
@@ -328,6 +548,14 @@ export function Overlay() {
             ? `Speed ${rateWarning}× — transcription is paused. Faster audio reduces accuracy and breaks timing.`
             : `Velocidad ${rateWarning}× — la transcripción está pausada. El audio acelerado se transcribe mal y descuadra los tiempos.`}
         </div>
+      )}
+
+      {settings.skin === 'grammar' && (
+        <ul className="youjp-legend" aria-label={t('Categorías gramaticales')}>
+          {GRAMMAR_KEYS.map(([key, label]) => (
+            <li key={key} data-k={key}>{t(label)}</li>
+          ))}
+        </ul>
       )}
 
       <div className="youjp-subs">
@@ -379,7 +607,7 @@ export function Overlay() {
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowTranscript((value) => !value)}
-          title={`${t('Historial de la sesión')} · ${history.length} ${t('frases')} (Alt+H)`}
+          title={`${t('Historial de la sesión')} · ${transcriptLines.length} ${t('frases')} (Alt+H)`}
           aria-label={t('Historial de la sesión')}
           aria-expanded={showTranscript}
         >

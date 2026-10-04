@@ -30,6 +30,7 @@ dependencies = [
     "sudachipy>=0.6.11",
     "sudachidict-core>=20260723",
     "pykakasi>=2.3.0",
+    "yt-dlp>=2025.1.1",
 ]
 
 [project.optional-dependencies]

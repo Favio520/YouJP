@@ -14,6 +14,8 @@ import type { TargetLanguage } from './protocol';
 export type FuriganaMode = 'off' | 'auto' | 'all';
 export type BackdropMode = 'none' | 'soft' | 'solid';
 export type LanguageMode = 'both' | 'ja' | 'translation';
+/** Aspecto de los subtítulos: cinta oscura, tarjeta de papel o texto con la gramática subrayada. */
+export type SkinMode = 'ribbon' | 'paper' | 'grammar';
 
 export interface OverlaySettings {
   /** Tamaño del japonés en píxeles a 1080p; escala con el ancho del vídeo. */
@@ -29,6 +31,7 @@ export interface OverlaySettings {
   width: number;
   furigana: FuriganaMode;
   backdrop: BackdropMode;
+  skin: SkinMode;
   languages: LanguageMode;
   /** Frases anteriores visibles, 0 a 3. */
   history: number;
@@ -65,6 +68,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   // los kanji dejan de aprenderse.
   furigana: 'auto',
   backdrop: 'soft',
+  skin: 'ribbon',
   languages: 'both',
   history: 1,
   showTentative: true,
@@ -99,6 +103,7 @@ export function normalizeSettings(value: unknown): OverlaySettings {
     showTentative: typeof stored.showTentative === 'boolean' ? stored.showTentative : DEFAULT_SETTINGS.showTentative,
     furigana: stored.furigana === 'off' || stored.furigana === 'all' ? stored.furigana : 'auto',
     backdrop: stored.backdrop === 'none' || stored.backdrop === 'solid' ? stored.backdrop : 'soft',
+    skin: stored.skin === 'paper' || stored.skin === 'grammar' ? stored.skin : 'ribbon',
     position: position(stored.position),
     transcriptPosition: position(stored.transcriptPosition),
     wordPanelPosition: position(stored.wordPanelPosition),

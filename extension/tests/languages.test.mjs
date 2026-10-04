@@ -50,6 +50,7 @@ test('missing or unsupported target uses Spanish', () => {
 test('settings panel offers both targets and neutral display controls', () => {
   const html = renderToStaticMarkup(React.createElement(SettingsPanel, {
     settings: { ...DEFAULT_SETTINGS, targetLanguage: 'en' }, onChange() {}, onClose() {},
+    video: { phase: 'none', progress: 0, source: '', enabled: true, message: '', live: false }, onVideoAction() {},
   }));
   assert.match(html, /Español/);
   assert.match(html, /English/);

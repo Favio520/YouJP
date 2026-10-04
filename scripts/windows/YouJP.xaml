@@ -88,32 +88,41 @@
       <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#FF816F" /></Trigger></Style.Triggers>
     </Style>
     <Style x:Key="Nav" TargetType="RadioButton">
-      <Setter Property="Foreground" Value="#25364A" />
-      <Setter Property="Margin" Value="0,0,0,7" />
+      <Setter Property="Foreground" Value="#AAB6C9" />
+      <Setter Property="Margin" Value="0,0,0,4" />
       <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FontSize" Value="14.5" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="NavBorder" CornerRadius="15" Background="Transparent" Padding="12,13" BorderThickness="3,0,0,0" BorderBrush="Transparent">
+            <Border x:Name="NavBorder" CornerRadius="12" Background="Transparent" Padding="12,11" BorderThickness="3,0,0,0" BorderBrush="Transparent">
               <ContentPresenter />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="NavBorder" Property="Background" Value="#FFF0EA" />
+                <Setter TargetName="NavBorder" Property="Background" Value="#26354D" />
+                <Setter Property="Foreground" Value="White" />
               </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="NavBorder" Property="Background" Value="#FFE3DD" />
+                <Setter TargetName="NavBorder" Property="Background" Value="#2A3A54" />
                 <Setter TargetName="NavBorder" Property="BorderBrush" Value="#FF705E" />
-                <Setter Property="Foreground" Value="#AE3B2C" />
+                <Setter Property="Foreground" Value="White" />
                 <Setter Property="FontWeight" Value="SemiBold" />
               </Trigger>
               <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#FF705E" />
+                <Setter TargetName="NavBorder" Property="BorderBrush" Value="#B9A2F4" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
+    </Style>
+    <Style x:Key="NavIcon" TargetType="Path">
+      <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
+      <Setter Property="StrokeThickness" Value="1.7" />
+      <Setter Property="StrokeLineJoin" Value="Round" />
+      <Setter Property="StrokeStartLineCap" Value="Round" />
+      <Setter Property="StrokeEndLineCap" Value="Round" />
     </Style>
     <Style x:Key="SidebarLink" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
       <Setter Property="Background" Value="Transparent" />
@@ -213,72 +222,53 @@
   </Window.Resources>
 
   <Grid Background="#FFF9F2">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="196" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-    <Border Background="#FFFCF8" BorderBrush="#F0E7DC" BorderThickness="0,0,1,0">
-      <Grid Margin="12,30,12,20">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="232" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+    <Border Background="#1F2B3F">
+      <Grid Margin="14,26,14,18">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
         <StackPanel>
-          <StackPanel Margin="12,0,0,35">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-              <Image x:Name="BrandIcon" Width="44" Height="49" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality" />
-              <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="You" Foreground="#25364A" FontSize="28" FontWeight="Bold"/><TextBlock Text="JP" Foreground="#FF705E" FontSize="28" FontWeight="Bold"/></StackPanel>
+          <StackPanel Margin="6,0,0,30">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+              <Image x:Name="BrandIcon" Width="46" Height="46" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality" />
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="You" Foreground="White" FontSize="26" FontWeight="Bold"/><TextBlock Text="JP" Foreground="#FF705E" FontSize="26" FontWeight="Bold"/></StackPanel>
             </StackPanel>
-            <TextBlock Text="JAPONÉS EN CONTEXTO" FontSize="9" FontWeight="SemiBold" Foreground="#5C6B7E" />
+            <TextBlock Text="JAPONÉS EN CONTEXTO" FontSize="9" FontWeight="SemiBold" Foreground="#AAB6C9" />
           </StackPanel>
-          <TextBlock Text="EXPLORA" Foreground="#5C6B7E" FontSize="10" FontWeight="SemiBold" Margin="16,0,0,14" />
           <RadioButton x:Name="NavHome" Style="{StaticResource Nav}" GroupName="Navigation" IsChecked="True" AutomationProperties.Name="Tu sesión">
             <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Tu sesión" />
-            </StackPanel>
-          </RadioButton>
-          <RadioButton x:Name="NavSettings" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Configuración">
-            <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Configuración" />
-            </StackPanel>
-          </RadioButton>
-          <RadioButton x:Name="NavActivity" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Actividad">
-            <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Actividad" />
+              <Viewbox Width="20" Height="20" Margin="0,0,12,0"><Canvas Width="24" Height="24"><Path Style="{StaticResource NavIcon}" Data="M4,20 L4,11.5 L12,5 L20,11.5 L20,20 Z M9.5,20 L9.5,14.5 L14.5,14.5 L14.5,20" /></Canvas></Viewbox>
+              <TextBlock Text="Tu sesión" VerticalAlignment="Center" />
             </StackPanel>
           </RadioButton>
           <RadioButton x:Name="NavHistory" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Historial">
             <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Historial" />
+              <Viewbox Width="20" Height="20" Margin="0,0,12,0"><Canvas Width="24" Height="24"><Path Style="{StaticResource NavIcon}" Data="M8.7,4.5 L17.3,4.5 A2.2,2.2 0 0 1 19.5,6.7 L19.5,17.3 A2.2,2.2 0 0 1 17.3,19.5 L8.7,19.5 M10.5,9.5 L15.5,9.5 M10.5,12.5 L15.5,12.5 M10.5,15.5 L13.5,15.5 M5.5,3.5 A2,2 0 0 1 7.5,5.5 L7.5,18.5 A2,2 0 0 1 3.5,18.5 L3.5,5.5 A2,2 0 0 1 5.5,3.5 Z" /></Canvas></Viewbox>
+              <TextBlock Text="Historial" VerticalAlignment="Center" />
             </StackPanel>
           </RadioButton>
-          <Border Height="1" Background="#E4DED7" Margin="10,10,10,14" />
-          <TextBlock Text="APRENDE" Foreground="#5C6B7E" FontSize="11" FontWeight="SemiBold" Margin="16,0,0,13" />
-          <Button x:Name="ResourcesButton" Style="{StaticResource SidebarLink}" Margin="0,0,0,6" AutomationProperties.Name="Recursos">
+          <RadioButton x:Name="NavActivity" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Actividad">
             <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Recursos" />
+              <Viewbox Width="20" Height="20" Margin="0,0,12,0"><Canvas Width="24" Height="24"><Path Style="{StaticResource NavIcon}" Data="M3,12 L6.5,12 L9,6 L13,18 L15.5,12 L21,12" /></Canvas></Viewbox>
+              <TextBlock Text="Actividad" VerticalAlignment="Center" />
             </StackPanel>
-          </Button>
-          <Button x:Name="GuideButton" Style="{StaticResource SidebarLink}" AutomationProperties.Name="Guía rápida">
+          </RadioButton>
+          <Border Height="1" Background="#2A3A54" Margin="8,10,8,12" />
+          <RadioButton x:Name="NavSettings" Style="{StaticResource Nav}" GroupName="Navigation" AutomationProperties.Name="Configuración">
             <StackPanel Orientation="Horizontal">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,2,13,0" />
-              <TextBlock Text="Guía rápida" />
+              <Viewbox Width="20" Height="20" Margin="0,0,12,0"><Canvas Width="24" Height="24"><Path Style="{StaticResource NavIcon}" Data="M4,6 L12.8,6 M17.2,6 L20,6 M4,12 L5.8,12 M10.2,12 L20,12 M4,18 L14.8,18 M19.2,18 L20,18 M17.2,6 A2.2,2.2 0 1 1 12.8,6 A2.2,2.2 0 1 1 17.2,6 M10.2,12 A2.2,2.2 0 1 1 5.8,12 A2.2,2.2 0 1 1 10.2,12 M19.2,18 A2.2,2.2 0 1 1 14.8,18 A2.2,2.2 0 1 1 19.2,18" /></Canvas></Viewbox>
+              <TextBlock Text="Configuración" VerticalAlignment="Center" />
             </StackPanel>
-          </Button>
-
+          </RadioButton>
         </StackPanel>
-        <Grid Grid.Row="1" ClipToBounds="True" IsHitTestVisible="False"><Canvas Width="170" Height="120" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,18" Opacity="0.36">
-          <Path Data="M0,116 Q18,72 38,38 M12,91 Q38,68 66,73" Stroke="#F4B2BA" StrokeThickness="3" />
-          <Path Fill="#FFB7BE" Data="M25,45 C10,43 8,24 17,21 C22,20 24,24 26,28 C26,13 41,12 43,23 C45,34 32,43 25,45 Z M53,74 C42,62 52,49 60,54 C64,57 62,62 61,65 C71,56 82,64 77,72 C70,81 59,77 53,74 Z M9,97 C-4,98 -6,82 0,78 C7,74 11,84 9,86 C21,77 28,85 21,94 C19,97 13,98 9,97 Z M91,45 C93,29 110,20 118,24 C110,40 104,44 91,45 Z M119,93 C126,78 141,75 147,78 C140,89 132,94 119,93 Z" />
-        </Canvas></Grid>
-        <StackPanel Grid.Row="2" Margin="8,0">
-          <Border Background="#EDF7F0" CornerRadius="16" Padding="12,15" Margin="0,0,0,14">
+        <StackPanel Grid.Row="2">
+          <Border Background="#2A3A54" CornerRadius="16" Padding="14,14" Margin="0,0,0,14">
             <StackPanel>
-              <StackPanel Orientation="Horizontal"><Ellipse x:Name="SidebarDot" Fill="#9BC4AD" Width="6" Height="6" Margin="0,0,8,0" /><TextBlock x:Name="SidebarStatus" Text="Comprobando" Foreground="#25364A" FontWeight="SemiBold" FontSize="12" /></StackPanel>
-              <TextBlock Text="Tu audio permanece en este equipo" Foreground="#5C6B7E" FontSize="11" Margin="0,8,0,0" LineHeight="17" />
+              <StackPanel Orientation="Horizontal"><Ellipse x:Name="SidebarDot" Fill="#9BC4AD" Width="8" Height="8" Margin="0,0,8,0" /><TextBlock x:Name="SidebarStatus" Text="Comprobando" Foreground="White" FontWeight="SemiBold" FontSize="13" /></StackPanel>
+              <TextBlock Text="Tu audio permanece en este equipo" Foreground="#AAB6C9" FontSize="11.5" Margin="0,8,0,0" LineHeight="17" />
             </StackPanel>
           </Border>
-          <TextBlock x:Name="VersionLabel" Foreground="#5C6B7E" FontSize="10" />
-          <TextBlock x:Name="PreviewLabel" Text="VISTA PREVIA" Foreground="#FF705E" FontSize="10" Margin="0,7,0,0" Visibility="Collapsed" />
+          <TextBlock x:Name="VersionLabel" Foreground="#AAB6C9" FontSize="10" Margin="6,0,0,0" />
+          <TextBlock x:Name="PreviewLabel" Text="VISTA PREVIA" Foreground="#FF705E" FontSize="10" Margin="6,7,0,0" Visibility="Collapsed" />
         </StackPanel>
       </Grid>
     </Border>
@@ -298,13 +288,13 @@
       <ScrollViewer x:Name="HomePage" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,4">
         <StackPanel>
           <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,16" ClipToBounds="True">
-            <Grid x:Name="HeroSurface" MinHeight="248">
+            <Grid x:Name="HeroSurface" MinHeight="268">
               <Grid.Background><ImageBrush x:Name="HeaderLandscape" Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center" /></Grid.Background>
               <Border IsHitTestVisible="False"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#FFFFF9F2" Offset="0"/><GradientStop Color="#FFFFF9F2" Offset="0.34"/><GradientStop Color="#EFFFF9F2" Offset="0.49"/><GradientStop Color="#00FFF9F2" Offset="0.76"/></LinearGradientBrush></Border.Background></Border>
               <Image x:Name="MascotImage" Width="242" Height="258" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,7,0" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="HighQuality" />
-              <Grid Margin="24,22"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="218"/></Grid.ColumnDefinitions>
+              <Grid Margin="24,22"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="260"/></Grid.ColumnDefinitions>
                 <StackPanel VerticalAlignment="Center">
-                  <Border Background="#EEE5FF" CornerRadius="22" Padding="12,6" HorizontalAlignment="Left" Margin="0,0,0,13"><TextBlock Text="ESCUCHA · DESCUBRE · APRENDE" Foreground="#6450A4" FontSize="10" FontWeight="SemiBold" /></Border>
+                  <Border Background="#EEE5FF" CornerRadius="22" Padding="12,6" HorizontalAlignment="Left" Margin="0,0,0,13"><TextBlock Text="今日の日本語" FontFamily="Yu Gothic UI" Foreground="#6450A4" FontSize="11" FontWeight="SemiBold" /></Border>
                   <TextBlock x:Name="StatusTitle" Text="Preparando tu sesión." FontWeight="Bold" FontSize="30" LineHeight="37" />
                   <Border x:Name="StatusDetailBox" CornerRadius="13" Padding="0" Margin="0,10,0,15" MaxWidth="460" HorizontalAlignment="Left"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border x:Name="StatusNoticeIcon" Background="#FF705E" CornerRadius="22" Width="28" Height="28" Margin="0,0,11,0" VerticalAlignment="Center" Visibility="Collapsed"><TextBlock Text="!" Foreground="#25364A" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><TextBlock x:Name="StatusDetail" Grid.Column="1" Foreground="#5C6B7E" FontSize="14" LineHeight="21" /></Grid></Border>
                   <WrapPanel><Button x:Name="PrimaryAction" Content="Iniciar YouJP" Style="{StaticResource Primary}" Padding="22,12" FontSize="14" Margin="0,0,10,0" /><Button x:Name="StopButton" Content="Detener" Background="#FFF9F2" BorderBrush="#E4DED7" Visibility="Collapsed" /></WrapPanel>
@@ -313,8 +303,8 @@
               </Grid>
             </Grid>
           </Border>
-          <UniformGrid Columns="4" Margin="0,0,0,16">
-            <Border ToolTip="Transcripción" Background="#ECFBF3" BorderBrush="#C8E8D3" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="0,0,5,0">
+          <UniformGrid Columns="3" Margin="0,0,0,16">
+            <Border ToolTip="Transcripción" Background="#ECFBF3" BorderBrush="#C8E8D3" BorderThickness="1" CornerRadius="16" Padding="12,14" Margin="0,0,6,0">
               <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <Border Background="#C8E8D3" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
                   <Path Data="M3,1 L17,1 L17,23 L3,23 Z M6,6 L14,6 M6,10 L14,10 M6,14 L12,14" Stroke="#25364A" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -325,7 +315,7 @@
                 </StackPanel>
               </Grid>
             </Border>
-            <Border ToolTip="Procesamiento" Background="#F3EEFF" BorderBrush="#E4D8FC" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,5,0">
+            <Border ToolTip="Procesamiento" Background="#F3EEFF" BorderBrush="#E4D8FC" BorderThickness="1" CornerRadius="16" Padding="12,14" Margin="3,0,3,0">
               <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <Border Background="#E4D8FC" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
                   <Path Data="M14,1 L3,14 L10,14 L7,25 L20,10 L13,10 Z" Stroke="#6450A4" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -336,7 +326,7 @@
                 </StackPanel>
               </Grid>
             </Border>
-            <Border ToolTip="Traducción" Background="#FFF0EB" BorderBrush="#FFDBD0" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,5,0">
+            <Border ToolTip="Traducción" Background="#FFF0EB" BorderBrush="#FFDBD0" BorderThickness="1" CornerRadius="16" Padding="12,14" Margin="6,0,0,0">
               <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <Border Background="#FFDBD0" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
                   <TextBlock Text="文" Foreground="#AE3B2C" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -344,17 +334,6 @@
                 <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
                   <TextBlock Text="Traducción" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
                   <TextBlock x:Name="TranslationValue" Text="Por iniciar" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-              </Grid>
-            </Border>
-            <Border ToolTip="Vocabulario" Background="#EDF4FF" BorderBrush="#D9E8FB" BorderThickness="1" CornerRadius="16" Padding="10,13" Margin="5,0,0,0">
-              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Border Background="#D9E8FB" CornerRadius="20" Width="40" Height="40" VerticalAlignment="Center">
-                  <Path Data="M1,3 L3,3 M7,3 L21,3 M1,11 L3,11 M7,11 L21,11 M1,19 L3,19 M7,19 L21,19" Stroke="#25364A" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
-                  <TextBlock Text="Vocabulario" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
-                  <TextBlock Text="En la extensión" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
               </Grid>
             </Border>
@@ -371,10 +350,19 @@
                       <Border Background="#E4F3EB" CornerRadius="19" Width="38" Height="38" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="01" Foreground="#25364A" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                       <StackPanel Grid.Column="1"><TextBlock Text="Abre algo que te guste" FontWeight="SemiBold" FontSize="14" /><TextBlock Text="Un vídeo, una entrevista o un directo en japonés." Foreground="#5C6B7E" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
                     </Grid>
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <Grid Margin="0,0,0,13"><Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                       <Border Background="#E4F3EB" CornerRadius="19" Width="38" Height="38" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="02" Foreground="#25364A" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                       <StackPanel Grid.Column="1"><TextBlock Text="Activa YouJP en el navegador" FontWeight="SemiBold" FontSize="14" /><TextBlock Text="Pulsa su icono para empezar. Vuelve a pulsarlo para detener la captura." Foreground="#5C6B7E" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
                     </Grid>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Background="#E4D8FC" CornerRadius="19" Width="38" Height="38" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="03" Foreground="#25364A" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                      <StackPanel Grid.Column="1"><TextBlock Text="Traduce un vídeo entero" FontWeight="SemiBold" FontSize="14" /><TextBlock Text="En vídeos que no son directos, pulsa el botón de subtítulos junto al reloj de YouTube: YouJP los traduce de antemano." Foreground="#5C6B7E" FontSize="12" LineHeight="18" Margin="0,5,0,0" /></StackPanel>
+                    </Grid>
+                    <WrapPanel Margin="0,16,0,0">
+                      <Border Background="#FFF9F2" BorderBrush="#EADFD4" BorderThickness="1" CornerRadius="10" Padding="9,5" Margin="0,0,8,6"><TextBlock Text="Alt + S  ajustes" Foreground="#5C6B7E" FontSize="11.5" TextWrapping="NoWrap" /></Border>
+                      <Border Background="#FFF9F2" BorderBrush="#EADFD4" BorderThickness="1" CornerRadius="10" Padding="9,5" Margin="0,0,8,6"><TextBlock Text="Alt + H  historial" Foreground="#5C6B7E" FontSize="11.5" TextWrapping="NoWrap" /></Border>
+                      <Border Background="#FFF9F2" BorderBrush="#EADFD4" BorderThickness="1" CornerRadius="10" Padding="9,5" Margin="0,0,0,6"><TextBlock Text="Alt + Mayús + S  traducir una zona" Foreground="#5C6B7E" FontSize="11.5" TextWrapping="NoWrap" /></Border>
+                    </WrapPanel>
                     <Border BorderBrush="#F0E7DC" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,11,0,0">
                       <Expander x:Name="GuideExpander" Header="¿Primera vez con la extensión?" FontSize="12" Foreground="#6450A4">
                         <StackPanel Margin="22,13,0,0">
@@ -398,7 +386,13 @@
                 <TextBlock x:Name="HomeActivityStatus" Text="Comprobando" Foreground="#6450A4" FontWeight="SemiBold" FontSize="14" />
                 <TextBlock x:Name="HomeActivityDetail" Text="Preparando el estado de tu sesión." Foreground="#5C6B7E" FontSize="13" LineHeight="20" Margin="0,6,0,0" /></StackPanel></Border>
                 <Border BorderBrush="#DAD0F2" BorderThickness="0,1,0,0" Padding="0,10,0,0" Margin="0,12,0,0"><StackPanel><TextBlock x:Name="HomeSessionCount" Text="0" Foreground="#25364A" FontFamily="Georgia" FontSize="42" /><TextBlock Text="Pestañas conectadas" Foreground="#5C6B7E" FontSize="12" Margin="0,2,0,0" /></StackPanel></Border>
-                <Button x:Name="ViewActivityButton" Content="Ver actividad  →" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Padding="0,7" MinHeight="30" FontSize="13" Foreground="#6450A4" Margin="0,4,0,0" />
+                <TextBlock Text="ÚLTIMAS TRADUCCIONES" Style="{StaticResource Caption}" Margin="0,16,0,8" />
+                <StackPanel x:Name="RecentList" />
+                <TextBlock x:Name="RecentEmpty" Text="Todavía no hay páginas traducidas. Cuando YouJP transcriba un vídeo, aparecerá aquí." Foreground="#5C6B7E" FontSize="12" LineHeight="18" />
+                <WrapPanel Margin="0,6,0,0">
+                  <Button x:Name="ViewHistoryButton" Content="Ver historial  →" Background="Transparent" BorderThickness="0" Padding="0,7,18,7" MinHeight="30" FontSize="13" Foreground="#6450A4" />
+                  <Button x:Name="ViewActivityButton" Content="Ver actividad  →" Background="Transparent" BorderThickness="0" Padding="0,7" MinHeight="30" FontSize="13" Foreground="#6450A4" />
+                </WrapPanel>
               </StackPanel></Grid>
             </Border>
           </Grid>

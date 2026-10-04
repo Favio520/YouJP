@@ -219,3 +219,34 @@ class WhisperEngine:
             inference_ms=inference_ms,
             audio_s=len(pcm) / s.sample_rate,
         )
+
+    def transcribe_file(self, path: str, on_duration=None):
+        """Transcribe un fichero entero (vídeo ya grabado, no streaming).
+
+        Aquí sí conviene el VAD integrado de faster-whisper y un beam algo mayor:
+        no hay latencia que proteger y la ventana de 30 s la gestiona el propio
+        modelo. Devuelve ``(inicio_s, fin_s, texto, no_speech, logprob, compresión)``
+        segmento a segmento, para poder traducir mientras se sigue transcribiendo.
+        """
+        self.load()
+        from faster_whisper import decode_audio
+
+        s = self.settings
+        pcm = decode_audio(path, sampling_rate=s.sample_rate)
+        if on_duration is not None:
+            on_duration(len(pcm) / s.sample_rate)
+        segments, _info = self._model.transcribe(
+            pcm,
+            language=s.asr_language,
+            task="transcribe",
+            beam_size=max(3, s.asr_beam_size),
+            temperature=0.0,
+            condition_on_previous_text=False,
+            word_timestamps=False,
+            vad_filter=True,
+            vad_parameters={"min_silence_duration_ms": s.vad_min_silence_ms},
+            no_repeat_ngram_size=s.asr_no_repeat_ngram_size,
+            repetition_penalty=s.asr_repetition_penalty,
+        )
+        for seg in segments:
+            yield seg.start, seg.end, seg.text, seg.no_speech_prob, seg.avg_logprob, seg.compression_ratio

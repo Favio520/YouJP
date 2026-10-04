@@ -15,6 +15,8 @@ export interface Line {
   tokens: Token[];
   /** Posición dentro del vídeo, para poder volver a ella desde el historial. */
   mediaStartMs: number;
+  /** Solo en vídeos preparados: cuándo termina la frase. */
+  mediaEndMs?: number;
 }
 
 /** Palabra abierta en la tarjeta. La frase importa: `token.i` solo es único

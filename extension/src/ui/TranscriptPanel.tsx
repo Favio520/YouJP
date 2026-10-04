@@ -28,6 +28,8 @@ interface Props {
   language?: UiLanguage;
   withDictionary?: boolean;
   lines: Line[];
+  /** Frase que se está reproduciendo, en un vídeo ya traducido. */
+  activeId?: number;
   position: Position | null;
   onMove: (position: Position) => void;
   onResetPosition: () => void;
@@ -52,6 +54,7 @@ function marca(ms: number): string {
 
 export function TranscriptPanel({
   lines,
+  activeId,
   position,
   onMove,
   onResetPosition,
@@ -68,6 +71,7 @@ export function TranscriptPanel({
   const t = (value: string) => uiText(language, value);
   const scroller = useRef<HTMLDivElement>(null);
   const pegadoAbajo = useRef(true);
+  const pegadoActivo = useRef(true);
   const { dragging, preview, empezar } = useDrag(onMove);
 
   // Autoscroll solo si el usuario ya estaba al final. Si ha subido a releer
@@ -75,13 +79,25 @@ export function TranscriptPanel({
   // justo cuando más se está usando.
   useEffect(() => {
     const el = scroller.current;
-    if (el && pegadoAbajo.current) el.scrollTop = el.scrollHeight;
-  }, [lines]);
+    if (el && pegadoAbajo.current && activeId === undefined) el.scrollTop = el.scrollHeight;
+  }, [lines, activeId]);
+
+  // En un vídeo preparado el panel sigue a la frase que suena, salvo que el
+  // usuario se haya ido a leer otra parte.
+  useEffect(() => {
+    if (activeId === undefined || !pegadoActivo.current) return;
+    scroller.current?.querySelector('.youjp-transcript-row--active')
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [activeId]);
 
   const onScroll = () => {
     const el = scroller.current;
     if (!el) return;
     pegadoAbajo.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32;
+    const activa = el.querySelector<HTMLElement>('.youjp-transcript-row--active');
+    pegadoActivo.current = !activa ||
+      (activa.offsetTop + activa.offsetHeight > el.scrollTop - 80 &&
+        activa.offsetTop < el.scrollTop + el.clientHeight + 80);
   };
 
   const actual = preview ?? position;
@@ -135,7 +151,8 @@ export function TranscriptPanel({
         {lines.map((line) => (
           // La fila ya no es un botón: dentro hay palabras pulsables, y un botón
           // no puede contener otros. Saltar al momento queda en la marca temporal.
-          <div key={line.id} className="youjp-transcript-row">
+          <div key={line.id}
+            className={line.id === activeId ? 'youjp-transcript-row youjp-transcript-row--active' : 'youjp-transcript-row'}>
             <button type="button"
               className="youjp-transcript-time"
               onClick={() => onSeek(line.mediaStartMs)}

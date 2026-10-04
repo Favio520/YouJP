@@ -56,10 +56,11 @@ models or audio capture, run `npm.cmd run preview:ui` from `extension` and open
 `http://127.0.0.1:4178`. Review criteria and results are recorded in
 `docs/ui-redesign.md`.
 
-`assets/BrandLogo.xaml` defines the headphones and dialogue emblem.
-`Build-Icons.ps1` generates `app-logo.png` and `youjp-logo.ico` at sizes from
-16 to 256 pixels for the window, executable, and tray. It does not change the
-extension icons. Previous assets are retained.
+`assets/app-icon-sumi-e.png` is the emblem: the dinosaur with headphones and a
+sakura ear cup. `Build-Icons.ps1` scales it with WPF and writes `app-logo.png`,
+`youjp-logo.ico` (16 to 256 pixels, for the window, executable and tray) and the
+extension icons in `extension/public/icon`, so all three share one mark.
+`Build-Launcher.ps1` runs it before compiling `YouJP.exe`.
 
 `assets/mascot-pastel.png` is the transparent mascot with headphones and a
 hiragana card. `assets/fuji-pastel.png` is the Fuji and sakura landscape.

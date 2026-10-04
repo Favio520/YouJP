@@ -116,6 +116,7 @@ function Show-Page([string]$Page) {
             $ui.HomePage.Visibility = 'Visible'; $ui.NavHome.IsChecked = $true
             $ui.PageEyebrow.Text = (Get-YouJPText '今日の日本語  /  TU ESPACIO DE APRENDIZAJE')
             $ui.PageTitle.Text = (Get-YouJPText 'Tu espacio de japonés'); $ui.PageDescription.Text = (Get-YouJPText 'Un poco de japonés. A tu ritmo.')
+            Update-Recent
         }
         'settings' {
             $ui.SettingsPage.Visibility = 'Visible'; $ui.NavSettings.IsChecked = $true
@@ -289,12 +290,47 @@ function Update-Log {
     $ui.CopyLogsButton.IsEnabled = $true
 }
 
+function Get-HistoryName($Session) {
+    if ($Session.Title) { return $Session.Title }
+    if ($Session.VideoId) { return (Get-YouJPText 'Vídeo') + ' ' + $Session.VideoId }
+    return (Get-YouJPText 'Página sin identificar')
+}
+
+function Update-Recent {
+    # Las tres últimas páginas traducidas, como atajo al historial.
+    $ui.RecentList.Children.Clear()
+    $sessions = @(Get-YouJPHistorySessions | Select-Object -First 3)
+    $ui.RecentEmpty.Visibility = if ($sessions.Count) { 'Collapsed' } else { 'Visible' }
+    foreach ($session in $sessions) {
+        $button = [Windows.Controls.Button]::new()
+        $button.Background = [Windows.Media.Brushes]::Transparent
+        $button.BorderThickness = [Windows.Thickness]::new(0)
+        $button.Padding = [Windows.Thickness]::new(0, 6, 0, 6)
+        $button.MinHeight = 0
+        $button.HorizontalContentAlignment = 'Left'
+        $panel = [Windows.Controls.StackPanel]::new()
+        $title = [Windows.Controls.TextBlock]::new()
+        $title.Text = Get-HistoryName $session
+        $title.FontWeight = 'SemiBold'; $title.FontSize = 13; $title.TextTrimming = 'CharacterEllipsis'; $title.TextWrapping = 'NoWrap'
+        $detail = [Windows.Controls.TextBlock]::new()
+        $parts = @($session.Channel, $(if ($session.StartedAt -gt [DateTime]::MinValue) { $session.StartedAt.ToString('yyyy-MM-dd HH:mm') }),
+            (Get-YouJPText "$($session.Count) frases")) | Where-Object { $_ }
+        $detail.Text = $parts -join '  ·  '
+        $detail.FontSize = 11; $detail.Foreground = [Windows.Media.BrushConverter]::new().ConvertFromString('#5C6B7E')
+        $detail.TextTrimming = 'CharacterEllipsis'; $detail.TextWrapping = 'NoWrap'
+        $null = $panel.Children.Add($title); $null = $panel.Children.Add($detail)
+        $button.Content = $panel
+        $button.Add_Click({ Show-Page 'history' })
+        $null = $ui.RecentList.Children.Add($button)
+    }
+}
+
 function Update-History {
     $selectedPath = if ($ui.HistoryList.SelectedItem) { $ui.HistoryList.SelectedItem.Tag.Path } else { $null }
     $ui.HistoryList.Items.Clear()
     $sessions = @(Get-YouJPHistorySessions)
     foreach ($session in $sessions) {
-        $name = if ($session.VideoId) { (Get-YouJPText 'Vídeo') + ' ' + $session.VideoId } else { (Get-YouJPText 'Página sin identificar') }
+        $name = Get-HistoryName $session
         $when = if ($session.StartedAt -gt [DateTime]::MinValue) { $session.StartedAt.ToString('yyyy-MM-dd HH:mm') } else { '' }
         $preview = if ($session.Preview.Length -gt 36) { $session.Preview.Substring(0, 36) + '…' } else { $session.Preview }
         $item = [Windows.Controls.ListBoxItem]::new()
@@ -304,7 +340,9 @@ function Update-History {
         $text.TextWrapping = 'Wrap'
         $title = [Windows.Documents.Run]::new($name); $title.FontWeight = 'SemiBold'
         $text.Inlines.Add($title)
-        $text.Inlines.Add([Windows.Documents.Run]::new("`n$when  ·  " + (Get-YouJPText "$($session.Count) frases")))
+        $detail = @($session.Channel, $when, (Get-YouJPText "$($session.Count) frases")) | Where-Object { $_ }
+        if ($session.Full) { $detail += (Get-YouJPText 'Vídeo completo') }
+        $text.Inlines.Add([Windows.Documents.Run]::new("`n" + ($detail -join '  ·  ')))
         $text.Inlines.Add([Windows.Documents.Run]::new("`n$preview"))
         $item.Content = $text
         $null = $ui.HistoryList.Items.Add($item)
@@ -324,8 +362,8 @@ function Show-HistorySession($Session) {
     }
     try { $data = Read-YouJPHistoryFile $Session.Path } catch { $data = $null }
     if (-not $data) { $ui.HistoryText.Text = (Get-YouJPText 'No se pudo leer este historial.'); return }
-    $ui.HistoryTitle.Text = if ($Session.VideoId) { (Get-YouJPText 'Vídeo') + ' ' + $Session.VideoId } else { (Get-YouJPText 'Página sin identificar') }
-    $ui.HistoryMeta.Text = $(if ($Session.Url) { $Session.Url } else { $Session.StartedAt.ToString('yyyy-MM-dd HH:mm') })
+    $ui.HistoryTitle.Text = Get-HistoryName $Session
+    $ui.HistoryMeta.Text = (@($Session.Channel, $(if ($Session.Url) { $Session.Url } else { $Session.StartedAt.ToString('yyyy-MM-dd HH:mm') })) | Where-Object { $_ }) -join '  ·  '
     $ui.HistoryText.Text = Format-YouJPHistorySession $data
     $ui.OpenVideoButton.IsEnabled = [bool](Get-YouJPHistoryVideoUrl $Session.Url)
     $ui.CopyHistoryButton.IsEnabled = $true
@@ -436,8 +474,7 @@ $ui.CopyHistoryButton.Add_Click({
     catch { $ui.HistoryFeedback.Text = (Get-YouJPText 'No se pudo copiar. Inténtalo de nuevo.') }
 })
 $ui.ViewActivityButton.Add_Click({ Show-Page 'activity' })
-$ui.GuideButton.Add_Click({ Show-Page 'home'; $ui.GuideSection.BringIntoView() })
-$ui.ResourcesButton.Add_Click({ Show-Page 'home'; $ui.GuideExpander.IsExpanded = $true; $ui.GuideSection.BringIntoView() })
+$ui.ViewHistoryButton.Add_Click({ Show-Page 'history' })
 $ui.PrimaryAction.Add_Click({
     switch ((Get-PanelState).Action) {
         'start' { Start-Backend }

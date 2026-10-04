@@ -61,6 +61,21 @@ Start the backend, open a Japanese YouTube video, and **click the extension icon
 The icon shows `ON` while capturing; click it again to stop. Browser tab capture
 requires this user gesture, so the extension intentionally has no action popup.
 
+## Translate a whole video in advance
+
+For videos that are **not live**, click the subtitles button beside the YouTube volume
+control. YouJP translates the whole video and shows the subtitles in sync with playback
+(you can seek freely, and the history panel follows the current sentence). No tab capture
+is needed. Finished videos are cached in `.youjp/library` and open already translated.
+
+- If the video has a manual Japanese transcript, YouJP uses it and only translates it.
+- Otherwise it downloads the audio with `yt-dlp` and transcribes it with Whisper, faster
+  than real time. The audio stays on this computer; only the video ID goes to YouTube.
+- Live streams still use the extension icon (real-time capture).
+
+Every translated page, live or prepared, is listed with its title and channel in the
+launcher's **History** tab.
+
 ## Language and display settings
 
 Open the gear beside the YouTube volume control, or press **Alt+S**.

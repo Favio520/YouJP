@@ -13,6 +13,7 @@ import { loadSettings, onSettingsChanged } from '@/src/settings';
 import type { PlayerSnapshot } from '@/src/player';
 import { captureAndTranslate, retryScreenTranslation, supportsScreenCapture, validSelection } from '@/src/screenCapture';
 import { uiText, type UiLanguage } from '@/src/i18n';
+import { callVideoApi, isVideoRequest } from '@/src/video';
 
 const OFFSCREEN_PATH = 'offscreen.html';
 let uiLanguage: UiLanguage = 'es';
@@ -291,6 +292,19 @@ export default defineBackground(() => {
     })().then((result) => respond({ ok: true, result }))
       .catch((error) => respond({ ok: false, error: error instanceof Error ? error.message : String(error) }))
       .finally(() => { if (screenRequests.get(key)?.controller === controller) screenRequests.delete(key); });
+    return true;
+  });
+
+  // Vídeo completo: el content script no puede hablar con el backend, así que
+  // las peticiones pasan por aquí. Son cortas, no deja nada abierto.
+  chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
+    if (!isVideoRequest(message) || sender.id !== chrome.runtime.id ||
+        sender.tab === undefined || sender.frameId !== 0) return;
+    void (async () => {
+      const { serverUrl = DEFAULT_SERVER_URL } = await chrome.storage.local.get('serverUrl');
+      return callVideoApi(serverUrl, message);
+    })().then((data) => respond({ ok: true, data }))
+      .catch((error) => respond({ ok: false, error: error instanceof Error ? error.message : String(error) }));
     return true;
   });
 

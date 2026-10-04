@@ -40,6 +40,7 @@ from youjp.ocr import recognize_japanese
 from youjp.pipeline.analyze import NlpWorker, SentenceAnalyzer
 from youjp.pipeline.streaming import FinalUpdate
 from youjp.pipeline.translate import MtWorker, TranslationJob
+from youjp.video import VideoLibrary
 from youjp.ws.codec import FrameDecodeError, decode_frame
 from youjp.ws.protocol import (
     APP_VERSION,
@@ -89,6 +90,7 @@ class AppState:
         self.dictionary: Dictionary | None = None
         self.vad_path = settings.vad_model
         self.sessions = 0
+        self.videos = VideoLibrary(self)
 
     def new_analyzer(self) -> SentenceAnalyzer:
         return SentenceAnalyzer(self.tokenizer, self.dictionary)
@@ -245,7 +247,7 @@ def _ocr_cors_headers(origin: str) -> dict[str, str]:
 async def http_error(request: Request, exc: StarletteHTTPException) -> Response:
     response = await http_exception_handler(request, exc)
     origin = request.headers.get("origin")
-    if request.url.path in {"/ocr/translate", "/ocr/translate-text"} and _trusted_origin(
+    if request.url.path in CORS_PATHS and _trusted_origin(
         origin, app.state.youjp.settings.extension_ids
     ):
         # El navegador necesita CORS también en 4xx/5xx para poder mostrar
@@ -254,8 +256,15 @@ async def http_error(request: Request, exc: StarletteHTTPException) -> Response:
     return response
 
 
+CORS_PATHS = frozenset({"/ocr/translate", "/ocr/translate-text",
+                        "/video/prepare", "/video/poll", "/video/cancel"})
+
+
 @app.options("/ocr/translate")
 @app.options("/ocr/translate-text")
+@app.options("/video/prepare")
+@app.options("/video/poll")
+@app.options("/video/cancel")
 async def ocr_preflight(request: Request) -> Response:
     origin = request.headers.get("origin")
     if not _trusted_origin(origin, app.state.youjp.settings.extension_ids):
@@ -344,6 +353,52 @@ async def ocr_translate(request: Request) -> JSONResponse:
         await _translate_ocr_text(state, japanese, target),
         headers=_ocr_cors_headers(origin),
     )
+
+
+class VideoRequest(BaseModel):
+    video_id: str = Field(pattern=r"^[A-Za-z0-9_-]{11}$")
+    target: Literal["es", "en"] = "es"
+    since: int = Field(default=0, ge=0)
+
+
+async def _video_request(request: Request) -> tuple[AppState, str, VideoRequest]:
+    state: AppState = app.state.youjp
+    origin = request.headers.get("origin")
+    if not _trusted_origin(origin, state.settings.extension_ids):
+        raise HTTPException(status_code=403, detail="Origen no permitido")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > 1_000:
+            raise HTTPException(status_code=413, detail="Petición demasiado grande")
+    try:
+        return state, origin, VideoRequest.model_validate_json(body)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail="Vídeo o idioma no válido") from exc
+
+
+@app.post("/video/prepare")
+async def video_prepare(request: Request) -> JSONResponse:
+    """Empieza a traducir el vídeo entero (o devuelve el trabajo ya hecho)."""
+    state, origin, data = await _video_request(request)
+    job = state.videos.prepare(data.video_id, data.target)
+    return JSONResponse(job.snapshot(since=data.since), headers=_ocr_cors_headers(origin))
+
+
+@app.post("/video/poll")
+async def video_poll(request: Request) -> JSONResponse:
+    """Estado y frases nuevas desde ``since``. ``none`` si nadie lo ha pedido."""
+    state, origin, data = await _video_request(request)
+    job = state.videos.get(data.video_id, data.target)
+    payload = {"status": "none"} if job is None else job.snapshot(since=data.since)
+    return JSONResponse(payload, headers=_ocr_cors_headers(origin))
+
+
+@app.post("/video/cancel")
+async def video_cancel(request: Request) -> JSONResponse:
+    state, origin, data = await _video_request(request)
+    state.videos.cancel(data.video_id, data.target)
+    return JSONResponse({"status": "cancelled"}, headers=_ocr_cors_headers(origin))
 
 
 @app.websocket("/stream")

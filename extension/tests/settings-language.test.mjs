@@ -45,6 +45,7 @@ test('English settings translate labels, tooltips and accessibility text', () =>
   const html = renderToStaticMarkup(React.createElement(SettingsPanel, {
     settings: { ...DEFAULT_SETTINGS, settingsLanguage: 'en', position: { x: 50, y: 50 } },
     onChange() {}, onClose() {},
+    video: { phase: 'none', progress: 0, source: '', enabled: true, message: '', live: false }, onVideoAction() {},
   }));
   for (const label of ['Interface language', 'Subtitle settings', 'Close', 'Japanese text size',
     'Translate into', 'Translation only', 'Reset to bottom center', 'All kanji']) {
@@ -58,14 +59,32 @@ test('language choice updates immediately and reset preserves the selected langu
   const tree = SettingsPanel({
     settings: { ...DEFAULT_SETTINGS, settingsLanguage: 'en' },
     onChange(patch) { changes.push(patch); }, onClose() {},
+    video: { phase: 'none', progress: 0, source: '', enabled: true, message: '', live: false }, onVideoAction() {},
   });
   const visit = (node) => {
     if (!React.isValidElement(node)) return;
     if (node.props.value === 'en' && node.props.onPick) node.props.onPick('es');
-    if (node.type === 'button' && node.props.children === 'Reset') node.props.onClick();
+    if (node.type === 'button' && node.props['aria-label'] === 'Reset settings') node.props.onClick();
     React.Children.forEach(node.props.children, visit);
   };
   visit(tree);
-  assert.deepEqual(changes[0], { settingsLanguage: 'es' });
-  assert.deepEqual(changes[1], { ...DEFAULT_SETTINGS, settingsLanguage: 'en' });
+  assert.ok(changes.some((change) => JSON.stringify(change) === JSON.stringify({ settingsLanguage: 'es' })));
+  assert.ok(changes.some((change) => JSON.stringify(change) === JSON.stringify({ ...DEFAULT_SETTINGS, settingsLanguage: 'en' })));
+});
+
+test('the video card names the action for every state', () => {
+  const render = (video, language = 'es') => renderToStaticMarkup(React.createElement(SettingsPanel, {
+    settings: { ...DEFAULT_SETTINGS, settingsLanguage: language },
+    onChange() {}, onClose() {}, onVideoAction() {},
+    video: { phase: 'none', progress: 0, source: '', enabled: true, message: '', live: false, ...video },
+  }));
+  assert.match(render({}), />Traducir el vídeo</);
+  const working = render({ phase: 'working', progress: 0.42, source: 'captions' });
+  assert.match(working, />Detener</);
+  assert.match(working, /42 %/);
+  assert.match(render({ phase: 'ready', enabled: true }), />Apagar subtítulos</);
+  assert.match(render({ phase: 'ready', enabled: false }), />Encender subtítulos</);
+  assert.match(render({ phase: 'error', message: 'Cancelado.' }, 'en'), />Try again</);
+  const live = render({ live: true, phase: 'ready' });
+  assert.doesNotMatch(live, /youjp-video-action/);
 });
