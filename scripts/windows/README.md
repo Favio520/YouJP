@@ -18,6 +18,17 @@ prepares dependencies, builds the extension, and creates the launcher. When upda
 an old extension with a different ID, remove it from `chrome://extensions`, load the
 new build, and restart the backend.
 
+## Distribution
+
+Users normally install `YouJP-Setup-<version>.exe` from a GitHub release. It installs per user
+under `%LOCALAPPDATA%\Programs\YouJP` and, optionally, runs `Install-FirstRun.ps1` (which wraps
+`Setup.ps1` in a visible window and logs to `.youjp/install-firstrun.log`). `Setup.ps1` prints
+`[n/5]` stage markers, shown in **Activity** when started from the launcher. Packages contain
+the already-built extension, so `Setup.ps1` skips Node.js when `extension/package.json` is absent.
+
+`Package-Release.ps1` builds the zip, the installer (`installer/YouJP.iss`, Inno Setup 6) and
+`SHA256SUMS.txt` into `dist/`. See `docs/publishing.md` for releases and store publication.
+
 ## Development
 
 The launcher uses WPF, Windows PowerShell 5.1, and the .NET Framework compiler

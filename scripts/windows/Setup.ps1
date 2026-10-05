@@ -25,7 +25,8 @@ try {
     $listener = Get-NetTCPConnection -LocalPort $config.port -State Listen -ErrorAction SilentlyContinue
     if ($listener) { throw "Deten el servidor del puerto $($config.port) antes de instalar o actualizar." }
     [IO.File]::WriteAllText((Join-Path $script:RuntimeDir 'installed-version'), '')
-    Write-Output 'Preparando YouJP. La primera descarga puede tardar varios minutos.'
+    Write-Output 'Preparando YouJP. La primera descarga puede tardar varios minutos (hasta ~5 GB con GPU).'
+    Write-Output '[1/5] Herramientas: uv y Python privado'
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $toolsDir = Join-Path $script:RuntimeDir 'tools'
     New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
@@ -46,6 +47,7 @@ try {
     # YouJP uses its private interpreter through uv, not a global Python alias.
     # Existing executables and registry entries belong to the user's environment.
     Invoke-YouJPCommand -Exe $uvPath -Arguments @('python', 'install', '3.12', '--no-bin', '--no-registry')
+    Write-Output '[2/5] Dependencias de Python'
     # Este archivo solo aporta valores iniciales; no reescribir el .env del usuario.
     $lines = @('# Generado por el asistente. .env y las variables del entorno tienen prioridad.')
     foreach ($key in $profile.Keys) { $lines += "$key=$($profile[$key])" }
@@ -62,49 +64,57 @@ try {
         $syncArgs += @('--extra', 'ocr')
         Invoke-YouJPCommand -Exe $uvPath -Arguments $syncArgs
         $python = Join-Path $script:ProjectRoot 'backend/.venv/Scripts/python.exe'
+        Write-Output '[3/5] Modelos de voz, traduccion y diccionario'
         $prepareArgs = @('-u', (Join-Path $script:ProjectRoot 'scripts/prepare_runtime.py'))
         if ($SkipDictionary) { $prepareArgs += '--skip-dictionary' }
         Invoke-YouJPCommand -Exe $python -Arguments $prepareArgs
     } finally { Pop-Location }
 
-    Write-Output 'Preparando la extension...'
-    $node = Get-Command node -ErrorAction SilentlyContinue
-    $nodeDir = $null
-    if ($node) {
-        $major = [int]((& $node.Source --version).TrimStart('v').Split('.')[0])
-        if ($major -ge 22) { $nodeDir = Split-Path $node.Source }
-    }
-    if (-not $nodeDir) {
-        $releases = Invoke-RestMethod 'https://nodejs.org/dist/index.json'
-        $release = $releases | Where-Object { $_.version -match '^v24\.' -and $_.lts } | Select-Object -First 1
-        if (-not $release) { throw 'No se encontro Node.js 24 LTS para Windows.' }
-        $archiveName = "node-$($release.version)-win-x64.zip"
-        $nodeDir = Join-Path $toolsDir "node-$($release.version)-win-x64"
-        if (-not (Test-Path -LiteralPath (Join-Path $nodeDir 'node.exe'))) {
-            $base = "https://nodejs.org/dist/$($release.version)"
-            $archive = Join-Path $toolsDir $archiveName
-            Invoke-WebRequest "$base/$archiveName" -UseBasicParsing -OutFile $archive
-            $checksums = (Invoke-WebRequest "$base/SHASUMS256.txt" -UseBasicParsing).Content
-            $match = [regex]::Match($checksums, '(?m)^([a-f0-9]{64})\s+' + [regex]::Escape($archiveName) + '\r?$')
-            if (-not $match.Success -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $match.Groups[1].Value) {
-                throw 'La descarga de Node.js no coincide con su SHA-256 oficial.'
-            }
-            Expand-Archive -LiteralPath $archive -DestinationPath $toolsDir -Force
+    Write-Output '[4/5] Extension del navegador'
+    $extensionDir = Join-Path $script:ProjectRoot 'extension'
+    $builtManifest = Join-Path $extensionDir '.output/chrome-mv3/manifest.json'
+    if (Test-Path -LiteralPath (Join-Path $extensionDir 'package.json')) {
+        $node = Get-Command node -ErrorAction SilentlyContinue
+        $nodeDir = $null
+        if ($node) {
+            $major = [int]((& $node.Source --version).TrimStart('v').Split('.')[0])
+            if ($major -ge 22) { $nodeDir = Split-Path $node.Source }
         }
-    }
-    $env:PATH = "$nodeDir;$env:PATH"
-    Push-Location (Join-Path $script:ProjectRoot 'extension')
-    try {
-        $npm = Join-Path $nodeDir 'npm.cmd'
-        Invoke-YouJPCommand -Exe $npm -Arguments @('ci', '--no-audit', '--no-fund')
-        Invoke-YouJPCommand -Exe $npm -Arguments @('run', 'build')
-    } finally { Pop-Location }
+        if (-not $nodeDir) {
+            $releases = Invoke-RestMethod 'https://nodejs.org/dist/index.json'
+            $release = $releases | Where-Object { $_.version -match '^v24\.' -and $_.lts } | Select-Object -First 1
+            if (-not $release) { throw 'No se encontro Node.js 24 LTS para Windows.' }
+            $archiveName = "node-$($release.version)-win-x64.zip"
+            $nodeDir = Join-Path $toolsDir "node-$($release.version)-win-x64"
+            if (-not (Test-Path -LiteralPath (Join-Path $nodeDir 'node.exe'))) {
+                $base = "https://nodejs.org/dist/$($release.version)"
+                $archive = Join-Path $toolsDir $archiveName
+                Invoke-WebRequest "$base/$archiveName" -UseBasicParsing -OutFile $archive
+                $checksums = (Invoke-WebRequest "$base/SHASUMS256.txt" -UseBasicParsing).Content
+                $match = [regex]::Match($checksums, '(?m)^([a-f0-9]{64})\s+' + [regex]::Escape($archiveName) + '\r?$')
+                if (-not $match.Success -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $match.Groups[1].Value) {
+                    throw 'La descarga de Node.js no coincide con su SHA-256 oficial.'
+                }
+                Expand-Archive -LiteralPath $archive -DestinationPath $toolsDir -Force
+            }
+        }
+        $env:PATH = "$nodeDir;$env:PATH"
+        Push-Location (Join-Path $script:ProjectRoot 'extension')
+        try {
+            $npm = Join-Path $nodeDir 'npm.cmd'
+            Invoke-YouJPCommand -Exe $npm -Arguments @('ci', '--no-audit', '--no-fund')
+            Invoke-YouJPCommand -Exe $npm -Arguments @('run', 'build')
+        } finally { Pop-Location }
+    } elseif (-not (Test-Path -LiteralPath $builtManifest -PathType Leaf)) {
+        throw 'Falta la extension compilada (extension/.output/chrome-mv3). Descarga de nuevo el paquete de YouJP.'
+    } else { Write-Output 'Se usa la extension ya compilada del paquete.' }
     if (-not (Test-Path -LiteralPath (Join-Path $script:ProjectRoot 'YouJP.exe'))) {
         Invoke-YouJPCommand -Exe $script:PowerShellExe -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-STA', '-File', (Join-Path $PSScriptRoot 'Build-Launcher.ps1'), '-SkipIcons')
     }
+    Write-Output '[5/5] Comprobando la instalacion'
     # Escribir al final: una instalación incompleta no debe parecer lista.
     [IO.File]::WriteAllText((Join-Path $script:RuntimeDir 'installed-version'), (Get-YouJPVersion))
-    Write-Output 'Listo. Inicia el backend y carga extension/.output/chrome-mv3 desde chrome://extensions.'
+    Write-Output 'Listo. Inicia el backend y carga la carpeta extension/.output/chrome-mv3 desde chrome://extensions (modo desarrollador, Cargar descomprimida).'
     $setupSucceeded = $true
 } catch {
     Write-Output "ERROR: $($_.Exception.Message)"

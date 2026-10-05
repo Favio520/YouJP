@@ -1,0 +1,76 @@
+name: Release
+
+# Al subir una etiqueta vX.Y.Z se compila el instalador, el zip portable y los
+# paquetes de tienda, y se crea un borrador de release para revisarlo antes de
+# publicarlo. Con "Run workflow" solo se generan los artefactos de la ejecución.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - name: Comprobar que la etiqueta coincide con VERSION
+        if: github.ref_type == 'tag'
+        shell: powershell
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($env:GITHUB_REF_NAME -ne "v$version") {
+            throw "La etiqueta $env:GITHUB_REF_NAME no coincide con VERSION ($version)."
+          }
+      - name: Instalar extensión
+        run: npm ci --prefix extension
+      - name: Probar extensión
+        run: npm test --prefix extension
+      - name: Probar lanzador
+        shell: cmd
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File scripts\windows\Test-Launcher.ps1
+      - name: Asegurar Inno Setup
+        shell: powershell
+        run: |
+          $found = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") |
+            Where-Object { Test-Path $_ }
+          if (-not $found) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { exit 1 } }
+      - name: Empaquetar (zip portable e instalador)
+        shell: powershell
+        env:
+          CHROME_STORE_ID: ${{ vars.CHROME_STORE_ID }}
+          EDGE_STORE_ID: ${{ vars.EDGE_STORE_ID }}
+        run: |
+          $packageArgs = @()
+          if ($env:CHROME_STORE_ID) { $packageArgs += @('-ChromeStoreId', $env:CHROME_STORE_ID) }
+          if ($env:EDGE_STORE_ID) { $packageArgs += @('-EdgeStoreId', $env:EDGE_STORE_ID) }
+          & scripts\windows\Package-Release.ps1 @packageArgs
+      - name: Paquetes de tienda (Chrome y Edge, sin key)
+        run: npm run zip:store --prefix extension
+      - name: Guardar artefactos
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: youjp-windows
+          path: |
+            dist/YouJP-*.zip
+            dist/YouJP-Setup-*.exe
+            dist/SHA256SUMS.txt
+            extension/.output-store/*.zip
+      - name: Crear borrador de release
+        if: github.ref_type == 'tag'
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $files = @(Get-ChildItem dist/YouJP-*.zip, dist/YouJP-Setup-*.exe, dist/SHA256SUMS.txt, extension/.output-store/*.zip | ForEach-Object FullName)
+          gh release create $env:GITHUB_REF_NAME @files --draft --generate-notes --title "YouJP $env:GITHUB_REF_NAME"
+          if ($LASTEXITCODE -ne 0) { exit 1 }

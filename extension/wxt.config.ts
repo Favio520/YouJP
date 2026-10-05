@@ -2,6 +2,9 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
+  // El build de tienda no lleva `key`: va a otra carpeta para no pisar el build
+  // con clave que usa el paquete de Windows.
+  outDir: process.env.YOUJP_STORE_BUILD ? '.output-store' : '.output',
   manifest: {
     // Clave pública de desarrollo: conserva el mismo ID al reconstruir la extensión.
     // Las tiendas asignan su propio ID y no aceptan este campo: YOUJP_STORE_BUILD=1

@@ -26,40 +26,60 @@ for implementation details and historical measurements (in Spanish).
 The streaming and translation pipeline is implemented. Vocabulary analysis is
 still being tested; recognition mistakes can also affect readings and definitions.
 
-## Requirements
+## Install (Windows 10 or 11)
 
-- Windows 10 or 11 and an NVIDIA GPU with a recent driver for the documented GPU setup.
-  CUDA runtime libraries come as Python wheels; the CUDA Toolkit is not required.
-- [uv](https://docs.astral.sh/uv/) for the Python environment.
-- Node.js and npm to build the browser extension.
-- Chrome or Edge to load the extension.
-- Ollama for the default translation provider.
-- `ffmpeg` on `PATH` when preparing benchmark audio samples.
+1. Download **`YouJP-Setup-<version>.exe`** from the
+   [latest release](../../releases/latest) and run it. It installs for your user only (no
+   administrator rights) and, if you leave "Download and prepare the models now" ticked,
+   downloads Python, the speech and translation models, and the dictionary (up to ~5 GB
+   with an NVIDIA GPU; much less on CPU). Keep the window open until it finishes.
+2. Load the browser extension once. Chrome or Edge → `chrome://extensions` /
+   `edge://extensions` → enable **Developer mode** → **Load unpacked** → choose
+   `extension\.output\chrome-mv3` inside the install folder (the installer can open it
+   for you; the launcher has an **Extension folder** button too). Once YouJP is published
+   in the Chrome Web Store or Edge Add-ons, this step becomes a normal "Add to browser".
+3. Open **YouJP** from the Start menu, press **Start YouJP**, open a Japanese YouTube video and
+   **click the extension icon**. It shows `ON` while capturing; click again to stop.
 
-## Quick start on Windows
+Prefer not to install? Download `YouJP-<version>-win-x64.zip`, extract it anywhere and open
+`YouJP.exe`; the first launch has a **Prepare / update** button that does step 1. Both files
+are listed in `SHA256SUMS.txt` on the release page. They are not code-signed, so Windows
+SmartScreen may ask you to confirm ("More info" → "Run anyway").
 
-Open `YouJP.cmd` in the project root and select **Preparar / actualizar**
-(Prepare / update). This prepares the backend, builds the extension, and creates
-`YouJP.exe`. You can then launch the executable directly or create a shortcut.
-Keep it beside the project folders: it is not a standalone installer.
+### Requirements
 
-See the [Windows launcher guide](scripts/windows/README.md) for launcher-specific
-instructions.
+- Windows 10 or 11, 64-bit. Internet access for the first preparation.
+- **With an NVIDIA GPU** (recommended; 6 GB VRAM is enough): a recent driver. CUDA libraries
+  come as Python wheels; the CUDA Toolkit is not required. Uses `large-v3-turbo`.
+- **Without a GPU**: it still works. The assistant picks CPU mode with the smaller `small`
+  Whisper model, which is slower and less accurate; live subtitles may lag behind the audio,
+  so prepared (pre-translated) videos are the better experience. No translation is enabled
+  by default on CPU; choose **Local NLLB** under Settings → Translation before pressing
+  **Prepare / update**.
+- Chrome or Edge.
+- Optional: [Ollama](https://ollama.com/download) for the higher-quality translator
+  (Qwen3-4B-Instruct-2507). Install it **before** pressing Prepare / update and the assistant
+  downloads the model for you; otherwise the built-in NLLB translator is used.
+- Uninstall from Windows Settings → Apps. It also removes the models and downloaded data.
 
-The default translator uses **Qwen3-4B-Instruct-2507 through Ollama**. Download it once:
+### From source (development)
+
+You need [uv](https://docs.astral.sh/uv/), Node.js 24 and npm. Open `YouJP.cmd` in the repository
+root and select **Prepare / update**: it prepares the backend, builds the extension and creates
+`YouJP.exe` (it installs `uv` and Node itself when they are missing). `ffmpeg` on `PATH` is
+only needed to prepare benchmark audio samples.
+
+To build the distributable files yourself:
 
 ```powershell
-ollama pull qwen3:4b-instruct-2507-q4_K_M
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/Package-Release.ps1
 ```
 
-Use **Carpeta extensión** (Extension folder) in the launcher to open the build
-directory. In Chrome or Edge, open `chrome://extensions` or `edge://extensions`,
-enable **Developer mode**, select **Load unpacked**, and choose
-`extension/.output/chrome-mv3`.
-
-Start the backend, open a Japanese YouTube video, and **click the extension icon**.
-The icon shows `ON` while capturing; click it again to stop. Browser tab capture
-requires this user gesture, so the extension intentionally has no action popup.
+This writes `dist/YouJP-<version>-win-x64.zip`, `dist/YouJP-Setup-<version>.exe` (needs
+[Inno Setup 6](https://jrsoftware.org/isinfo.php); add `-SkipInstaller` otherwise) and
+`dist/SHA256SUMS.txt`. `npm run zip:store` inside `extension` builds the store packages.
+Pushing a tag `vX.Y.Z` that matches `VERSION` runs the **Release** workflow, which creates a
+draft GitHub release with all of them. See [docs/publishing.md](docs/publishing.md).
 
 ## Translate a whole video in advance
 

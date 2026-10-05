@@ -62,3 +62,8 @@ jobs:
       - name: Probar lanzador
         shell: cmd
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File scripts\windows\Test-Launcher.ps1
+      - name: Empaquetar para Windows (sin instalador)
+        shell: cmd
+        run: |
+          npm ci --prefix extension
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\windows\Package-Release.ps1 -SkipInstaller

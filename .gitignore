@@ -24,6 +24,7 @@ __pycache__/
 # Node / extensión
 node_modules/
 /extension/.output/
+/extension/.output-store/
 /extension/.wxt/
 dist/
 
@@ -36,3 +37,6 @@ dist/
 # Native entry point, rebuilt by scripts/windows/Build-Launcher.ps1
 /YouJP.exe
 /YouJP-sumi-e.exe
+
+# Paquetes de distribución
+/dist/
