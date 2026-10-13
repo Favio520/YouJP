@@ -70,7 +70,7 @@ const ENGLISH: Record<string, string> = {
   'Banda oscura que se lee sobre cualquier vídeo sin taparlo': 'A dark band that stays readable on any video without covering it',
   'Tarjeta de papel con tinta, como el lanzador': 'A paper card with ink, like the launcher',
   'Cada palabra subrayada según su categoría, sobre un fondo suave': 'Each word underlined by its category, on a soft background',
-  'Detener': 'Stop', 'Reintentar': 'Try again', 'Vídeo traducido': 'Video translated',
+  'Detener': 'Stop', 'Detener la captura': 'Stop capture', 'Reintentar': 'Try again', 'Vídeo traducido': 'Video translated',
   'Los subtítulos siguen el vídeo.': 'Subtitles follow the video.',
   'Traducir el vídeo completo': 'Translate the whole video', 'Traduciendo el vídeo…': 'Translating the video…',
   'con el transcript de YouTube': 'using the YouTube transcript', 'transcribiendo el audio': 'transcribing the audio',

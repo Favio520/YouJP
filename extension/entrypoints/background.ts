@@ -186,20 +186,23 @@ async function startCapture(tab: chrome.tabs.Tab): Promise<void> {
 
 }
 
+/** Devuelve la pestaña a su estado inactivo: sin distintivo y con el overlay oculto. */
+async function resetTab(tabId: number): Promise<void> {
+  await chrome.action.setBadgeText({ text: '', tabId }).catch(() => {});
+  await chrome.action
+    .setTitle({ title: t('Activar subtítulos japoneses'), tabId })
+    .catch(() => {});
+  await chrome.tabs
+    .sendMessage(tabId, { type: 'status', status: 'idle' } satisfies ExtensionMessage)
+    .catch(() => {});
+}
+
 async function stopCapture(): Promise<void> {
   const previous = capture;
   capture = null;
   await chrome.storage.session.remove('capture');
   await chrome.runtime.sendMessage({ type: 'capture.stop' } satisfies ExtensionMessage).catch(() => {});
-  if (previous) {
-    await chrome.action.setBadgeText({ text: '', tabId: previous.tabId }).catch(() => {});
-    await chrome.action
-      .setTitle({ title: t('Activar subtítulos japoneses'), tabId: previous.tabId })
-      .catch(() => {});
-    await chrome.tabs
-      .sendMessage(previous.tabId, { type: 'status', status: 'idle' } satisfies ExtensionMessage)
-      .catch(() => {});
-  }
+  if (previous) await resetTab(previous.tabId);
   await chrome.offscreen.closeDocument().catch(() => {});
 }
 
@@ -306,6 +309,20 @@ export default defineBackground(() => {
     })().then((data) => respond({ ok: true, data }))
       .catch((error) => respond({ ok: false, error: error instanceof Error ? error.message : String(error) }));
     return true;
+  });
+
+  // Botón de cerrar del overlay. Tras un error la captura ya no existe, pero la
+  // pestaña sigue mostrando el fallo, así que también hay que limpiarla.
+  chrome.runtime.onMessage.addListener((message: unknown, sender) => {
+    if (!message || typeof message !== 'object' || !('type' in message) ||
+        message.type !== 'capture.dismiss' || sender.id !== chrome.runtime.id ||
+        sender.tab?.id === undefined || sender.frameId !== 0) return;
+    const tabId = sender.tab.id;
+    void queueCapture(async () => {
+      await restored;
+      if (capture?.tabId === tabId) await stopCapture();
+      else await resetTab(tabId);
+    }).catch(console.warn);
   });
 
   // El documento offscreen solo tiene chrome.runtime: el almacenamiento y

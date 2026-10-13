@@ -51,6 +51,12 @@ const READY_TOAST_MS = 4000;
 
 const requestVideoToggle = () => window.dispatchEvent(new Event('youjp:prepare-video'));
 
+/** Cierra la captura en vivo desde el propio overlay. El icono de la barra del
+ *  navegador hace lo mismo, pero no siempre está a la vista. */
+const dismissCapture = () => {
+  chrome.runtime.sendMessage({ type: 'capture.dismiss' } satisfies ExtensionMessage).catch(() => {});
+};
+
 interface Prepared {
   phase: 'none' | 'working' | 'ready' | 'error';
   videoId: string;
@@ -622,6 +628,16 @@ export function Overlay() {
         >
           <Icon name="settings" />
         </button>
+        {liveActive && (
+          <button type="button"
+            className="youjp-tool youjp-tool--close"
+            onClick={dismissCapture}
+            title={t('Detener la captura')}
+            aria-label={t('Detener la captura')}
+          >
+            <Icon name="close" />
+          </button>
+        )}
       </div>
 
       {showMetrics && metrics && (

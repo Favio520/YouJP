@@ -66,6 +66,11 @@ export interface StopCapture {
   type: 'capture.stop';
 }
 
+/** content script -> service worker: el usuario cierra la captura desde el overlay */
+export interface DismissCapture {
+  type: 'capture.dismiss';
+}
+
 /** service worker -> offscreen: confirma que su listener ya está listo */
 export interface OffscreenPing {
   type: 'offscreen.ping';
@@ -125,6 +130,7 @@ export type ExtensionMessage = (
   | PlayerFlush
   | StartCapture
   | StopCapture
+  | DismissCapture
   | OffscreenPing
   | GetSettings
   | SettingsChanged

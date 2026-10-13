@@ -257,6 +257,11 @@
   background:#f0e8ff;
 }
 
+.youjp-tool--close:hover {
+  background:#ffe8e1;
+  color:#ae3b2c;
+}
+
 .youjp-grip {
   cursor: grab;
   letter-spacing: -1px;

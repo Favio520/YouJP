@@ -85,6 +85,7 @@ function harness({ capture = { tabId: 7, videoId: 'video' }, settings, beforePro
     screen: (...args) => receivers[0](...args), update: (...args) => updated(...args),
     change: (...args) => settingsListener(...args),
     receive: (...args) => receive(...args), remove: (id) => removed(id),
+    deliver: (message, sender) => { for (const listener of receivers) listener(message, sender, () => {}); },
     command: (...args) => command(...args) };
 }
 
@@ -252,4 +253,44 @@ test('closing captured tab after worker restart stops reconnects and removes sto
   await new Promise(setImmediate);
   assert.equal(h.state.capture, undefined);
   assert.equal(h.broadcasts[0].type, 'capture.stop');
+});
+
+test('dismiss from the overlay stops the capture of that tab', async () => {
+  const h = harness();
+  h.deliver({ type: 'capture.dismiss' }, { id: 'test', tab: { id: 7 }, frameId: 0 });
+  await new Promise(setImmediate);
+  assert.equal(h.state.capture, undefined);
+  assert.equal(h.broadcasts.at(-1).type, 'capture.stop');
+  assert.equal(h.routed.at(-1).tabId, 7);
+  assert.equal(h.routed.at(-1).msg.status, 'idle');
+  assert.equal(h.closes, 1);
+});
+
+test('dismiss after a fatal error clears the tab even though no capture is left', async () => {
+  const h = harness({ capture: null });
+  h.deliver({ type: 'capture.dismiss' }, { id: 'test', tab: { id: 8 }, frameId: 0 });
+  await new Promise(setImmediate);
+  assert.equal(h.routed.at(-1).tabId, 8);
+  assert.equal(h.routed.at(-1).msg.status, 'idle');
+  assert.equal(h.badges.at(-1).text, '');
+  assert.equal(h.badges.at(-1).tabId, 8);
+  assert.equal(h.broadcasts.length, 0);
+});
+
+test('dismiss from another tab leaves the active capture running', async () => {
+  const h = harness();
+  h.deliver({ type: 'capture.dismiss' }, { id: 'test', tab: { id: 8 }, frameId: 0 });
+  await new Promise(setImmediate);
+  assert.deepEqual(h.state.capture, { tabId: 7, videoId: 'video' });
+  assert.equal(h.broadcasts.length, 0);
+  assert.equal(h.closes, 0);
+});
+
+test('dismiss ignores subframes and senders outside the extension', async () => {
+  const h = harness();
+  h.deliver({ type: 'capture.dismiss' }, { id: 'test', tab: { id: 7 }, frameId: 1 });
+  h.deliver({ type: 'capture.dismiss' }, { id: 'other', tab: { id: 7 }, frameId: 0 });
+  await new Promise(setImmediate);
+  assert.deepEqual(h.state.capture, { tabId: 7, videoId: 'video' });
+  assert.equal(h.routed.length, 0);
 });
