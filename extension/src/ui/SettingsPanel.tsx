@@ -54,7 +54,7 @@ const BACKDROP: Array<[BackdropMode, string, string]> = [
 
 const SKINS: Array<[SkinMode, string, string]> = [
   ['ribbon', 'Cinta', 'Banda oscura que se lee sobre cualquier vídeo sin taparlo'],
-  ['paper', 'Papel', 'Tarjeta de papel con tinta, como el lanzador'],
+  ['paper', 'Papel', 'Tarjeta de papel washi y tinta: se lee igual sobre cualquier vídeo'],
   ['grammar', 'Gramática', 'Cada palabra subrayada según su categoría, sobre un fondo suave'],
 ];
 
@@ -68,6 +68,26 @@ const TARGETS: Array<[TargetLanguage, string, string]> = [
   ['es', 'Español', 'Japonés → español'],
   ['en', 'English', 'Japanese → English'],
 ];
+
+/** Secciones del panel, en orden: clave, nombre corto en español y en inglés. */
+const SECTIONS: Array<[string, string, string]> = [
+  ['video', 'Vídeo', 'Video'],
+  ['style', 'Estilo', 'Style'],
+  ['reading', 'Lectura', 'Reading'],
+  ['language', 'Idioma', 'Language'],
+  ['interface', 'Interfaz', 'Interface'],
+];
+
+/** Lleva el panel a una sección. Desplaza solo el panel: `scrollIntoView`
+ *  movería también la página de YouTube si el panel no cabe entero. */
+function jumpTo(event: React.MouseEvent<HTMLElement>, key: string) {
+  const nav = event.currentTarget.parentElement;
+  const body = nav?.parentElement;
+  const section = body?.querySelector<HTMLElement>(`[data-section="${key}"]`);
+  if (!nav || !body || !section) return;
+  const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  body.scrollTo({ top: Math.max(0, section.offsetTop - nav.offsetHeight - 14), behavior: still ? 'auto' : 'smooth' });
+}
 
 function Row({ label, value, hint, children }: {
   label: string; value?: string; hint?: string; children: React.ReactNode;
@@ -114,10 +134,12 @@ function Slider({ id, label, unit, min, max, step, value, onChange }: {
   id: string; label: string; unit: string; min: number; max: number; step: number;
   value: number; onChange: (value: number) => void;
 }) {
+  // La parte recorrida de la corredera se pinta con este porcentaje.
+  const fill = { '--fill': `${((value - min) / (max - min)) * 100}%` } as React.CSSProperties;
   return (
-    <Row label={label} value={`${value} ${unit}`}>
+    <Row label={label} value={`${value} ${unit}`.trim()}>
       <input id={id} aria-label={label} type="range" min={min} max={max} step={step} value={value}
-        onChange={(e) => onChange(Number(e.target.value))} />
+        style={fill} onChange={(e) => onChange(Number(e.target.value))} />
     </Row>
   );
 }
@@ -223,15 +245,15 @@ export function SettingsPanel({ settings, onChange, onClose, video, onVideoActio
   const reset = () => onChange({ ...DEFAULT_SETTINGS, settingsLanguage: settings.settingsLanguage });
   return (
     <div className="youjp-settings" role="dialog" aria-label={t('Ajustes de subtítulos', 'Subtitle settings')}>
-      <div className="youjp-settings-head">
-        <span className="youjp-panel-mark" aria-hidden="true">調</span>
+      <div className="youjp-panel-head youjp-settings-head">
+        <span className="youjp-seal" aria-hidden="true">調</span>
         <span className="youjp-panel-heading"><span>{t('Ajustes', 'Settings')}</span>
           <small>{t('A tu manera. En tiempo real.', 'Your way. In real time.')}</small></span>
-        <button type="button" className="youjp-card-close" onClick={reset}
+        <button type="button" className="youjp-icon-btn" onClick={reset}
           title={t('Restablecer ajustes', 'Reset settings')} aria-label={t('Restablecer ajustes', 'Reset settings')}>
           <Icon name="reset" />
         </button>
-        <button type="button" className="youjp-card-close" onClick={onClose} aria-label={t('Cerrar', 'Close')}>
+        <button type="button" className="youjp-icon-btn" onClick={onClose} aria-label={t('Cerrar', 'Close')}>
           <Icon name="close" />
         </button>
       </div>
@@ -239,12 +261,18 @@ export function SettingsPanel({ settings, onChange, onClose, video, onVideoActio
       <Preview settings={settings} label={t('Vista previa', 'Preview')} />
 
       <div className="youjp-settings-body">
-        <fieldset className="youjp-setting-section">
+        <nav className="youjp-settings-nav" aria-label={t('Secciones', 'Sections')}>
+          {SECTIONS.map(([key, es, en]) => (
+            <button type="button" key={key} onClick={(event) => jumpTo(event, key)}>{t(es, en)}</button>
+          ))}
+        </nav>
+
+        <fieldset className="youjp-setting-section" data-section="video">
           <legend>{t('Este vídeo', 'This video')}</legend>
           <VideoCard video={video} onAction={onVideoAction} language={settings.settingsLanguage} t={t} />
         </fieldset>
 
-        <fieldset className="youjp-setting-section">
+        <fieldset className="youjp-setting-section" data-section="style">
           <legend>{t('Estilo de subtítulos', 'Subtitle style')}</legend>
           <div className="youjp-skins">
             {SKINS.map(([key, name, hint]) => (
@@ -261,7 +289,7 @@ export function SettingsPanel({ settings, onChange, onClose, video, onVideoActio
           <span className="youjp-setting-hint">{t(SKINS.find(([key]) => key === settings.skin)?.[2] ?? '')}</span>
         </fieldset>
 
-        <fieldset className="youjp-setting-section">
+        <fieldset className="youjp-setting-section" data-section="reading">
           <legend>{t('Lectura y posición', 'Reading and position')}</legend>
           <Slider id="youjp-ja-size" label={t('Tamaño del japonés', 'Japanese text size')} unit="px"
             min={16} max={56} step={2} value={settings.jaSize} onChange={(jaSize) => onChange({ jaSize })} />
@@ -287,7 +315,7 @@ export function SettingsPanel({ settings, onChange, onClose, video, onVideoActio
             min={40} max={100} step={2} value={settings.width} onChange={(width) => onChange({ width })} />
         </fieldset>
 
-        <fieldset className="youjp-setting-section">
+        <fieldset className="youjp-setting-section" data-section="language">
           <legend>{t('Idioma y ayudas', 'Language and reading aids')}</legend>
           <Row label="Furigana">
             <Choice options={translateOptions(FURIGANA)} value={settings.furigana} onPick={(v) => onChange({ furigana: v })} />
@@ -328,7 +356,7 @@ export function SettingsPanel({ settings, onChange, onClose, video, onVideoActio
           </Row>
         </fieldset>
 
-        <fieldset className="youjp-setting-section">
+        <fieldset className="youjp-setting-section" data-section="interface">
           <legend>{t('Interfaz', 'Interface')}</legend>
           <Row label={t('Idioma de la interfaz', 'Interface language')}>
             <Choice options={[['es', 'Español', ''], ['en', 'English', '']]}

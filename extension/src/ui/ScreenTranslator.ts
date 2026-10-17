@@ -17,35 +17,50 @@ let settings = DEFAULT_SETTINGS;
 export function configureScreenTranslator(value: OverlaySettings): void { settings = value; }
 const t = (value: string) => uiText(settings.settingsLanguage, value);
 
+// Mismo material que los paneles del overlay (overlay.css, tema «Sumi»), pero
+// en su propio Shadow DOM: aquí no llegan las variables del overlay.
 const STYLE = `
-  :host { font-family: system-ui, 'Yu Gothic UI', sans-serif; color-scheme:light; }
-  .veil { position:fixed; inset:0; cursor:crosshair; background:rgba(5,10,18,.38);
+  :host { font-family:'Segoe UI Variable Text','Segoe UI','Hiragino Sans',system-ui,'Yu Gothic UI',sans-serif;
+    color-scheme:dark; }
+  .veil { position:fixed; inset:0; cursor:crosshair; background:rgba(8,9,12,.4);
     touch-action:none; user-select:none; }
   .hint { position:fixed; top:18px; left:50%; transform:translateX(-50%);
-    padding:12px 18px; border-radius:16px; background:#fff9f2; color:#25364a;
-    border:1px solid #dfd2f5; font-size:13px; box-shadow:0 8px 30px #25364a20;
+    padding:10px 18px; border-radius:99px; background:rgba(17,18,23,.92); color:#f4f0e8;
+    border:1px solid rgba(255,255,255,.1); font-size:13px; box-shadow:0 12px 32px rgba(0,0,0,.45);
+    backdrop-filter:blur(12px);
     pointer-events:none; width:max-content; max-width:calc(100vw - 32px); box-sizing:border-box; text-align:center; }
-  .box { position:fixed; display:none; border:2px solid #6450a4;
-    background:rgba(185,162,244,.18); box-shadow:0 0 0 1px #fff9f2;
+  .box { position:fixed; display:none; border:2px solid #ff6a4d; border-radius:4px;
+    background:rgba(255,106,77,.12); box-shadow:0 0 0 9999px rgba(8,9,12,.25);
     pointer-events:none; }
   .panel { pointer-events:auto; width:min(370px,calc(100vw - 28px)); max-height:72vh;
-    overflow:auto; border:1px solid #eadfd4; border-radius:22px;
-    background:#fff9f2; color:#25364a; box-shadow:0 16px 44px #25364a20;
-    scrollbar-width:thin; scrollbar-color:#b6a6ce transparent; }
-  .head { display:flex; align-items:center; gap:10px; padding:14px 16px;
-    border-bottom:1px solid #eadfd4; background:#f1ecfd; font-size:14px; font-weight:600; }
-  .badge { color:#6450a4; font-size:11px; letter-spacing:.1em; }
+    overflow:auto; border:1px solid rgba(255,255,255,.08); border-radius:16px;
+    background:rgba(17,18,23,.94); color:#f4f0e8; backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:0 24px 60px -16px rgba(0,0,0,.7), 0 2px 8px rgba(0,0,0,.3);
+    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.2) transparent; }
+  .head { display:flex; align-items:center; gap:10px; padding:10px 10px 10px 14px; min-height:52px;
+    border-bottom:1px solid rgba(255,255,255,.08); font-size:14px; font-weight:600; }
+  .badge { display:grid; place-items:center; flex:0 0 auto; width:28px; height:28px; border-radius:7px;
+    color:#fff; background:#d23a20; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);
+    font-family:'Yu Mincho','Hiragino Mincho ProN','Noto Serif JP',serif; font-size:16px; font-weight:400; }
   .title { flex:1; }
-  button { font:inherit; cursor:pointer; border:1px solid #eadfd4; border-radius:12px;
-    background:#eee5ff; color:#25364a; padding:7px 10px; min-height:32px; }
-  button:hover { background:#e4d8fc; }
-  button:focus-visible { outline:2px solid #ae3b2c; outline-offset:2px; }
-  .close { background:transparent; font-size:18px; line-height:1; }
-  .body { padding:18px; font-size:14px; line-height:1.65; }
-  .label { color:#ae3b2c; font-size:10px; font-weight:600; text-transform:uppercase;
-    letter-spacing:.12em; margin:0 0 5px; }
-  .text { white-space:pre-wrap; overflow-wrap:anywhere; margin:0 0 15px; }
-  .empty { color:#5c6b7e; }
+  button { font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    border:1px solid rgba(255,255,255,.16); border-radius:9px;
+    background:rgba(255,255,255,.09); color:#f4f0e8; padding:7px 12px; min-height:32px; }
+  button:hover { background:#d23a20; border-color:#d23a20; color:#fff; }
+  button:disabled { cursor:default; opacity:.6; }
+  button:focus-visible { outline:2px solid #ff6a4d; outline-offset:2px; }
+  .close { display:grid; place-items:center; width:30px; height:30px; min-height:0; padding:0;
+    border:0; background:transparent; color:#9a958c; font-size:20px; font-weight:400; line-height:1; }
+  .close:hover { background:rgba(255,255,255,.09); border-color:transparent; color:#f4f0e8; }
+  .body { padding:16px 18px 18px; font-size:14px; line-height:1.65; }
+  .label { display:flex; align-items:center; gap:8px; color:#9a958c; font-size:10.5px; font-weight:600;
+    text-transform:uppercase; letter-spacing:.12em; margin:0 0 6px; }
+  .label::before { content:''; width:10px; height:2px; border-radius:2px; background:#ff6a4d; }
+  .text { white-space:pre-wrap; overflow-wrap:anywhere; margin:0 0 16px; }
+  .text[lang='ja'] { font-family:'Yu Gothic UI','Yu Gothic',Meiryo,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+    font-size:15px; }
+  .label + .text:not([lang]):not(.empty) { color:#f7d794; }
+  .empty { color:#9a958c; }
   .actions { display:flex; justify-content:flex-end; }
 `;
 

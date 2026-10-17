@@ -604,6 +604,7 @@ export function Overlay() {
         >
           <Icon name="move" />
         </button>
+        <span className="youjp-tools-sep" aria-hidden="true" />
         <button type="button"
           className="youjp-tool"
           onClick={() => setShowTranscript((value) => !value)}

@@ -118,12 +118,12 @@ export function TranscriptPanel({
     >
       {/* La cabecera entera es el asa: es la zona que no tiene nada pulsable
           dentro, así que arrastrar desde ahí no compite con nada. */}
-      <div className="youjp-transcript-head" onMouseDown={empezar}>
-        <span className="youjp-panel-mark" aria-hidden="true">記</span>
-        <span className="youjp-transcript-title">{t('Historial')}<small>{lines.length} {t('frases')}</small></span>
+      <div className="youjp-panel-head youjp-transcript-head" onMouseDown={empezar}>
+        <span className="youjp-seal" aria-hidden="true">記</span>
+        <span className="youjp-panel-heading"><span>{t('Historial')}</span><small>{lines.length} {t('frases')}</small></span>
         {actual && (
           <button type="button"
-            className="youjp-transcript-action"
+            className="youjp-icon-btn"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onResetPosition}
             title={t('Devolver el panel a su sitio')}
@@ -133,7 +133,7 @@ export function TranscriptPanel({
           </button>
         )}
         <button type="button"
-          className="youjp-transcript-action"
+          className="youjp-icon-btn"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={onClose}
           aria-label={t('Cerrar')}
@@ -173,7 +173,7 @@ export function TranscriptPanel({
               </span>
               {showTranslation && line.translation && (
                 <span className="youjp-transcript-es" lang={line.target ?? undefined}>
-                  <small>{line.target?.toUpperCase()} · </small>{line.translation}
+                  {line.target && <small>{line.target.toUpperCase()}</small>}{line.translation}
                 </span>
               )}
             </span>

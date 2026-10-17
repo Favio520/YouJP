@@ -32,17 +32,17 @@ export function WordInspector({ token, target, position, onMove, onResetPosition
       role="dialog"
       aria-label={t('Consulta de palabra')}
     >
-      <div className="youjp-inspector-head" onMouseDown={empezar}>
-        <span className="youjp-inspector-mark" aria-hidden="true">辞</span>
-        <span className="youjp-inspector-title">{t('Diccionario')}</span>
+      <div className="youjp-panel-head youjp-inspector-head" onMouseDown={empezar}>
+        <span className="youjp-seal" aria-hidden="true">辞</span>
+        <span className="youjp-panel-heading"><span>{t('Diccionario')}</span><small>JMdict · Sudachi</small></span>
         {actual && (
-          <button type="button" className="youjp-transcript-action"
+          <button type="button" className="youjp-icon-btn"
             onMouseDown={(event) => event.stopPropagation()}
             onClick={onResetPosition} title={t('Devolver la consulta a su sitio')}
             aria-label={t('Restablecer posición de la consulta')}
           ><Icon name="reset" /></button>
         )}
-        <button type="button" className="youjp-transcript-action"
+        <button type="button" className="youjp-icon-btn"
           onMouseDown={(event) => event.stopPropagation()}
           onClick={onClose} aria-label={t('Cerrar consulta')}
         ><Icon name="close" /></button>

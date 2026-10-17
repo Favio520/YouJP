@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Overlay } from '../src/ui/Overlay';
 import { DEFAULT_SETTINGS } from '../src/settings';
 import type { ExtensionMessage } from '../src/messages';
+import { startScreenSelection } from '../src/ui/ScreenTranslator';
 import '../src/ui/overlay.css';
 import './preview.css';
 
@@ -11,7 +12,11 @@ const listeners = new Set<(message: ExtensionMessage) => void>();
 let stored = { ...DEFAULT_SETTINGS, history: 0 };
 Object.defineProperty(globalThis, 'chrome', { value: {
   runtime: { onMessage: { addListener: (fn: (message: ExtensionMessage) => void) => listeners.add(fn),
-    removeListener: (fn: (message: ExtensionMessage) => void) => listeners.delete(fn) } },
+    removeListener: (fn: (message: ExtensionMessage) => void) => listeners.delete(fn) },
+    // El recorte OCR responde con un resultado fijo, como si el backend lo hubiera leído.
+    sendMessage: async (message: { type?: string }) => message?.type === 'screen.capture'
+      ? { ok: true, result: { japanese: '桜が咲いています。', translation: 'Los cerezos están en flor.',
+        target: 'es', translation_error: null, provider: 'preview', spanish: '' } } : undefined },
   storage: { local: { get: async () => ({ overlaySettings: stored }),
     set: async (value: { overlaySettings: typeof stored }) => { stored = value.overlaySettings; } },
     onChanged: { addListener() {}, removeListener() {} } },
@@ -54,6 +59,7 @@ function Preview() {
       <button type="button" onClick={() => { emit({ type:'status', status:'idle' }); window.dispatchEvent(new KeyboardEvent('keydown',{ altKey:true,code:'KeyH' })); }}>Historial vacío</button>
       <button type="button" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown',{ altKey:true,code:'KeyH' }))}>Historial</button>
       <button type="button" onClick={() => window.dispatchEvent(new Event('youjp:toggle-settings'))}>Ajustes</button>
+      <button type="button" onClick={startScreenSelection}>Recorte (OCR)</button>
       <button type="button" aria-pressed={size==='compact'} onClick={() => setSize(size==='wide'?'compact':'wide')}>Reproductor compacto</button>
     </nav>
     <div className={`preview-player preview-player--${size}`} id="movie_player">

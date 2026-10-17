@@ -1,17 +1,46 @@
-/* YouJP: warm paper, ink, coral, lilac and mint. All assets work locally. */
-:host, .youjp-theme {
-  --youjp-paper:#fff9f2; --youjp-ink:#25364a; --youjp-muted:#5c6b7e;
-  --youjp-coral:#ff705e; --youjp-lilac:#b9a2f4; --youjp-mint:#c8e8d3;
-}
-[class^='youjp-'] { box-sizing:border-box; }
 /*
- * Estilos del overlay. Viven dentro de un Shadow DOM, así que no hay riesgo de
- * chocar con el CSS de YouTube ni al revés.
+ * YouJP · «Sumi»: tinta oscura, papel washi y un solo acento bermellón (朱).
  *
- * La tipografía japonesa va con una pila de sistema en vez de una fuente web:
- * cargar una fuente CJK son megabytes y un parpadeo justo en el elemento que el
- * usuario está leyendo.
+ * Los paneles viven encima del vídeo. Claros, deslumbraban en cuanto la escena
+ * era oscura y tapaban más de lo que ocupaban; en vidrio oscuro se integran con
+ * el reproductor y el ojo vuelve al vídeo sin esfuerzo. El bermellón se reserva
+ * para lo que se puede pulsar o está activo, y el dorado para la traducción:
+ * así cada color significa una sola cosa.
+ *
+ * Todo vive dentro de un Shadow DOM, así que no hay riesgo de chocar con el CSS
+ * de YouTube ni al revés. Sin fuentes web ni imágenes: nada sale a la red.
  */
+:host, .youjp-theme {
+  --y-glass: rgba(17, 18, 23, 0.9);
+  --y-solid: #15161b;
+  --y-raised: rgba(255, 255, 255, 0.045);
+  --y-raised-2: rgba(255, 255, 255, 0.09);
+  --y-line: rgba(255, 255, 255, 0.08);
+  --y-line-strong: rgba(255, 255, 255, 0.16);
+  --y-text: #f4f0e8;
+  --y-text-2: #bdb7ad;
+  --y-text-3: #9a958c;
+  /* Bermellón claro para texto e indicadores sobre oscuro; el profundo, para
+     rellenos con texto blanco encima (4,8:1). */
+  --y-shu: #ff6a4d;
+  --y-shu-deep: #d23a20;
+  --y-shu-soft: rgba(255, 106, 77, 0.15);
+  --y-kin: #f7d794;
+  --y-ok: #73d69f;
+  --y-err: #ff9a85;
+  --y-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --y-font-ui: 'Segoe UI Variable Text', 'Segoe UI', 'Hiragino Sans', 'Helvetica Neue', Arial,
+    'Yu Gothic UI', Meiryo, system-ui, sans-serif;
+  /* La pila japonesa es de sistema: una fuente CJK web son megabytes y un
+     parpadeo justo en el elemento que el usuario está leyendo. */
+  --y-font-ja: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP',
+    'Noto Sans CJK JP', system-ui, sans-serif;
+  --y-font-serif: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', 'Noto Serif CJK JP', serif;
+  --y-font-mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+[class^='youjp-'] { box-sizing: border-box; }
+
+/* ------------------------------------------------------------- subtítulos */
 
 /* Los valores ajustables llegan como variables CSS desde settings.ts. Los
    respaldos son los mismos que DEFAULT_SETTINGS. */
@@ -32,26 +61,46 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0 4%;
   pointer-events: none;
-  font-family: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN',
-    'Noto Sans JP', system-ui, sans-serif;
+  font-family: var(--y-font-ja);
 }
 
 .youjp-subs {
-  display:flex; flex-direction:column; align-items:center; gap:5px;
-    max-width:var(--youjp-width); padding:10px 20px 12px; border-radius:22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: var(--youjp-width);
+  padding: 8px 22px 10px;
+  border-radius: 12px;
 }
 
 /* El contorno solo no basta sobre fondos claros o con mucho movimiento, que es
    justo donde más cuesta leer. */
+/* Sin frases (al iniciar, en un error, entre frases de un vídeo preparado) la
+   banda vacía quedaría como una mancha sobre el vídeo. */
+.youjp-subs:empty {
+  display: none;
+}
+
 .youjp-bg--soft .youjp-subs {
-  background:rgba(18,28,43,.70); backdrop-filter:blur(5px);
+  background: rgba(10, 11, 14, 0.66);
+  backdrop-filter: blur(8px) saturate(120%);
 }
 
 .youjp-bg--solid .youjp-subs {
-  background:rgba(18,28,43,.94);
+  background: rgba(10, 11, 14, 0.94);
+}
+
+/* Una frase y su traducción van juntas: separarlas visualmente haría que con
+   varias en pantalla no se supiera qué línea traduce a cuál. */
+.youjp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .youjp-line {
@@ -61,140 +110,56 @@
   line-height: 1.5;
   font-weight: 500;
   color: #fff;
-  /* Contorno en vez de caja: deja ver el vídeo y se lee sobre cualquier fondo. */
+  /* Contorno además de la banda: con el fondo «Ninguno» es lo único que separa
+     el texto del vídeo. */
   text-shadow:
-    0 0 4px rgba(0, 0, 0, 0.95),
-    0 2px 6px rgba(0, 0, 0, 0.85),
-    0 0 14px rgba(0, 0, 0, 0.6);
+    0 0 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 14px rgba(0, 0, 0, 0.5);
   overflow-wrap: anywhere;
 }
 
-/* Una frase y su traducción van juntas: separarlas visualmente haría que con
-   varias en pantalla no se supiera qué línea traduce a cuál. */
-.youjp-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
+/* La traducción en dorado y no en blanco: con los dos idiomas del mismo color
+   hay que leer para saber cuál es cuál, y el ojo tiene que poder saltar directo
+   al que busca. */
+.youjp-es {
+  margin: 0;
+  text-align: center;
+  font-family: var(--y-font-ui);
+  font-size: var(--youjp-es-size);
+  line-height: 1.4;
+  color: var(--y-kin);
+  text-shadow:
+    0 0 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.8);
+  overflow-wrap: anywhere;
 }
 
 /* Las frases anteriores más pequeñas y apagadas: están ahí para reenganchar si
    te has perdido, no para competir con la línea actual. */
 .youjp-block--past .youjp-line {
   font-size: calc(var(--youjp-ja-size) * 0.72);
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* La traducción en menta y no en blanco: con los dos idiomas del mismo
-   color hay que leer para saber cuál es cuál, y el ojo tiene que poder saltar
-   directo al que busca. */
-.youjp-es {
-  margin: 0;
-  text-align: center;
-  font-size: var(--youjp-es-size);
-  line-height: 1.4;
-  color: #c8e8d3;
-  text-shadow:
-    0 0 4px rgba(0, 0, 0, 0.95),
-    0 2px 6px rgba(0, 0, 0, 0.85);
-  overflow-wrap: anywhere;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .youjp-block--past .youjp-es {
   font-size: calc(var(--youjp-es-size) * 0.72);
-  color: rgba(200, 232, 211, 0.65);
+  color: rgba(247, 215, 148, 0.66);
 }
 
 .youjp-committed {
   color: #fff;
 }
 
-/* La cola tentativa se reescribe cada 0,8 s. En gris y en cursiva para que se
+/* La cola tentativa se reescribe cada 0,8 s. Apagada y en cursiva para que se
    note de un vistazo que todavía puede cambiar. */
 .youjp-tentative {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.66);
   font-style: italic;
 }
 
-.youjp-status {
-  pointer-events: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 12.5px;
-  letter-spacing: 0.01em;
-  background: #fff9f2;
-  color: #25364a;
-  border: 1px solid #eadfd4;
-  backdrop-filter: blur(6px);
-  max-width: 80%;
-}
+/* ---------------------------------------------------------------- furigana */
 
-.youjp-status--working, .youjp-status--ready, .youjp-status--error { pointer-events:auto; }
-.youjp-status--working { position:relative; overflow:hidden; padding-bottom:9px; }
-.youjp-status--ready { border-color:#a9d6bb; background:#edf7f0; color:#25523a; }
-.youjp-status-text { display:inline-flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; min-width:0; }
-.youjp-status-text b { font-variant-numeric:tabular-nums; }
-.youjp-status-action {
-  flex:0 0 auto; min-height:26px; padding:2px 12px; font:inherit; font-size:12px; font-weight:600;
-    color:#25364a; background:#fff; border:1px solid #d9cfc4; border-radius:99px; cursor:pointer;
-}
-.youjp-status-action:hover { border-color:#ae3b2c; color:#ae3b2c; }
-.youjp-status-action:focus-visible { outline:2px solid #6450a4; outline-offset:2px; }
-.youjp-status-meter { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(100,80,164,.15); }
-.youjp-status-meter i { display:block; height:100%; background:#6450a4; transition:width 400ms ease; }
-
-.youjp-status--error {
-  border-color: #f4b6a7;
-  background: #ffe8e1;
-  color: #ae3b2c;
-}
-
-.youjp-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #b9a2f4;
-  animation: youjp-pulse 1.4s ease-in-out infinite;
-}
-
-.youjp-status--error .youjp-dot {
-  background: #ff705e;
-  animation: none;
-}
-
-.youjp-status--ready .youjp-dot {
-  background: #336749;
-  animation: none;
-}
-
-@keyframes youjp-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .youjp-dot {
-    animation: none;
-  }
-}
-
-.youjp-detail {
-  color: #5c6b7e;
-  font-size: 11.5px;
-}
-
-/* -------------------------------------------------------------- furigana */
-
-/* `ruby` sube la línea base, así que sin espacio extra las frases se pegan
-   entre sí en cuanto aparece la primera anotación. */
 .youjp-line ruby {
   ruby-position: over;
 }
@@ -202,9 +167,9 @@
 .youjp-line rt {
   font-size: 0.45em;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.78);
   /* La furigana es una ayuda, no el texto: en el mismo tono que el kanji
      compite con él y se acaba leyendo solo el kana. */
+  color: rgba(255, 255, 255, 0.76);
   text-shadow:
     0 0 3px rgba(0, 0, 0, 0.95),
     0 1px 4px rgba(0, 0, 0, 0.85);
@@ -212,7 +177,131 @@
 }
 
 .youjp-block--past .youjp-line rt {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.66);
+}
+
+/* ------------------------------------------------------------------ tokens */
+
+/* Los tokens son botones de verdad, no divs con onClick: así funcionan con
+   teclado y los lectores de pantalla saben que se pueden pulsar. */
+.youjp-token {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  /* El contenedor tiene pointer-events: none para no tapar los controles del
+     reproductor; los tokens lo reactivan solo sobre sí mismos. */
+  pointer-events: auto;
+  transition: background-color 100ms ease, box-shadow 100ms ease;
+}
+
+.youjp-root--dragging .youjp-token {
+  pointer-events: none;
+}
+
+.youjp-token--plain {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.84;
+}
+
+.youjp-token:not(.youjp-token--plain):hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* La palabra abierta en el diccionario: subrayado bermellón, el mismo color que
+   el sello del panel, para que se vea qué consulta corresponde a qué palabra. */
+.youjp-token--active,
+.youjp-token--active:not(.youjp-token--plain):hover {
+  background: rgba(255, 106, 77, 0.26);
+  box-shadow: inset 0 -2px 0 var(--y-shu);
+}
+
+/* ------------------------------------------------------------------ estado */
+
+.youjp-status {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 80%;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--y-font-ui);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--y-text);
+  background: var(--y-glass);
+  border: 1px solid var(--y-line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.youjp-status--working, .youjp-status--ready, .youjp-status--error { pointer-events: auto; }
+.youjp-status--working { position: relative; overflow: hidden; padding-bottom: 9px; }
+.youjp-status--ready { border-color: rgba(115, 214, 159, 0.35); }
+.youjp-status--error { border-color: rgba(255, 106, 77, 0.5); color: #ffd9d0; }
+
+.youjp-status-text { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; }
+.youjp-status-text b { font-variant-numeric: tabular-nums; color: var(--y-kin); }
+
+.youjp-status-action {
+  flex: 0 0 auto;
+  min-height: 26px;
+  padding: 2px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--y-text);
+  background: var(--y-raised-2);
+  border: 1px solid var(--y-line-strong);
+  border-radius: 99px;
+  cursor: pointer;
+}
+.youjp-status-action:hover { color: #fff; background: var(--y-shu-deep); border-color: var(--y-shu-deep); }
+
+.youjp-status-meter { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--y-raised-2); }
+.youjp-status-meter i { display: block; height: 100%; background: var(--y-shu); transition: width 400ms ease; }
+
+.youjp-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--y-kin);
+  box-shadow: 0 0 0 3px rgba(247, 215, 148, 0.18);
+  animation: youjp-pulse 1.4s ease-in-out infinite;
+}
+
+.youjp-status--error .youjp-dot {
+  background: var(--y-shu);
+  box-shadow: 0 0 0 3px var(--y-shu-soft);
+  animation: none;
+}
+
+.youjp-status--ready .youjp-dot {
+  background: var(--y-ok);
+  box-shadow: 0 0 0 3px rgba(115, 214, 159, 0.18);
+  animation: none;
+}
+
+.youjp-detail {
+  color: var(--y-text-3);
+  font-size: 11.5px;
+}
+
+/* En un error el detalle es lo que hay que leer: qué falló y qué hacer. */
+.youjp-status--error .youjp-detail {
+  color: #ffc9bd;
+}
+
+@keyframes youjp-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 
 /* --------------------------------------------------- posición arrastrable */
@@ -237,10 +326,23 @@
 
 /* ------------------------------------------------------------ herramientas */
 
+/* Medio apagadas hasta que el ratón llega a los subtítulos: siempre a la vista
+   para quien las busca, sin pesar sobre el vídeo para quien solo lee. */
 .youjp-tools {
-  position:absolute; top:-38px; right:4%; display:flex; gap:2px; padding:3px;
-    opacity:.96; transition:opacity 160ms ease; background:#fff9f2;
-    border:1px solid #eadfd4; border-radius:14px; box-shadow:0 4px 14px rgba(37,54,74,.1);
+  position: absolute;
+  top: -40px;
+  right: 4%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+  background: var(--y-glass);
+  border: 1px solid var(--y-line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
 }
 
 .youjp-root:hover .youjp-tools,
@@ -248,22 +350,148 @@
   opacity: 1;
 }
 
+.youjp-tools-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 2px;
+  background: var(--y-line-strong);
+}
+
 .youjp-tool {
-  display:grid; place-items:center; width:32px; height:30px; padding:0;
-    color:#25364a; background:transparent; border:0; border-radius:10px; cursor:pointer; pointer-events:auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  color: var(--y-text-2);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .youjp-tool:hover {
-  background:#f0e8ff;
+  color: var(--y-text);
+  background: var(--y-raised-2);
+}
+
+/* Panel abierto: el icono en bermellón y una marca bajo él. */
+.youjp-tool[aria-expanded='true'] {
+  color: var(--y-shu);
+  background: var(--y-shu-soft);
+}
+
+.youjp-tool[aria-expanded='true']::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--y-shu);
 }
 
 .youjp-grip {
   cursor: grab;
-  letter-spacing: -1px;
 }
 
 .youjp-root--dragging .youjp-grip {
   cursor: grabbing;
+}
+
+/* ------------------------------------------------------- paneles: común */
+
+/* Historial, diccionario y ajustes comparten material: vidrio oscuro, línea
+   fina y una cabecera con sello. Se distinguen por el kanji del sello, no por
+   el color de fondo. */
+.youjp-transcript, .youjp-inspector, .youjp-settings {
+  color: var(--y-text);
+  background: var(--y-glass);
+  border: 1px solid var(--y-line);
+  border-radius: 16px;
+  box-shadow: var(--y-shadow);
+  backdrop-filter: blur(18px) saturate(140%);
+  text-align: left;
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  animation: youjp-panel-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.youjp-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-height: 52px;
+  padding: 10px 10px 10px 14px;
+  border-bottom: 1px solid var(--y-line);
+  font-family: var(--y-font-ui);
+  user-select: none;
+}
+
+/* Las cabeceras de historial y diccionario son también el asa de arrastre. */
+.youjp-transcript-head, .youjp-inspector-head {
+  cursor: grab;
+}
+
+.youjp-transcript--dragging .youjp-transcript-head,
+.youjp-inspector--dragging .youjp-inspector-head {
+  cursor: grabbing;
+}
+
+/* Sello (hanko): un cuadrado bermellón con el kanji del panel. */
+.youjp-seal {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: #fff;
+  background: var(--y-shu-deep);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.22), 0 4px 12px rgba(210, 58, 32, 0.35);
+  font-family: var(--y-font-serif);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.youjp-panel-heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.youjp-panel-heading small {
+  color: var(--y-text-3);
+  font-size: 11.5px;
+  font-weight: 400;
+}
+
+.youjp-icon-btn, .youjp-card-close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--y-text-3);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.youjp-icon-btn:hover, .youjp-card-close:hover {
+  color: var(--y-text);
+  background: var(--y-raised-2);
 }
 
 /* --------------------------------------------------------------- historial */
@@ -290,14 +518,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-radius: 22px;
-  background: #fff9f2;
-  border: 1px solid #eadfd4;
-  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
-  color: #25364a;
-  text-align: left;
-  font-family: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN',
-    'Noto Sans JP', system-ui, sans-serif;
+  font-family: var(--y-font-ja);
 }
 
 .youjp-transcript--free {
@@ -309,88 +530,366 @@
   opacity: 0.92;
 }
 
-.youjp-transcript-head {
-  display:flex; align-items:center; gap:11px; padding:14px 16px;
-    border-bottom:1px solid #eadfd4; font-size:14px; color:#25364a;
-    font-weight:600; cursor:grab; flex:0 0 auto; background:#edf7f0;
-}
-
-.youjp-transcript--dragging .youjp-transcript-head {
-  cursor: grabbing;
-}
-
-.youjp-transcript-title {
-  display:flex; flex:1; align-items:baseline; gap:10px;
-}
-
-.youjp-transcript-action {
-  display:grid; place-items:center; width:32px; height:32px; padding:0;
-    color:#5c6b7e; background:transparent; border:0; border-radius:10px; cursor:pointer; flex:0 0 auto;
-}
-
-.youjp-transcript-action:hover {
-  color: #25364a;
-  background: #eee5dd;
+.youjp-transcript--with-dictionary {
+  left: 12px;
+  top: 12px;
+  bottom: auto;
+  transform: none;
+  width: min(520px, calc(54% - 18px));
+  min-width: 0;
+  height: min(420px, 65%);
 }
 
 .youjp-transcript-body {
-  flex:1 1 auto; min-height:0; overflow-y:auto; padding:4px 16px 10px;
-    display:flex; flex-direction:column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .youjp-transcript-empty {
-  margin:0; padding:28px 10px; text-align:center; font-size:13px;
-    line-height:1.7; color:#5c6b7e;
+  margin: auto 0;
+  padding: 24px 16px;
+  text-align: center;
+  font-family: var(--y-font-ui);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--y-text-3);
+}
+
+.youjp-transcript-empty::before {
+  content: '記';
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--y-font-serif);
+  font-size: 44px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.1);
 }
 
 /* La marca temporal lleva el vídeo a esa frase y las palabras abren su
    tarjeta, como en el subtítulo. El resto de la fila es texto seleccionable. */
 .youjp-transcript-row {
-  display:grid; grid-template-columns:46px minmax(0,1fr); gap:10px;
-    align-items:baseline; width:100%; padding:14px 0; text-align:left;
-    border-bottom:1px solid #eee5dd;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  padding: 11px 10px;
+  border-radius: 10px;
+  text-align: left;
 }
 
 .youjp-transcript-row:hover {
-  background: #edf7f0;
+  background: var(--y-raised);
 }
 
 /* Frase que suena ahora, en un vídeo traducido de antemano. */
-.youjp-transcript-row--active {
-  background: #f1ecfd;
-  box-shadow: inset 3px 0 0 #6450a4;
+.youjp-transcript-row--active,
+.youjp-transcript-row--active:hover {
+  background: rgba(255, 106, 77, 0.08);
+  box-shadow: inset 2px 0 0 var(--y-shu);
 }
 
 .youjp-transcript-time {
-  justify-self:start; padding:5px 4px; margin:0 0 0 -4px; min-height:28px;
-    font-family:'Cascadia Mono',Consolas,ui-monospace,monospace; font-size:11px;
-    font-variant-numeric:tabular-nums; color:#5c6b7e; background:transparent; border:0;
-    border-radius:4px; cursor:pointer;
+  justify-self: start;
+  min-height: 26px;
+  margin: 0 0 0 -4px;
+  padding: 4px 6px;
+  font-family: var(--y-font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--y-text-3);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.youjp-transcript-time::before {
+  content: '▸';
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 120ms ease, opacity 120ms ease;
 }
 
 .youjp-transcript-time:hover {
-  color: #6450a4;
-  background: #e9e0fb;
+  color: var(--y-shu);
+  background: var(--y-shu-soft);
 }
 
-.youjp-transcript-time:focus-visible {
-  outline: 2px solid #6450a4;
-  outline-offset: 1px;
+.youjp-transcript-time:hover::before {
+  width: 0.9em;
+  opacity: 1;
+}
+
+.youjp-transcript-row--active .youjp-transcript-time {
+  color: var(--y-shu);
 }
 
 .youjp-transcript-text {
-  display:flex; flex-direction:column; gap:6px; min-width:0; overflow-wrap:anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .youjp-transcript-ja {
-  font-size:var(--youjp-transcript-size,16px); line-height:1.65;
+  font-size: var(--youjp-transcript-size, 16px);
+  line-height: 1.65;
 }
 
 .youjp-transcript-es {
-  font-size:calc(var(--youjp-transcript-size,16px) * .88); line-height:1.55; color:#6450a4;
+  font-family: var(--y-font-ui);
+  font-size: calc(var(--youjp-transcript-size, 16px) * 0.86);
+  line-height: 1.5;
+  color: var(--y-kin);
 }
 
-/* --------------------------------------------------------------- ajustes */
+/* Etiqueta del idioma de cada traducción: el historial conserva el de origen. */
+.youjp-transcript-es small {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--y-line-strong);
+  border-radius: 4px;
+  color: var(--y-text-3);
+  font: 600 9.5px/1.6 var(--y-font-mono);
+  letter-spacing: 0.06em;
+  vertical-align: 0.15em;
+}
+
+/* ------------------------------------------------------------- diccionario */
+
+/* Ventana de consulta independiente: se puede mover y redimensionar sin
+   arrastrar el historial ni los subtítulos. */
+.youjp-inspector {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 63;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  width: min(370px, calc(100% - 24px));
+  height: min(380px, calc(100% - 68px));
+  min-width: min(230px, 94%);
+  min-height: 120px;
+  max-width: 96%;
+  max-height: 90%;
+  resize: both;
+  overflow: hidden;
+  font-family: var(--y-font-ja);
+}
+
+.youjp-inspector--with-history {
+  width: min(370px, calc(46% - 18px));
+  min-width: 0;
+}
+
+.youjp-card {
+  position: relative;
+  pointer-events: auto;
+  width: min(380px, 90%);
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 0;
+  border-radius: 16px;
+  background: var(--y-glass);
+  border: 1px solid var(--y-line);
+  box-shadow: var(--y-shadow);
+  color: var(--y-text);
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.youjp-inspector .youjp-card {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  max-height: none;
+  border: 0;
+  border-radius: 0 0 15px 15px;
+  box-shadow: none;
+  background: transparent;
+}
+
+.youjp-card-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* La palabra en grande, en mincho, con un sol bermellón detrás: el único
+   adorno del panel, en el sitio donde se mira primero. */
+.youjp-card-head {
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--y-line);
+  background: radial-gradient(circle at 88% 26%, rgba(255, 106, 77, 0.2), transparent 34%);
+}
+
+.youjp-card-word {
+  padding-right: 28px;
+  font-family: var(--y-font-serif);
+  font-size: 36px;
+  line-height: 1.25;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.youjp-card-kana {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--y-kin);
+}
+
+.youjp-card-romaji {
+  margin-top: 2px;
+  font-family: var(--y-font-mono);
+  font-size: 11px;
+  color: var(--y-text-3);
+  letter-spacing: 0.04em;
+}
+
+.youjp-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 20px 18px;
+  font-family: var(--y-font-ui);
+}
+
+.youjp-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.youjp-tag {
+  padding: 2px 9px;
+  border: 1px solid var(--y-line-strong);
+  border-radius: 99px;
+  color: var(--y-text-2);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.youjp-tag--common {
+  border-color: rgba(115, 214, 159, 0.45);
+  color: var(--y-ok);
+}
+
+.youjp-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--y-text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.youjp-card-label::before {
+  content: '';
+  width: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--y-shu);
+}
+
+/* Marca el origen del dato. Cuando la fase 5 añada explicaciones generadas,
+   tendrán que distinguirse de un vistazo de lo que viene del diccionario. */
+.youjp-source {
+  padding: 0 5px;
+  border: 1px solid var(--y-line-strong);
+  border-radius: 4px;
+  color: var(--y-text-3);
+  font: 500 9.5px/1.6 var(--y-font-mono);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.youjp-chain {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--y-font-ja);
+  font-size: 18px;
+}
+
+.youjp-chain-lemma { color: var(--y-text-2); }
+.youjp-chain-arrow { color: var(--y-text-3); font-size: 13px; }
+.youjp-chain-surface { color: var(--y-kin); }
+
+.youjp-chain-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.youjp-step {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--y-shu-soft);
+  color: #ffbfae;
+  font-size: 11px;
+}
+
+.youjp-senses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.youjp-senses li {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.youjp-senses li::marker {
+  color: var(--y-shu);
+  font-family: var(--y-font-mono);
+  font-size: 11px;
+}
+
+.youjp-sense-tags {
+  display: block;
+  margin-bottom: 1px;
+  color: var(--y-text-3);
+  font-size: 11px;
+}
+
+.youjp-gloss-en {
+  color: var(--y-text-2);
+  font-style: italic;
+}
+
+.youjp-lang-badge {
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid rgba(247, 215, 148, 0.4);
+  border-radius: 4px;
+  color: var(--y-kin);
+  font-size: 10px;
+  font-style: normal;
+}
+
+/* ------------------------------------------------------------------ ajustes */
 
 .youjp-settings-dock {
   position: absolute;
@@ -406,415 +905,443 @@
 }
 
 .youjp-settings {
-  pointer-events:auto; display:flex; flex-direction:column; width:100%;
-    max-height:min(100%,640px); overflow:hidden; border-radius:22px; background:#fff9f2;
-    border:1px solid #eadfd4; box-shadow:0 10px 30px rgba(37,54,74,.12); color:#25364a;
-    text-align:left; font-size:14px; line-height:1.45;
-    /* Segoe UI y compañía: más abiertas y legibles a tamaño pequeño que la pila
-       japonesa del subtítulo, que queda para los kanji. */
-    font-family:'Segoe UI Variable Text','Segoe UI','Helvetica Neue',Arial,'Yu Gothic UI',
-      'Hiragino Kaku Gothic ProN',Meiryo,system-ui,sans-serif;
-}
-
-.youjp-settings-head {
-  display:flex; align-items:center; gap:8px; flex:0 0 auto; padding:12px 12px 12px 16px;
-    border-bottom:1px solid #eadfd4; font-size:14px; color:#25364a; font-weight:600; background:#f1ecfd;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: min(100%, 660px);
+  overflow: hidden;
+  font-family: var(--y-font-ui);
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 /* Vista previa fija: se ve el efecto de cada ajuste aunque no haya subtítulos. */
 .youjp-preview {
-  position:relative; flex:0 0 auto; display:grid; place-items:center; min-height:96px; padding:22px 14px 14px;
-    background:linear-gradient(160deg,#1d2640,#3a3470 62%,#5a4a8c); border-bottom:1px solid #eadfd4;
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  min-height: 104px;
+  padding: 26px 14px 16px;
+  border-bottom: 1px solid var(--y-line);
+  background:
+    radial-gradient(circle at 82% 30%, rgba(255, 106, 77, 0.32), transparent 22%),
+    linear-gradient(180deg, #2a2c38 0%, #1b1c24 62%, #121318 100%);
 }
+
 .youjp-preview-label {
-  position:absolute; top:8px; left:14px; color:rgba(255,255,255,.7); font-size:10px;
-    font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  position: absolute;
+  top: 9px;
+  left: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
-.youjp-preview-box { display:grid; gap:2px; max-width:100%; padding:6px 14px 8px; border-radius:14px; text-align:center; }
-.youjp-preview-box--soft { background:rgba(18,28,43,.70); }
-.youjp-preview-box--solid { background:rgba(18,28,43,.94); }
-.youjp-preview-ja, .youjp-preview-tr { margin:0; overflow-wrap:anywhere; }
-.youjp-preview-ja { color:#fff; line-height:1.55; font-weight:500; text-shadow:0 0 4px rgba(0,0,0,.9),0 2px 6px rgba(0,0,0,.7); }
-.youjp-preview-tr { color:#c8e8d3; line-height:1.4; text-shadow:0 0 4px rgba(0,0,0,.9); }
+
+.youjp-preview-box { display: grid; gap: 2px; max-width: 100%; padding: 6px 14px 8px; border-radius: 9px; text-align: center; }
+.youjp-preview-box--soft { background: rgba(10, 11, 14, 0.66); }
+.youjp-preview-box--solid { background: rgba(10, 11, 14, 0.94); }
+.youjp-preview-ja, .youjp-preview-tr { margin: 0; overflow-wrap: anywhere; }
+.youjp-preview-ja {
+  color: #fff;
+  font-family: var(--y-font-ja);
+  font-weight: 500;
+  line-height: 1.55;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+.youjp-preview-tr { color: var(--y-kin); line-height: 1.4; text-shadow: 0 0 3px rgba(0, 0, 0, 0.9); }
+
+/* Índice de secciones: el panel es largo y casi siempre se viene a cambiar una
+   sola cosa. Queda fijo arriba mientras se desplaza el contenido. */
+.youjp-settings-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  margin: 0 -18px;
+  padding: 10px 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--y-solid);
+  border-bottom: 1px solid var(--y-line);
+}
+
+.youjp-settings-nav button {
+  flex: 1 0 auto;
+  min-height: 28px;
+  padding: 3px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--y-text-2);
+  background: transparent;
+  border: 1px solid var(--y-line-strong);
+  border-radius: 99px;
+  cursor: pointer;
+}
+
+.youjp-settings-nav button:hover {
+  color: var(--y-text);
+  border-color: var(--y-shu);
+}
 
 .youjp-settings-body {
-  padding:16px 18px 18px; display:flex; flex-direction:column; gap:20px;
-    min-height:0; overflow-y:auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-height: 0;
+  padding: 0 18px 18px;
+  overflow-y: auto;
+  counter-reset: youjp-section;
 }
 
 .youjp-setting {
-  display:flex; flex-direction:column; gap:8px; margin:0; padding:0; border:0; min-width:0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
 .youjp-setting-label {
-  display:flex; justify-content:space-between; align-items:center; gap:10px;
-    font-size:13.5px; font-weight:600; color:#25364a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: var(--y-text);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .youjp-setting-value {
-  min-width:52px; padding:2px 9px; border-radius:99px; background:#f1ecfd; color:#4f3f8a;
-    font:600 12px/1.6 'Cascadia Mono',Consolas,ui-monospace,monospace; text-align:center;
-    font-variant-numeric:tabular-nums;
+  min-width: 52px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--y-raised-2);
+  color: var(--y-text-2);
+  font: 500 11.5px/1.7 var(--y-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .youjp-setting-hint {
-  font-size:12.5px; color:#566579; line-height:1.5;
+  color: var(--y-text-3);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
+/* Corredera propia: la parte recorrida en bermellón (`--fill` llega desde el
+   componente) y la perilla en papel. */
 .youjp-setting input[type='range'] {
-  width:100%; height:20px; margin:0; accent-color:#6450a4; cursor:pointer;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
 }
 
-/* Control segmentado: una pieza con la opción activa levantada. */
+.youjp-setting input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to right, var(--y-shu) var(--fill, 50%), rgba(255, 255, 255, 0.14) var(--fill, 50%));
+}
+
+.youjp-setting input[type='range']::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--y-text);
+  box-shadow: 0 0 0 4px rgba(255, 106, 77, 0.28), 0 2px 6px rgba(0, 0, 0, 0.5);
+  appearance: none;
+}
+
+.youjp-setting input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.youjp-setting input[type='range']::-moz-range-progress {
+  height: 4px;
+  border-radius: 4px;
+  background: var(--y-shu);
+}
+
+.youjp-setting input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--y-text);
+  box-shadow: 0 0 0 4px rgba(255, 106, 77, 0.28);
+}
+
+/* Control segmentado: la opción activa en papel sobre la pista oscura. */
 .youjp-choice {
-  display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:2px; padding:3px;
-    background:#f3ece3; border-radius:13px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 3px;
+  background: var(--y-raised);
+  border: 1px solid var(--y-line);
+  border-radius: 10px;
 }
 
 .youjp-choice-btn {
-  min-height:36px; padding:6px 8px; font:inherit; font-size:13.5px; line-height:1.25;
-    color:#5c6b7e; background:transparent; border:0; border-radius:10px; cursor:pointer;
-    transition:background-color 140ms ease, color 140ms ease;
+  min-height: 32px;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.25;
+  color: var(--y-text-2);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .youjp-choice-btn:hover {
-  color:#25364a; background:rgba(255,255,255,.6);
+  color: var(--y-text);
+  background: var(--y-raised-2);
 }
 
 .youjp-choice-btn--on, .youjp-choice-btn--on:hover {
-  color:#3f3270; background:#fff; font-weight:600; box-shadow:0 1px 3px rgba(37,54,74,.18);
+  color: var(--y-solid);
+  background: var(--y-text);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 /* Interruptor de verdad (role="switch"): la casilla queda para el teclado. */
 .youjp-switch {
-  position:relative; display:inline-flex; align-items:center; gap:10px; min-height:30px;
-    font-size:13.5px; color:#3d4b5e; cursor:pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  color: var(--y-text-2);
+  font-size: 13px;
+  cursor: pointer;
 }
 .youjp-switch input {
-  position:absolute; width:100%; height:100%; margin:0; opacity:0; cursor:pointer;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 .youjp-switch-track {
-  position:relative; flex:0 0 auto; width:38px; height:22px; border-radius:99px;
-    background:#d9d0c6; transition:background-color 160ms ease;
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background-color 160ms ease;
 }
 .youjp-switch-track::after {
-  content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%;
-    background:#fff; box-shadow:0 1px 3px rgba(37,54,74,.35); transition:transform 160ms ease;
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--y-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  transition: transform 160ms ease;
 }
-.youjp-switch input:checked + .youjp-switch-track { background:#6450a4; }
-.youjp-switch input:checked + .youjp-switch-track::after { transform:translateX(16px); }
-.youjp-switch input:focus-visible + .youjp-switch-track { outline:2px solid #6450a4; outline-offset:2px; }
+.youjp-switch input:checked + .youjp-switch-track { background: var(--y-shu-deep); }
+.youjp-switch input:checked + .youjp-switch-track::after { transform: translateX(16px); background: #fff; }
+.youjp-switch input:focus-visible + .youjp-switch-track { outline: 2px solid var(--y-shu); outline-offset: 2px; }
 
 .youjp-reset {
-  align-self:flex-start; padding:8px 12px; min-height:36px; font:inherit; font-size:13.5px;
-    color:#5c6b7e; background:transparent; border:1px solid #eadfd4; border-radius:12px; cursor:pointer;
+  align-self: flex-start;
+  min-height: 34px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--y-text-2);
+  background: transparent;
+  border: 1px solid var(--y-line-strong);
+  border-radius: 9px;
+  cursor: pointer;
 }
 
 .youjp-reset:hover {
-  color: #25364a;
-  border-color: #b9a2f4;
+  color: var(--y-text);
+  border-color: var(--y-shu);
+}
+
+/* Secciones numeradas: el número en bermellón hace de índice al desplazarse. */
+.youjp-setting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  counter-increment: youjp-section;
+  scroll-margin-top: 58px;
+}
+
+.youjp-setting-section legend {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 0;
+  color: var(--y-text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.youjp-setting-section legend::before {
+  content: counter(youjp-section, decimal-leading-zero);
+  color: var(--y-shu);
+  font-family: var(--y-font-mono);
+  letter-spacing: 0;
+}
+
+.youjp-setting-section + .youjp-setting-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--y-line);
 }
 
 /* Estado del vídeo actual: el mismo vocabulario de color que el botón del reproductor. */
 .youjp-video-card {
-  --tone:#8a96a8; --tone-bg:#f6f0e8;
-  display:grid; grid-template-columns:auto minmax(0,1fr); gap:10px 12px; align-items:start;
-    padding:12px 14px; border-radius:16px; background:var(--tone-bg); border:1px solid #eadfd4;
+  --tone: var(--y-text-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px 12px;
+  align-items: start;
+  padding: 13px 14px;
+  border-radius: 12px;
+  background: var(--y-raised);
+  border: 1px solid var(--y-line);
 }
-.youjp-video-card--work { --tone:#6450a4; --tone-bg:#f1ecfd; }
-.youjp-video-card--ready { --tone:#336749; --tone-bg:#edf7f0; }
-.youjp-video-card--error { --tone:#ae3b2c; --tone-bg:#ffe8e1; }
-.youjp-video-card--live { --tone:#6450a4; --tone-bg:#f1ecfd; }
+.youjp-video-card--work, .youjp-video-card--live { --tone: var(--y-kin); }
+.youjp-video-card--ready { --tone: var(--y-ok); }
+.youjp-video-card--error { --tone: var(--y-shu); border-color: rgba(255, 106, 77, 0.4); }
 .youjp-video-state {
-  width:10px; height:10px; margin-top:5px; border-radius:50%; background:var(--tone);
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 22%, transparent);
 }
-.youjp-video-card--work .youjp-video-state { animation:youjp-pulse 1.4s ease-in-out infinite; }
-.youjp-video-text { display:grid; gap:3px; min-width:0; }
-.youjp-video-text b { font-size:14px; }
-.youjp-video-text span { color:#4a586b; font-size:13px; line-height:1.5; }
-.youjp-video-meter { display:block; height:5px; margin-top:5px; border-radius:99px; background:rgba(100,80,164,.18); overflow:hidden; }
-.youjp-video-meter i { display:block; height:100%; border-radius:99px; background:#6450a4; transition:width 400ms ease; }
+.youjp-video-card--work .youjp-video-state { animation: youjp-pulse 1.4s ease-in-out infinite; }
+.youjp-video-text { display: grid; gap: 3px; min-width: 0; }
+.youjp-video-text b { font-size: 13.5px; font-weight: 600; }
+.youjp-video-text span { color: var(--y-text-2); font-size: 12.5px; line-height: 1.5; }
+.youjp-video-meter { display: block; height: 3px; margin-top: 6px; border-radius: 99px; background: var(--y-raised-2); overflow: hidden; }
+.youjp-video-meter i { display: block; height: 100%; border-radius: 99px; background: var(--y-shu); transition: width 400ms ease; }
 .youjp-video-action {
-  grid-column:1 / -1; min-height:38px; padding:7px 14px; font:inherit; font-size:14px; font-weight:600;
-    color:#25364a; background:#fff; border:1px solid #d9cfc4; border-radius:12px; cursor:pointer;
+  grid-column: 1 / -1;
+  min-height: 36px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--y-text);
+  background: var(--y-raised-2);
+  border: 1px solid var(--y-line-strong);
+  border-radius: 9px;
+  cursor: pointer;
 }
-.youjp-video-action:hover { border-color:#b9a2f4; background:#faf7ff; }
-.youjp-video-action--idle, .youjp-video-action--off { color:#25364a; background:#ff705e; border-color:#ff705e; }
-.youjp-video-action--idle:hover, .youjp-video-action--off:hover { background:#ff8a7b; border-color:#ff8a7b; }
-.youjp-video-action--work { color:#ae3b2c; border-color:#f4b6a7; background:#fff; }
-.youjp-video-action--work:hover { background:#ffe8e1; border-color:#ae3b2c; }
+.youjp-video-action:hover { background: rgba(255, 255, 255, 0.14); }
+/* Acción principal (traducir, encender): el único botón relleno del panel. */
+.youjp-video-action--idle, .youjp-video-action--off { color: #fff; background: var(--y-shu-deep); border-color: var(--y-shu-deep); }
+.youjp-video-action--idle:hover, .youjp-video-action--off:hover { background: #e2462b; border-color: #e2462b; }
+.youjp-video-action--work { color: var(--y-err); border-color: rgba(255, 106, 77, 0.45); background: transparent; }
+.youjp-video-action--work:hover { background: var(--y-shu-soft); }
 
 .youjp-capture-hint {
   margin: 0;
-  padding-top: 10px;
-  border-top: 1px solid #eee5dd;
-  color: #4a586b;
-  font-size: 12.5px;
-  line-height: 1.5;
+  padding-top: 14px;
+  border-top: 1px solid var(--y-line);
+  color: var(--y-text-3);
+  font-size: 12px;
+  line-height: 1.7;
 }
 
 .youjp-capture-hint kbd {
-  padding: 1px 4px;
-  border: 1px solid #dfd2f5;
-  border-radius: 8px;
-  color: #6450a4;
-  font: inherit;
+  padding: 1px 6px;
+  border: 1px solid var(--y-line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--y-raised);
+  color: var(--y-text);
+  font: 500 11px/1.6 var(--y-font-mono);
 }
 
-/* ---------------------------------------------------------------- tokens */
-
-/* Los tokens son botones de verdad, no divs con onClick: así funcionan con
-   teclado y los lectores de pantalla saben que se pueden pulsar. */
-.youjp-token {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  border-radius: 8px;
-  cursor: pointer;
-  /* El contenedor tiene pointer-events: none para no tapar los controles del
-     reproductor; los tokens lo reactivan solo sobre sí mismos. */
-  pointer-events: auto;
-  transition: background-color 90ms ease;
-}
-
-.youjp-root--dragging .youjp-token {
-  pointer-events: none;
-}
-
-.youjp-token--plain {
-  cursor: default;
-  pointer-events: none;
-  opacity: 0.82;
-}
-
-.youjp-token:not(.youjp-token--plain):hover {
-  background: rgba(185, 162, 244, 0.28);
-}
-
-.youjp-token--active {
-  background: rgba(185, 162, 244, 0.4);
-  box-shadow: 0 0 0 1px #b9a2f4;
-}
-
-.youjp-token:focus-visible {
-  outline: 2px solid #6450a4;
-  outline-offset: 1px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .youjp-token {
-    transition: none;
-  }
-}
-
-/* ------------------------------------------------------- tarjeta de palabra */
-
-.youjp-card {
-  position: relative;
-  pointer-events: auto;
-  width: min(380px, 90%);
-  max-height: 46vh;
-  overflow-y: auto;
-  padding: 0;
-  border-radius: 22px;
-  background: #fff9f2;
-  border: 1px solid #eadfd4;
-  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
-  color: #25364a;
-  text-align: left;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Ventana de consulta independiente: se puede mover y redimensionar sin
-   arrastrar el historial ni los subtítulos. */
-.youjp-inspector {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 63;
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  width: min(370px, calc(100% - 24px));
-  height: min(360px, calc(100% - 68px));
-  min-width: min(230px, 94%);
-  min-height: 120px;
-  max-width: 96%;
-  max-height: 90%;
-  resize: both;
-  overflow: hidden;
-  border-radius: 22px;
-  background: #fff9f2;
-  border: 1px solid #dfd2f5;
-  box-shadow: 0 10px 30px rgba(37, 54, 74, 0.12);
-  font-family: 'Yu Gothic UI', 'Yu Gothic', Meiryo, 'Hiragino Kaku Gothic ProN',
-    'Noto Sans JP', system-ui, sans-serif;
-}
-
-.youjp-inspector-head {
-  display:flex; align-items:center; gap:11px; padding:12px 16px; flex:0 0 auto;
-    color:#25364a; border-bottom:1px solid #eadfd4; cursor:grab; user-select:none; background:#ffede7;
-}
-
-.youjp-inspector--dragging .youjp-inspector-head { cursor: grabbing; }
-
-.youjp-inspector-mark {
-  display:grid; place-items:center; flex:0 0 auto; width:32px; height:32px;
-    border-radius:12px; border:0; background:#c8e8d3; color:#25364a;
-    font-size:18px; font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
-}
-
-.youjp-inspector-title {
-  flex:1; font-size:14px; font-weight:600;
-}
-
-.youjp-transcript, .youjp-settings, .youjp-inspector, .youjp-card {
-  scrollbar-width:thin; scrollbar-color:#b6a6ce transparent; color-scheme:light;
-  animation:youjp-panel-in 160ms ease-out;
-}
-
-.youjp-inspector .youjp-card {
-  width:100%; min-height:0; max-height:none; flex:1; border:0;
-    border-radius:0 0 21px 21px; box-shadow:none; background:transparent; animation:none;
-}
-
-.youjp-card-close {
-  position:absolute; top:12px; right:12px; display:grid; place-items:center;
-    width:32px; height:32px; padding:0; color:#5c6b7e; background:transparent;
-    border:0; border-radius:10px; cursor:pointer;
-}
-
-.youjp-card-close:hover {
-  color: #25364a;
-  background: #edf1f6;
-}
-
-.youjp-card-head {
-  padding:16px 18px 14px; border-bottom:1px solid #eadfd4;
-    background:#edf7f0;
-}
-
-.youjp-card-word {
-  padding-right:25px; font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
-    font-size:32px; line-height:1.35; font-weight:500; overflow-wrap:anywhere;
-}
-
-.youjp-card-kana {
-  margin-top:5px; font-size:14px; color:#6450a4;
-}
-
-.youjp-card-romaji {
-  margin-top:2px; font-family:'Cascadia Mono',Consolas,ui-monospace,monospace;
-    font-size:11px; color:#5c6b7e; letter-spacing:.03em;
-}
-
-.youjp-card-body {
-  padding:14px 18px 16px; display:flex; flex-direction:column; gap:14px;
-}
-
-.youjp-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.youjp-tag {
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 8px;
-  background: #edf1f6;
-  color: #5c6b7e;
-}
-
-.youjp-tag--common {
-  background: #dff1e6;
-  color: #336749;
-}
-
-.youjp-card-label {
-  font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#ae3b2c;
-    margin-bottom:6px; font-weight:600;
-}
-
-/* Marca el origen del dato. Cuando la fase 5 añada explicaciones generadas,
-   tendrán que distinguirse de un vistazo de lo que viene del diccionario. */
-.youjp-source {
-  font-family:ui-monospace,monospace; font-size:9px; letter-spacing:0; text-transform:none;
-    color:#5c6b7e; border:1px solid #eadfd4; border-radius:8px; padding:1px 5px; margin-left:6px;
-}
-
-.youjp-chain {
-  display: flex;
-  align-items: baseline;
+/* Selector de estilo, con una miniatura de cada uno. */
+.youjp-skins { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.youjp-skin-card {
+  display: grid;
   gap: 8px;
-  font-size: 17px;
+  padding: 6px 6px 9px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--y-text-2);
+  background: var(--y-raised);
+  border: 1px solid var(--y-line);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
 }
-
-.youjp-chain-lemma {
-  color: #5c6b7e;
+.youjp-skin-card:hover { color: var(--y-text); border-color: var(--y-line-strong); }
+.youjp-skin-card--on, .youjp-skin-card--on:hover {
+  color: var(--y-text);
+  border-color: var(--y-shu);
+  box-shadow: 0 0 0 3px var(--y-shu-soft);
 }
-
-.youjp-chain-arrow {
-  color: #5c6b7e;
-  font-size: 13px;
-}
-
-.youjp-chain-surface {
-  color: #6450a4;
-}
-
-.youjp-chain-steps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 7px;
-}
-
-.youjp-step {
-  font-size: 11px;
-  padding: 2px 7px;
+.youjp-skin-swatch {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  height: 50px;
   border-radius: 8px;
-  background: #e9e0fb;
-  color: #6450a4;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 28%, rgba(255, 106, 77, 0.4), transparent 24%),
+    linear-gradient(180deg, #2a2c38, #121318);
 }
+.youjp-skin-swatch::before { content: ''; position: absolute; inset: 12px 9px; border-radius: 5px; }
+.youjp-skin-swatch--ribbon::before, .youjp-skin-swatch--grammar::before { background: rgba(10, 11, 14, 0.8); }
+.youjp-skin-swatch--paper::before { background: #f6f1e7; }
+.youjp-skin-swatch i { position: relative; display: block; height: 5px; border-radius: 3px; }
+.youjp-skin-swatch i:nth-child(1) { width: 56%; }
+.youjp-skin-swatch i:nth-child(2) { width: 40%; height: 4px; }
+.youjp-skin-swatch--ribbon i:nth-child(1) { background: #fff; }
+.youjp-skin-swatch--ribbon i:nth-child(2) { background: var(--y-kin); }
+.youjp-skin-swatch--paper i:nth-child(1) { background: #1c1b20; }
+.youjp-skin-swatch--paper i:nth-child(2) { background: #27467a; }
+.youjp-skin-swatch--grammar i:nth-child(1) { background: linear-gradient(#fff 0 62%, #f7d794 62%); }
+.youjp-skin-swatch--grammar i:nth-child(2) { background: linear-gradient(#fff 0 62%, #7fe0aa 62%); }
 
-.youjp-senses {
-  margin:0; padding-left:19px; display:flex; flex-direction:column; gap:12px;
-}
-
-.youjp-senses li {
-  font-size:14px; line-height:1.6;
-}
-
-.youjp-senses li::marker {
-  color:#ae3b2c; font-size:11px;
-}
-
-.youjp-sense-tags {
-  display: block;
-  font-size: 10.5px;
-  color: #5c6b7e;
-  margin-bottom: 1px;
-}
-
-.youjp-gloss-en {
-  color: #5c6b7e;
-  font-style: italic;
-}
-
-.youjp-lang-badge {
-  font-size: 9.5px;
-  margin-left: 6px;
-  padding: 0 4px;
-  border-radius: 2px;
-  background: #ffe3db;
-  color: #913f31;
-  font-style: normal;
-}
+/* ----------------------------------------------------------------- métricas */
 
 .youjp-metrics {
   pointer-events: none;
@@ -822,178 +1349,213 @@
   flex-wrap: wrap;
   gap: 4px 14px;
   padding: 6px 12px;
-  border-radius: 6px;
-  background: rgba(16, 19, 21, 0.9);
-  border: 1px solid #f0e8ff;
-  color: #b9c0c4;
-  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+  border-radius: 8px;
+  background: rgba(10, 11, 14, 0.9);
+  border: 1px solid var(--y-line);
+  color: var(--y-text-3);
+  font-family: var(--y-font-mono);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
 .youjp-metrics b {
-  color: #fff9f2;
+  color: var(--y-text);
   font-weight: 500;
 }
 
 .youjp-bad b {
-  color: #ffb3a3;
+  color: var(--y-err);
 }
 
 .youjp-model {
-  color: rgba(185, 192, 196, 0.6);
+  color: rgba(141, 136, 127, 0.75);
 }
 
-/* Shared details for the study panels. */
-.youjp-transcript--with-dictionary { left:12px; top:12px; bottom:auto; transform:none;
-  width:min(520px,calc(54% - 18px)); min-width:0; height:min(420px,65%); }
-.youjp-inspector--with-history { width:min(370px,calc(46% - 18px)); min-width:0; }
-.youjp-tool[aria-expanded='true'] { color:#6450a4; background:#f0e8ff; }
-.youjp-panel-mark { display:grid; place-items:center; flex:0 0 auto; width:32px; height:32px;
-  border:0; background:#b9a2f4; border-radius:12px; color:#25364a; font-size:18px;
-  font-family:'Yu Mincho','Hiragino Mincho ProN',serif; font-weight:400; }
-.youjp-panel-heading { display:flex; flex:1; flex-direction:column; gap:3px; }
-.youjp-panel-heading small, .youjp-transcript-title small { color:#5c6b7e; font-size:11px; font-weight:400; }
-.youjp-settings-head .youjp-card-close { position:static; flex:0 0 auto; }
-.youjp-setting-section { display:flex; flex-direction:column; gap:17px; margin:0; padding:0;
-  border:0; min-width:0; }
-.youjp-setting-section legend { padding:0; margin-bottom:15px; color:#ae3b2c; font-size:10px;
-  font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
-.youjp-setting-section + .youjp-setting-section { padding-top:18px; border-top:1px solid #eadfd4; }
-.youjp-transcript-row:last-child { border-bottom:0; }
-.youjp-transcript-es small { font-size:9px; font-family:ui-monospace,monospace; color:#5c6b7e; }
-@keyframes youjp-panel-in { from { opacity:0; } to { opacity:1; } }
-:is(.youjp-tool, .youjp-transcript-action, .youjp-card-close, .youjp-transcript-time, .youjp-choice-btn, .youjp-reset, .youjp-token):focus-visible {
-  outline:2px solid #6450a4; outline-offset:2px;
-}
-.youjp-setting input:focus-visible { outline:2px solid #ae3b2c; outline-offset:3px; border-radius:4px; }
-@media (max-height:600px) {
-  .youjp-settings-dock { bottom:48px; }
-}
-@media (max-width:600px) {
-  .youjp-transcript-head, .youjp-settings-head, .youjp-inspector-head { padding:10px 12px; gap:8px; }
-  .youjp-transcript-body { padding-inline:12px; }
-  .youjp-transcript-row { grid-template-columns:38px minmax(0,1fr); gap:6px; }
-  .youjp-transcript-title { gap:6px; }
-  .youjp-subs { padding:6px 10px 8px; }
-}
-@media (prefers-reduced-motion:reduce) {
-  .youjp-transcript, .youjp-settings, .youjp-card, .youjp-inspector { animation:none; }
-  .youjp-tools, .youjp-choice-btn, .youjp-switch-track, .youjp-switch-track::after,
-  .youjp-status-meter i, .youjp-video-meter i { transition:none; }
-  .youjp-video-card--work .youjp-video-state { animation:none; }
+/* ------------------------------------------------------------- foco y tamaño */
+
+/* Con `translate` y no `transform`: los paneles se centran o se colocan con
+   transform, y la animación lo pisaría mientras dura. */
+@keyframes youjp-panel-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: none; }
 }
 
-/* ------------------------------------------------ estilos de subtítulos */
+:is(.youjp-tool, .youjp-icon-btn, .youjp-card-close, .youjp-transcript-time, .youjp-choice-btn, .youjp-reset,
+  .youjp-token, .youjp-status-action, .youjp-video-action, .youjp-skin-card, .youjp-settings-nav button):focus-visible {
+  outline: 2px solid var(--y-shu);
+  outline-offset: 2px;
+}
+
+.youjp-setting input[type='range']:focus-visible {
+  outline: 2px solid var(--y-shu);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+@media (max-height: 600px) {
+  .youjp-settings-dock { bottom: 48px; }
+}
+
+/* En un reproductor bajo el panel de ajustes apenas deja sitio a los controles:
+   la cabecera y la vista previa se encogen para que se vea algo más que el
+   índice. */
+.youjp-settings-dock {
+  container: youjp-dock / size;
+}
+
+@container youjp-dock (max-height: 440px) {
+  .youjp-settings .youjp-panel-head { min-height: 44px; padding-block: 6px; }
+  .youjp-settings .youjp-panel-heading small { display: none; }
+  .youjp-preview { min-height: 0; padding: 10px 12px; }
+  .youjp-preview-label { display: none; }
+  .youjp-settings-nav { padding-block: 7px; }
+}
+
+@media (max-width: 600px) {
+  .youjp-subs { padding: 6px 12px 8px; }
+}
+
+/* Lo que cuenta es el ancho de cada panel, no el de la ventana: en un
+   reproductor pequeño, o con historial y diccionario a la vez, los paneles
+   son estrechos aunque la pantalla sea grande. */
+.youjp-transcript, .youjp-inspector, .youjp-settings {
+  container-type: inline-size;
+}
+
+@container (max-width: 340px) {
+  .youjp-panel-head { min-height: 44px; padding: 7px 6px 7px 12px; gap: 8px; }
+  .youjp-seal { width: 24px; height: 24px; font-size: 14px; }
+  .youjp-transcript-body { padding-inline: 4px; }
+  .youjp-transcript-row { grid-template-columns: 42px minmax(0, 1fr); gap: 6px; padding: 9px 8px; }
+  .youjp-card-head { padding: 12px 16px 10px; }
+  .youjp-card-word { font-size: 28px; }
+  .youjp-card-kana { margin-top: 2px; }
+  .youjp-card-body { gap: 12px; padding: 10px 16px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .youjp-transcript, .youjp-settings, .youjp-card, .youjp-inspector,
+  .youjp-dot, .youjp-video-card--work .youjp-video-state { animation: none; }
+  .youjp-tools, .youjp-token, .youjp-choice-btn, .youjp-switch-track, .youjp-switch-track::after,
+  .youjp-status-meter i, .youjp-video-meter i, .youjp-transcript-time::before { transition: none; }
+}
+
+/* ---------------------------------------------------- estilos de subtítulos */
 /* biome-ignore-start lint/style/noDescendingSpecificity: los estilos son excluyentes (una sola clase de estilo en la raíz), así que el orden entre ellos no cambia el resultado */
 
 /* Cinta (por defecto): la banda la dan los ajustes de fondo; aquí, la traducción
-   separada por una línea fina y los controles en vidrio oscuro. */
+   separada por una línea fina. */
 .youjp-skin--ribbon .youjp-block:not(.youjp-block--past) .youjp-es {
-  padding-top:5px; border-top:1px solid rgba(255,255,255,.16);
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
-.youjp-skin--ribbon .youjp-tools {
-  background:rgba(14,21,34,.78); border-color:rgba(255,255,255,.14); backdrop-filter:blur(8px);
-    box-shadow:0 4px 14px rgba(0,0,0,.3);
-}
-.youjp-skin--ribbon .youjp-tool { color:#fff; }
-.youjp-skin--ribbon .youjp-tool:hover { background:rgba(255,255,255,.16); }
-.youjp-skin--ribbon .youjp-tool[aria-expanded='true'] { color:#fff; background:rgba(185,162,244,.4); }
 
-/* Papel: una tarjeta que se lee igual sobre cualquier vídeo. */
+/* Papel: una tarjeta de washi y tinta que se lee igual sobre cualquier vídeo. */
 .youjp-skin--paper .youjp-subs {
-  gap:6px; padding:12px 26px 14px; border-radius:20px; background:#fff9f2;
-    border:1px solid #eadfd4; box-shadow:0 10px 28px rgba(37,54,74,.28);
+  gap: 6px;
+  padding: 12px 26px 14px;
+  border-radius: 10px;
+  background: #f6f1e7;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(28, 27, 32, 0.06);
 }
-.youjp-skin--paper .youjp-line { color:#25364a; text-shadow:none; font-weight:500; }
-.youjp-skin--paper .youjp-line rt { color:#ae3b2c; text-shadow:none; }
-.youjp-skin--paper .youjp-block--past .youjp-line { color:#566579; }
-.youjp-skin--paper .youjp-block--past .youjp-line rt { color:#a45a50; }
-.youjp-skin--paper .youjp-committed { color:#25364a; }
-.youjp-skin--paper .youjp-tentative { color:#6b7a8f; }
-.youjp-skin--paper .youjp-es { color:#4f3f8a; text-shadow:none; font-weight:500; }
-.youjp-skin--paper .youjp-block--past .youjp-es { color:#6a5d99; }
+.youjp-skin--paper .youjp-line { color: #1c1b20; text-shadow: none; font-weight: 500; }
+.youjp-skin--paper .youjp-line rt { color: #c4361d; text-shadow: none; }
+.youjp-skin--paper .youjp-block--past .youjp-line { color: #5d5a55; }
+.youjp-skin--paper .youjp-block--past .youjp-line rt { color: #a2523f; }
+.youjp-skin--paper .youjp-committed { color: #1c1b20; }
+.youjp-skin--paper .youjp-tentative { color: #6c6862; }
+.youjp-skin--paper .youjp-es { color: #27467a; text-shadow: none; font-weight: 500; }
+.youjp-skin--paper .youjp-block--past .youjp-es { color: #50678f; }
+.youjp-skin--paper .youjp-token:not(.youjp-token--plain):hover { background: rgba(28, 27, 32, 0.08); }
+.youjp-skin--paper .youjp-token--active,
+.youjp-skin--paper .youjp-token--active:not(.youjp-token--plain):hover {
+  background: rgba(210, 58, 32, 0.14);
+  box-shadow: inset 0 -2px 0 var(--y-shu-deep);
+}
 /* El idioma de la traducción, como etiqueta: sale del atributo lang. */
 .youjp-skin--paper .youjp-es::before {
-  content:attr(lang); text-transform:uppercase; display:inline-block; margin-right:8px; padding:1px 8px;
-    border-radius:99px; background:#c8e8d3; color:#25364a; font:600 .55em/1.7 'Cascadia Mono',Consolas,monospace;
-    letter-spacing:.06em; vertical-align:.18em;
+  content: attr(lang);
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 6px;
+  border: 1px solid rgba(210, 58, 32, 0.55);
+  border-radius: 4px;
+  color: #b8331b;
+  font: 600 0.52em/1.7 var(--y-font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: 0.2em;
 }
 
 /* Gramática: cada palabra subrayada según su categoría. Usa el mismo fondo que la
    Cinta (ajuste «Fondo»): sin una base oscura, los colores se pierden sobre vídeos claros. */
-:is(.youjp-skin--grammar, .youjp-legend, .youjp-preview-box--grammar) [data-k='n'], .youjp-legend [data-k='n'] { --k:#8fe0b3; }
-:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='v'], .youjp-legend [data-k='v'] { --k:#ff7a6b; }
-:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='adj'], .youjp-legend [data-k='adj'] { --k:#ffcf6a; }
-:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='adv'], .youjp-legend [data-k='adv'] { --k:#7fc8ff; }
+:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='n'], .youjp-legend [data-k='n'] { --k: #7fe0aa; }
+:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='v'], .youjp-legend [data-k='v'] { --k: #ff7a5c; }
+:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='adj'], .youjp-legend [data-k='adj'] { --k: #f7d794; }
+:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='adv'], .youjp-legend [data-k='adv'] { --k: #86c5ff; }
 :is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='p'], .youjp-legend [data-k='p'],
-:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='aux'] { --k:rgba(255,255,255,.4); }
+:is(.youjp-skin--grammar, .youjp-preview-box--grammar) [data-k='aux'] { --k: rgba(255, 255, 255, 0.4); }
 .youjp-skin--grammar .youjp-line {
-  font-weight:700; text-shadow:0 0 3px #000, 0 0 3px #000, 0 2px 10px rgba(0,0,0,.9);
+  font-weight: 700;
+  text-shadow: 0 0 3px #000, 0 0 3px #000, 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 .youjp-skin--grammar .youjp-es {
-  font-style:italic; color:#fff; text-shadow:0 0 3px #000, 0 2px 10px rgba(0,0,0,.9);
+  font-style: italic;
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 2px 10px rgba(0, 0, 0, 0.9);
 }
-.youjp-skin--grammar .youjp-block--past .youjp-es { color:rgba(255,255,255,.78); }
+.youjp-skin--grammar .youjp-block--past .youjp-es { color: rgba(255, 255, 255, 0.76); }
 .youjp-skin--grammar .youjp-subs [data-k] {
-  --k:rgba(255,255,255,.3); padding-bottom:2px; border-radius:0;
-    background-image:linear-gradient(var(--k), var(--k)); background-size:100% max(2px, .08em);
-    background-position:0 100%; background-repeat:no-repeat;
+  --k: rgba(255, 255, 255, 0.3);
+  padding-bottom: 2px;
+  border-radius: 0;
+  background-image: linear-gradient(var(--k), var(--k));
+  background-size: 100% max(2px, 0.08em);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
 }
-.youjp-skin--grammar .youjp-token:not(.youjp-token--plain):hover { border-radius:6px; }
+.youjp-skin--grammar .youjp-token:not(.youjp-token--plain):hover { border-radius: 6px; }
 .youjp-legend {
-  position:absolute; top:-34px; left:4%; display:flex; flex-wrap:wrap; gap:4px 12px; margin:0; padding:5px 12px;
-    list-style:none; border-radius:99px; background:rgba(0,0,0,.55); backdrop-filter:blur(5px);
-    color:#fff; font-size:11.5px; pointer-events:none;
+  position: absolute;
+  top: -36px;
+  left: 4%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 5px 12px;
+  list-style: none;
+  border-radius: 99px;
+  background: var(--y-glass);
+  border: 1px solid var(--y-line);
+  backdrop-filter: blur(10px);
+  color: var(--y-text-2);
+  font-family: var(--y-font-ui);
+  font-size: 11.5px;
+  pointer-events: none;
 }
-.youjp-legend li { display:flex; align-items:center; gap:6px; }
+.youjp-legend li { display: flex; align-items: center; gap: 6px; }
 .youjp-legend li::before {
-  content:""; width:14px; height:3px; border-radius:2px; background:var(--k);
+  content: '';
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--k);
 }
-.youjp-skin--grammar .youjp-tools { gap:6px; padding:0; background:none; border:0; box-shadow:none; }
-.youjp-skin--grammar .youjp-tool {
-  width:34px; height:34px; color:#fff; background:rgba(0,0,0,.5); backdrop-filter:blur(5px);
-    border:1px solid rgba(255,255,255,.25); border-radius:50%;
-}
-.youjp-skin--grammar .youjp-tool:hover { background:rgba(0,0,0,.72); }
-.youjp-skin--grammar .youjp-tool[aria-expanded='true'] { color:#fff; background:rgba(185,162,244,.55); }
-
-/* Selector de estilo del panel de ajustes, con una miniatura de cada uno. */
-.youjp-skins { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
-.youjp-skin-card {
-  display:grid; gap:7px; padding:7px 7px 9px; font:inherit; font-size:13.5px; font-weight:600; color:#3d4b5e;
-    background:#fff; border:1px solid #eadfd4; border-radius:14px; cursor:pointer; text-align:center;
-}
-.youjp-skin-card:hover { border-color:#b9a2f4; }
-.youjp-skin-card--on { color:#3f3270; border-color:#6450a4; box-shadow:0 0 0 2px #e9e0fb; }
-.youjp-skin-swatch {
-  position:relative; display:grid; align-content:center; justify-items:center; gap:4px; height:52px;
-    border-radius:9px; overflow:hidden; background:linear-gradient(160deg,#1d2640,#3a3470 62%,#5a4a8c);
-}
-.youjp-skin-swatch::before { content:""; position:absolute; inset:11px 9px; border-radius:7px; }
-.youjp-skin-swatch--ribbon::before { background:rgba(14,21,34,.82); }
-.youjp-skin-swatch--paper::before { background:#fff9f2; }
-.youjp-skin-swatch--grammar::before { background:rgba(14,21,34,.82); }
-.youjp-skin-swatch i { position:relative; display:block; height:5px; border-radius:3px; }
-.youjp-skin-swatch i:nth-child(1) { width:56%; }
-.youjp-skin-swatch i:nth-child(2) { width:40%; height:4px; }
-.youjp-skin-swatch--ribbon i:nth-child(1) { background:#fff; }
-.youjp-skin-swatch--ribbon i:nth-child(2) { background:#c8e8d3; }
-.youjp-skin-swatch--paper i:nth-child(1) { background:#25364a; }
-.youjp-skin-swatch--paper i:nth-child(2) { background:#6450a4; }
-.youjp-skin-swatch--grammar i:nth-child(1) { background:linear-gradient(#fff 0 62%, #ffcf6a 62%); }
-.youjp-skin-swatch--grammar i:nth-child(2) { background:linear-gradient(#fff 0 62%, #8fe0b3 62%); }
 
 /* La vista previa sigue el estilo elegido. */
-.youjp-preview-box--paper { background:#fff9f2; border:1px solid #eadfd4; border-radius:16px; }
-.youjp-preview-box--paper .youjp-preview-ja { color:#25364a; text-shadow:none; }
-.youjp-preview-box--paper .youjp-preview-ja rt { color:#ae3b2c; }
-.youjp-preview-box--paper .youjp-preview-tr { color:#4f3f8a; text-shadow:none; }
-.youjp-preview-box--grammar .youjp-preview-ja { font-weight:700; }
-.youjp-preview-box--grammar .youjp-preview-tr { color:#fff; font-style:italic; }
+.youjp-preview-box--paper { background: #f6f1e7; border-radius: 8px; }
+.youjp-preview-box--paper .youjp-preview-ja { color: #1c1b20; text-shadow: none; }
+.youjp-preview-box--paper .youjp-preview-ja rt { color: #c4361d; }
+.youjp-preview-box--paper .youjp-preview-tr { color: #27467a; text-shadow: none; }
+.youjp-preview-box--grammar .youjp-preview-ja { font-weight: 700; }
+.youjp-preview-box--grammar .youjp-preview-tr { color: #fff; font-style: italic; }
 .youjp-preview-box--grammar .youjp-preview-word {
-  --k:rgba(255,255,255,.3); padding-bottom:2px;
-    background-image:linear-gradient(var(--k), var(--k)); background-size:100% max(2px, .08em);
-    background-position:0 100%; background-repeat:no-repeat;
+  --k: rgba(255, 255, 255, 0.3);
+  padding-bottom: 2px;
+  background-image: linear-gradient(var(--k), var(--k));
+  background-size: 100% max(2px, 0.08em);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
 }
 /* biome-ignore-end lint/style/noDescendingSpecificity: fin del bloque de estilos excluyentes */

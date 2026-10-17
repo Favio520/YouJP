@@ -58,8 +58,9 @@ on an STA thread.
 YouJP uses warm paper (`#FFF9F2`), ink (`#25364A`), coral (`#FF705E`),
 lilac (`#B9A2F4`), and mint (`#C8E8D3`). The light sidebar frames an illustrated
 cover, four pastel tiles, session progress, and recent activity. Major cards
-have 22 px corners and soft shadows. Settings, Activity, and the extension's
-study panels share the same visual system. The default window is 1180 × 850,
+have 22 px corners and soft shadows. Settings and Activity share the same visual
+system; the extension's overlay uses its own dark "Sumi" system, designed to sit
+over video. The default window is 1180 × 850,
 bounded by the available desktop area; shorter windows scroll their content.
 
 For an interactive review of the extension's production components without

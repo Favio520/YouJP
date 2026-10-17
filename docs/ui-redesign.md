@@ -1,85 +1,117 @@
-# YouJP pastel UI review
+# YouJP "Sumi" extension UI
 
-Reviewed on 30 September 2026. Scope: Windows launcher, live subtitles, history,
-dictionary, settings, and screen translation.
+Reviewed on 17 October 2026. Scope: the browser extension's live subtitles,
+history, dictionary, settings, player buttons, and screen translation. The
+Windows launcher keeps the pastel system described in
+`scripts/windows/README.md`; it is unchanged by this redesign.
+
+## Why it changed
+
+The previous extension panels used the launcher's light, warm paper. Over a
+video they were the brightest thing on screen: in dark scenes they dazzled, and
+they covered more of the frame visually than they did physically. The new
+system treats every panel as part of the player instead of a sheet laid over
+it.
 
 ## Design
 
-The supplied mockup defines the direction: warm paper `#FFF9F2`, ink `#25364A`,
-coral `#FF705E`, lilac `#B9A2F4`, and mint `#C8E8D3`. Major cards use 22 px
-corners and restrained shadows. The original landscape and transparent mascot
-were copied to `scripts/windows/assets/fuji-pastel.png` and
-`scripts/windows/assets/mascot-pastel.png` without image modifications.
+"Sumi" (ink): dark glass, washi-paper text, and one vermilion accent (朱).
 
-Windows uses a light sidebar, ink/coral wordmark, illustrated session cover,
-four separate pastel tiles, mint step markers, and a lilac activity card.
-Sakura decorations yield to navigation when vertical space is limited. Alerts
-use peach surfaces and dark coral text. Primary coral buttons use ink labels
-to keep small text readable. The emblem follows the same ink/coral palette.
-The default window is 1180 × 850, capped by the desktop work area.
+| Token | Value | Use |
+| --- | --- | --- |
+| Glass | `rgba(17,18,23,.9)` + 18 px blur | History, dictionary, settings, OCR panels |
+| Text | `#F4F0E8` | Primary text, selected segmented option |
+| Secondary / tertiary | `#BDB7AD` / `#9A958C` | Hints, metadata, timestamps |
+| Vermilion | `#FF6A4D` | Interactive and active state only: selected word, open panel, focus ring, progress |
+| Deep vermilion | `#D23A20` | Filled primary action and panel seals, with white text |
+| Gold | `#F7D794` | Translations everywhere, readings in the dictionary |
+| Green | `#73D69F` | "Ready" and "common word" |
 
-Extension study panels use warm paper with mint, lilac, and peach headers.
-History translations, dictionary readings, and focus rings use a deeper violet
-derived from the lilac accent. Video subtitles keep a dark, rounded material
-with white Japanese and mint translation so bright moving frames remain legible.
-The OCR panel shares the paper palette. Fonts and icons require no remote requests.
+Each colour means one thing: vermilion is "you can act here / this is active",
+gold is "translation or reading". Japanese stays white so the eye can jump
+between languages without reading them.
+
+- **Panel structure.** All three study panels share one header: a vermilion
+  hanko seal with the panel's kanji (記 history, 辞 dictionary, 調 settings), a
+  title, a short subtitle, and quiet icon buttons. Panels are told apart by the
+  seal, not by background colour. The header remains the drag handle.
+- **Subtitles.** The ribbon band is darker and tighter (12 px corners); the
+  translation is gold below a hairline. An empty band is no longer drawn while
+  starting, after an error, or between sentences of a prepared video.
+- **Paper skin.** Washi card with ink text, vermilion furigana, and indigo
+  translation with an outlined language tag.
+- **Grammar skin.** Same underline categories, retuned to the new palette; the
+  legend uses the glass material.
+- **Toolbar.** One glass pill for every skin, dimmed to 55 % until the pointer
+  reaches the subtitles or focus enters it. An open panel shows its tool in
+  vermilion with a small bar.
+- **History.** Rows without dividers; the timestamp reveals a play mark on
+  hover; the sentence playing in a prepared video gets a vermilion edge.
+- **Dictionary.** Large mincho headword over a faint vermilion sun, gold
+  reading, outlined tags, numbered senses in vermilion.
+- **Settings.** A sticky section index (Video, Style, Reading, Language,
+  Interface) scrolls only the panel, never the YouTube page. Sections are
+  numbered. Sliders show the travelled part in vermilion; the selected
+  segmented option is paper on ink. The live preview remains at the top.
+- **Compact layouts.** Panels respond to their own width with container
+  queries, so two panels side by side in a small player compact even on a large
+  screen. In a short player the settings header and preview shrink.
+- **Player buttons** use paper white at rest, a vermilion progress ring while
+  translating, and a vermilion tint while settings are open.
+- Fonts and icons are local; nothing is fetched from the network.
 
 ## Quality iterations
 
-1. Recreated the reference composition and integrated both supplied artwork files.
-2. Corrected the wordmark, refined typography and icon shapes, reduced the width
-   of the alert to preserve the landscape, and increased the mascot's presence.
-3. Reviewed compact layouts and localized labels. Clipped decorative sakura to
-   the available sidebar space and shortened repeated activity descriptions.
-4. Improved small-player dictionary height and internal spacing after inspection
-   showed the meaning below the initial visible area. Increased contrast of
-   previous and tentative subtitle text; hover feedback preserves label contrast.
+1. Rendered the production components in the preview lab and compared them
+   with the previous pastel renders at 1400 × 1000 and with a 640 px player.
+2. The settings index shrank to a sliver because it was a shrinking flex item;
+   fixed with `flex: none`.
+3. In the compact player the dictionary meaning fell below the visible area.
+   Added container queries for narrow panels and a height query for short
+   settings docks.
+4. The English index clipped "Interface"; tightened chip spacing so all five fit.
+5. Raised gold and tertiary text after measuring them against the worst case
+   (translucent material over a white frame).
+6. Removed the empty subtitle band that appeared below status pills.
 
 ## Evidence
 
-- Extension: 87 existing tests pass; TypeScript, lint, and production build pass.
-- Windows: native executable build and `Test-Launcher.ps1` pass. Smoke checks load
-  56 named controls, seven states, and three pages, including language changes.
-- Rendered the seven Windows states across three pages and three content sizes:
-  1180 × 828, 1120 × 778, and 880 × 580. Error and first-run screens were also
-  rendered in English. Representative renders were visually inspected.
-- Browser review mounts the production Overlay, SettingsPanel, TranscriptPanel,
-  and WordInspector with simulated messages and storage. Large and 640 px players
-  were inspected. Default history and dictionary panels remain inside the player
-  and do not overlap each other. The compact dictionary shows the sample meaning
-  without needing to scroll past the headword.
-- A keyboard arrow changed Japanese text from 28 to 30 px immediately. Reset
-  restored 28 px while preserving the English interface and Spanish translation.
-  Escape closed the settings panel. Connection error and empty history were reviewed.
-- Reduced-motion rules remain active; UI review reported no console errors.
+- Extension: 93 existing tests pass; TypeScript, Biome lint, and production
+  build pass.
+- Browser review (Chromium via Playwright) of the preview lab: active session,
+  starting, error, empty history, history with dictionary, settings (scrolled,
+  three skins, English interface), compact player with both panels, compact
+  settings, and the OCR selector and result. No console errors.
 
-Selected color-pair calculations:
+Contrast, with translucent layers composited over a white frame (the worst case
+for dark materials):
 
 | Text / background | Ratio |
 | --- | ---: |
-| Ink / warm paper | 11.78:1 |
-| Secondary / warm paper | 5.20:1 |
-| Primary action ink / coral | 4.53:1 |
-| Ink / lilac | 5.59:1 |
-| Ink / mint | 9.35:1 |
-| Violet / warm paper | 6.23:1 |
-| Alert text / peach | 5.17:1 |
-| Translation / soft material over white | 4.76:1 |
+| Text / glass | 12.61:1 |
+| Secondary / glass | 7.20:1 |
+| Tertiary / glass | 4.81:1 |
+| Gold / glass | 10.31:1 |
+| Vermilion / glass | 5.07:1 |
+| White / deep vermilion (primary action) | 4.81:1 |
+| Japanese / soft band | 6.49:1 |
+| Gold translation / soft band | 4.67:1 |
+| Paper skin: ink / washi | 15.20:1 |
+| Paper skin: translation / washi | 8.32:1 |
+| Paper skin: furigana / washi | 4.79:1 |
 
 These are selected calculations, not a full accessibility certification.
-Arbitrary video frames and user-selected subtitle backgrounds need separate review.
+Arbitrary video frames with the "None" background rely on the text outline.
 
 ## Review locally
 
 From `extension`, run `npm.cmd run preview:ui`, then open
 `http://127.0.0.1:4178`. The lab uses simulated data; it does not capture audio
-or start models. Its landscape belongs to the example video, not the extension's
-production overlay. Native renders and browser screenshots are under
-`.youjp/ui-previews/`.
+or start models. "Recorte (OCR)" opens the real region selector with a canned
+result. Its landscape belongs to the example video, not the extension.
 
-Reopen `YouJP.exe` for the Windows interface. Reload
-`extension/.output/chrome-mv3` and the YouTube tab for the rebuilt extension.
+Reload `extension/.output/chrome-mv3` and the YouTube tab for the rebuilt
+extension.
 
-The award references express the craft target; an award itself depends on a jury.
-Live Chrome/YouTube audio capture, real fullscreen transitions, and native Windows
-keyboard input remain outside this isolated visual review.
+Live Chrome/YouTube audio capture, real fullscreen transitions, and the actual
+YouTube control bar remain outside this isolated visual review.

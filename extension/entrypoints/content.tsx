@@ -63,8 +63,12 @@ export default defineContentScript({
     let uiState: UiState = INITIAL_UI_STATE;
 
     const RING = 2 * Math.PI * 9;
+    // Colores del tema «Sumi» (overlay.css): papel para el icono en reposo y
+    // bermellón para el progreso y el panel abierto.
+    const PAPER = '#f4f0e8';
+    const SHU = '#ff6a4d';
     const badge = (fill: string, mark: string, markColor: string): IconShape[] => [
-      { tag: 'circle', attrs: { cx: 19, cy: 5.5, r: 4.2, fill, stroke: '#0e1522', strokeWidth: 1.2 } },
+      { tag: 'circle', attrs: { cx: 19, cy: 5.5, r: 4.2, fill, stroke: '#111217', strokeWidth: 1.2 } },
       { tag: 'path', attrs: { d: mark, stroke: markColor, strokeWidth: 1.6, fill: 'none' } },
     ];
 
@@ -75,15 +79,15 @@ export default defineContentScript({
       const percent = Math.round(video.progress * 100);
       let shapes: IconShape[] = ICONS.translate;
       let label = text('Traducir el vídeo completo', 'Translate the whole video');
-      let color = '#c8e8d3';
+      let color = PAPER;
       let pressed: boolean | null = null;
       let key = 'none';
       if (video.phase === 'working') {
         // Anillo que se llena con el progreso; sin progreso aún, gira.
         const arc: IconShape = video.progress > 0.02
-          ? { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: '#c8e8d3', strokeWidth: 2.4,
+          ? { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: SHU, strokeWidth: 2.4,
             strokeDasharray: `${(RING * video.progress).toFixed(1)} ${RING.toFixed(1)}`, transform: 'rotate(-90 12 12)', fill: 'none' } }
-          : { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: '#c8e8d3', strokeWidth: 2.4,
+          : { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, stroke: SHU, strokeWidth: 2.4,
             strokeDasharray: '14 43', fill: 'none' }, spin: true };
         shapes = [
           { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9, strokeWidth: 2.4, opacity: 0.28, fill: 'none' } },
@@ -93,10 +97,10 @@ export default defineContentScript({
         label = percent > 0
           ? text(`Traduciendo el vídeo… ${percent} %. Pulsa para detener`, `Translating the video… ${percent}%. Click to stop`)
           : text('Preparando la traducción. Pulsa para detener', 'Getting the translation ready. Click to stop');
-        color = '#e6f4ec';
+        color = '#ffe1d9';
         key = `work:${percent > 0 ? percent : 'spin'}`;
       } else if (video.phase === 'ready' && video.enabled) {
-        shapes = [...ICONS.translate, ...badge('#7ed6a0', 'm17.2 5.6 1.3 1.3 2.3-2.5', '#0d2a1b')];
+        shapes = [...ICONS.translate, ...badge('#73d69f', 'm17.2 5.6 1.3 1.3 2.3-2.5', '#0d2a1b')];
         label = text('Vídeo traducido, subtítulos encendidos. Pulsa para apagarlos', 'Video translated, subtitles on. Click to turn them off');
         pressed = true;
         key = 'on';
@@ -109,9 +113,9 @@ export default defineContentScript({
         pressed = false;
         key = 'off';
       } else if (video.phase === 'error') {
-        shapes = [...ICONS.translate, ...badge('#ffb4a8', 'M19 3.6v2.2M19 7.4v.1', '#4a160e')];
+        shapes = [...ICONS.translate, ...badge('#ff9a85', 'M19 3.6v2.2M19 7.4v.1', '#4a160e')];
         label = text('No se pudo traducir. Pulsa para reintentar', 'Could not translate. Click to try again');
-        color = '#ffd1ca';
+        color = '#ffd9d0';
         key = 'error';
       }
       return { shapes, label, color, pressed, key: `${key}|${language}` };
@@ -154,9 +158,9 @@ export default defineContentScript({
           element.title = label;
           element.setAttribute('aria-label', label);
           element.setAttribute('aria-pressed', String(uiState.settingsOpen));
-          // Abierto: se marca con un fondo lila para saber que el panel es suyo.
-          element.style.background = uiState.settingsOpen ? 'rgba(185,162,244,.3)' : '';
-          element.style.color = uiState.settingsOpen ? '#e6dcff' : '#c8e8d3';
+          // Abierto: se marca en bermellón para saber que el panel es suyo.
+          element.style.background = uiState.settingsOpen ? 'rgba(255,106,77,.24)' : '';
+          element.style.color = uiState.settingsOpen ? SHU : PAPER;
         }
       }
     };
@@ -198,7 +202,7 @@ export default defineContentScript({
         button.type = 'button';
         button.className = 'ytp-button';
         button.dataset[item.attr] = '';
-        button.style.cssText = 'display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:#c8e8d3;vertical-align:top;cursor:pointer;border-radius:8px;';
+        button.style.cssText = `display:inline-grid;place-items:center;width:40px;min-width:40px;height:100%;padding:0;color:${PAPER};vertical-align:top;cursor:pointer;border-radius:8px;`;
         button.append(buildSvg(item.icon));
         button.addEventListener('click', (event) => {
           event.preventDefault();

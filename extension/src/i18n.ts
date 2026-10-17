@@ -68,7 +68,7 @@ const ENGLISH: Record<string, string> = {
   'Ajustes de subtítulos': 'Subtitle settings', 'Ajustes de YouJP': 'YouJP settings',
   'adjetivo': 'adjective', 'Categorías gramaticales': 'Grammar categories',
   'Banda oscura que se lee sobre cualquier vídeo sin taparlo': 'A dark band that stays readable on any video without covering it',
-  'Tarjeta de papel con tinta, como el lanzador': 'A paper card with ink, like the launcher',
+  'Tarjeta de papel washi y tinta: se lee igual sobre cualquier vídeo': 'A washi paper card with ink, equally readable on any video',
   'Cada palabra subrayada según su categoría, sobre un fondo suave': 'Each word underlined by its category, on a soft background',
   'Detener': 'Stop', 'Reintentar': 'Try again', 'Vídeo traducido': 'Video translated',
   'Los subtítulos siguen el vídeo.': 'Subtitles follow the video.',
