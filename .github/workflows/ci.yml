@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, claude/vigilant-dijkstra-1jdk5x]
   pull_request:
 
 permissions:
@@ -67,3 +67,32 @@ jobs:
         run: |
           npm ci --prefix extension
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\windows\Package-Release.ps1 -SkipInstaller
+      # Después del paquete: el historial de ejemplo no debe acabar dentro.
+      - name: Renderizar el lanzador
+        shell: pwsh
+        run: |
+          # Historial de ejemplo para que la pantalla Historial tenga contenido.
+          $history = Join-Path $PWD '.youjp/history'
+          New-Item -ItemType Directory -Force -Path $history | Out-Null
+          [IO.File]::WriteAllLines((Join-Path $history '20261003-100000-a1.jsonl'), @(
+            '{"kind":"session","id":"a1","started_at":"2026-10-03T10:00:00","video_id":"abc","url":"https://www.youtube.com/watch?v=abc","target":"es"}',
+            '{"kind":"meta","title":"日本を歩く · Un paseo por Japón","channel":"Japan Walk"}',
+            '{"kind":"line","id":1,"start_ms":65000,"ja":"今日はいい天気ですね。"}',
+            '{"kind":"tr","id":1,"text":"Hoy hace buen tiempo, ¿verdad?"}',
+            '{"kind":"line","id":2,"start_ms":70000,"ja":"桜が咲いています。"}',
+            '{"kind":"tr","id":2,"text":"Los cerezos están en flor."}'))
+          [IO.File]::WriteAllLines((Join-Path $history '20261002-200000-b2.jsonl'), @(
+            '{"kind":"session","id":"b2","started_at":"2026-10-02T20:00:00","video_id":"def","url":"https://www.youtube.com/watch?v=def","target":"en"}',
+            '{"kind":"line","id":1,"start_ms":3000,"ja":"いただきます。"}',
+            '{"kind":"tr","id":1,"text":"Let us eat."}'))
+          foreach ($run in 'ready:es', 'capturing:es', 'error:es', 'unprepared:es', 'setup:es', 'ready:en') {
+            $state, $language = $run -split ':'
+            powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File scripts\windows\Render-Preview.ps1 -State $state -Language $language
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Guardar vistas previas del lanzador
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: youjp-launcher-previews
+          path: .youjp/ui-previews
+          include-hidden-files: true
