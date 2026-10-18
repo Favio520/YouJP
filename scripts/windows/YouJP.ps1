@@ -81,6 +81,13 @@ $ui.HeroSurface.Add_SizeChanged({
     $sender.Clip = [Windows.Media.RectangleGeometry]::new(
         [Windows.Rect]::new(0, 0, $sender.ActualWidth, $sender.ActualHeight), 21, 21)
 })
+# Barra de título oscura, a juego con la ventana (Windows 10 20H1 y posteriores).
+# Las versiones anteriores rechazan el atributo y la barra se queda clara.
+Add-Type -Namespace YouJP -Name Dwm -MemberDefinition '[DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int size);'
+$window.Add_SourceInitialized({
+    $dark = 1
+    $null = [YouJP.Dwm]::DwmSetWindowAttribute([Windows.Interop.WindowInteropHelper]::new($window).Handle, 20, [ref]$dark, 4)
+})
 $window.Title = 'YouJP ' + $script:appVersion
 $window.Width = [Math]::Min(1180, [Windows.SystemParameters]::WorkArea.Width - 32)
 $window.Height = [Math]::Min(850, [Windows.SystemParameters]::WorkArea.Height - 32)

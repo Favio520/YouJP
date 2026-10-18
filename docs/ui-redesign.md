@@ -1,9 +1,8 @@
-# YouJP "Sumi" extension UI
+# YouJP "Sumi" UI
 
-Reviewed on 17 October 2026. Scope: the browser extension's live subtitles,
-history, dictionary, settings, player buttons, and screen translation. The
-Windows launcher keeps the pastel system described in
-`scripts/windows/README.md`; it is unchanged by this redesign.
+Reviewed on 17–18 October 2026. Scope: the browser extension's live subtitles,
+history, dictionary, settings, player buttons, and screen translation, and the
+Windows launcher (`scripts/windows/YouJP.xaml`).
 
 ## Why it changed
 
@@ -11,7 +10,8 @@ The previous extension panels used the launcher's light, warm paper. Over a
 video they were the brightest thing on screen: in dark scenes they dazzled, and
 they covered more of the frame visually than they did physically. The new
 system treats every panel as part of the player instead of a sheet laid over
-it.
+it. The launcher then moved to the same system so the desktop app and the
+browser read as one product.
 
 ## Design
 
@@ -60,6 +60,25 @@ between languages without reading them.
   translating, and a vermilion tint while settings are open.
 - Fonts and icons are local; nothing is fetched from the network.
 
+### Windows launcher
+
+- Same tokens as the extension, as WPF brushes in `YouJP.xaml`;
+  `YouJP.ps1` paints each engine state (pill, sidebar dot, notices, activity
+  summary) with the same values: green ready, gold working, vermilion error.
+- The sidebar marks the current page with a vermilion bar. The session cover
+  lays the Fuji artwork under an ink gradient so the title reads on ink and the
+  landscape stays in dusk; the mascot is unchanged.
+- Flat cards with 14 px corners and hairlines replace pastel tiles and
+  shadows. Step numbers are vermilion, the third (full-video translation) gold.
+- Own templates for the history list, drop-downs, and expanders replace the
+  Windows defaults (grey selection, round expander glyph). The thin scrollbar
+  applies to vertical bars only.
+- The title bar follows the dark theme on Windows 10 20H1 and later.
+- Fixed on the way: English labels that stayed in Spanish ("Recent activity",
+  the empty log, the log's accessible name), recent pages rendered centred,
+  history rows that wrapped "2 frases" and said "1 frases".
+  `Test-Launcher.ps1` now fails if a fixed XAML label lacks an English string.
+
 ## Quality iterations
 
 1. Rendered the production components in the preview lab and compared them
@@ -82,6 +101,10 @@ between languages without reading them.
   starting, error, empty history, history with dictionary, settings (scrolled,
   three skins, English interface), compact player with both panels, compact
   settings, and the OCR selector and result. No console errors.
+- Launcher, on `windows-latest` in CI: native build, `Test-Launcher.ps1`
+  (states, pages, language switch, English labels, native smoke test), and
+  72 renders: four pages × six states and languages × 1180, 1120, and 880 px,
+  with a sample history. Renders before and after the redesign were compared.
 
 Contrast, with translucent layers composited over a white frame (the worst case
 for dark materials):
@@ -111,7 +134,8 @@ or start models. "Recorte (OCR)" opens the real region selector with a canned
 result. Its landscape belongs to the example video, not the extension.
 
 Reload `extension/.output/chrome-mv3` and the YouTube tab for the rebuilt
-extension.
+extension. Reopen `YouJP.exe`, or run `scripts/windows/Render-Preview.ps1`, for
+the launcher; CI also uploads its renders as `youjp-launcher-previews`.
 
 Live Chrome/YouTube audio capture, real fullscreen transitions, and the actual
 YouTube control bar remain outside this isolated visual review.

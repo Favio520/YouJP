@@ -55,16 +55,21 @@ on an STA thread.
 
 ## Visual assets
 
-YouJP uses warm paper (`#FFF9F2`), ink (`#25364A`), coral (`#FF705E`),
-lilac (`#B9A2F4`), and mint (`#C8E8D3`). The light sidebar frames an illustrated
-cover, four pastel tiles, session progress, and recent activity. Major cards
-have 22 px corners and soft shadows. Settings and Activity share the same visual
-system; the extension's overlay uses its own dark "Sumi" system, designed to sit
-over video. The default window is 1180 × 850,
-bounded by the available desktop area; shorter windows scroll their content.
+The launcher and the extension share the dark "Sumi" system: ink (`#0E0F13`),
+washi-paper text (`#F4F0E8`), one vermilion accent for what is active or
+clickable (`#FF6A4D`; `#D23A20` behind white text on filled buttons), gold
+(`#F7D794`) for translation and work in progress, and green (`#73D69F`) for
+ready. The sidebar marks the current page with a vermilion bar. The session
+cover lays the Fuji landscape under an ink gradient so the text reads on ink
+and the artwork stays in dusk instead of glaring. Cards are flat, with 14 px
+corners and hairline borders. `YouJP.ps1` paints each engine state with the
+same values. The default window is 1180 × 850, bounded by the available desktop
+area; shorter windows scroll their content.
 
-For an interactive review of the extension's production components without
-models or audio capture, run `npm.cmd run preview:ui` from `extension` and open
+CI renders the four pages in six states and both languages with a sample
+history and uploads them as the `youjp-launcher-previews` artifact. For an
+interactive review of the extension's production components without models or
+audio capture, run `npm.cmd run preview:ui` from `extension` and open
 `http://127.0.0.1:4178`. Review criteria and results are recorded in
 `docs/ui-redesign.md`.
 
@@ -76,4 +81,5 @@ extension icons in `extension/public/icon`, so all three share one mark.
 
 `assets/mascot-pastel.png` is the transparent mascot with headphones and a
 hiragana card. `assets/fuji-pastel.png` is the Fuji and sakura landscape.
-Both files are the original artwork supplied with the pastel UI reference.
+Both files are the original artwork supplied with the earlier pastel UI
+reference; the dark cover keeps them unmodified.

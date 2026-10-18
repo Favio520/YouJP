@@ -399,7 +399,7 @@
           </RadioButton>
         </StackPanel>
         <!-- Sello decorativo: cede el sitio a la navegación en ventanas bajas. -->
-        <TextBlock Grid.Row="1" Text="字" FontFamily="Yu Mincho" FontSize="120" Foreground="#0AFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" TextWrapping="NoWrap" ClipToBounds="True" />
+        <TextBlock Grid.Row="1" Text="字" FontFamily="Yu Mincho" FontSize="120" Foreground="#06FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" TextWrapping="NoWrap" ClipToBounds="True" />
         <StackPanel Grid.Row="2">
           <Border Background="#0AFFFFFF" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="14,13" Margin="0,0,0,14">
             <StackPanel>
