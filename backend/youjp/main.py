@@ -563,9 +563,12 @@ async def stream(ws: WebSocket) -> None:
         emitter.close()
         state.sessions -= 1
         await _cancel_task(sender)
+        # Liberar los trabajadores antes de cerrar: así el cierre confirma que la
+        # sesión ya no ocupa el modelo, y quien espera ese cierre no corta la
+        # limpieza a medias.
+        await _stop_session(ticker, worker, mt, nlp)
         with contextlib.suppress(WebSocketDisconnect, RuntimeError, OSError):
             await ws.close(code=close_code)
-        await _stop_session(ticker, worker, mt, nlp)
         log.info("[%s] sesion cerrada", session_id)
 
 

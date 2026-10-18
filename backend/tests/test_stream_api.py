@@ -141,6 +141,10 @@ def test_repeated_start_cancels_ticker_and_stops_off_loop(client):
             assert ready["protocol_version"] == PROTOCOL_VERSION
             assert ready["app_version"] == APP_VERSION
         ws.send_json({"type": "session.stop"})
+        # Al salir, el cliente de pruebas cancela el servidor: hay que esperar al
+        # cierre, que llega con los trabajadores ya detenidos.
+        with pytest.raises(WebSocketDisconnect):
+            ws.receive_json()
     assert tickers["max"] == 1
     assert tickers["active"] == 0
     assert state.sessions == 0
