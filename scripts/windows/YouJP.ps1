@@ -194,11 +194,12 @@ function Update-Panel {
         elseif (-not $view.CanSetup) { (Get-YouJPText 'Detén YouJP antes de cambiar o actualizar la configuración.') }
         elseif ($script:installed) { (Get-YouJPText 'Tu equipo está preparado. Actualiza solo si cambias estas opciones o la versión de YouJP.') }
         else { (Get-YouJPText 'Cuando termine la preparación, vuelve a Tu sesión para iniciar YouJP.') }
+    # Texto y punto, fondo translúcido y punto de la barra lateral, con la paleta de YouJP.xaml.
     $colors = switch ($view.Tone) {
-        'green' { @('#336749', '#EDF7F0', '#83BA99') }
-        'red' { @('#AE3B2C', '#FFE8E1', '#FF705E') }
-        'blue' { @('#6450A4', '#F1ECFD', '#B9A2F4') }
-        default { @('#5C6B7E', '#F1EDE8', '#B9A2F4') }
+        'green' { @('#73D69F', '#1F73D69F', '#73D69F') }
+        'red' { @('#FF9A85', '#29FF6A4D', '#FF6A4D') }
+        'blue' { @('#F7D794', '#1FF7D794', '#F7D794') }
+        default { @('#BDB7AD', '#14FFFFFF', '#9A958C') }
     }
     $brush = [Windows.Media.BrushConverter]::new()
     $ui.StatusDot.Fill = $brush.ConvertFromString($colors[0])
@@ -207,10 +208,10 @@ function Update-Panel {
     $ui.StatusPill.Background = $brush.ConvertFromString($colors[1])
     $ui.StatusPill.BorderBrush = $brush.ConvertFromString($colors[1])
     $needsAttention = $view.Tone -eq 'red'
-    $ui.StatusDetailBox.Background = if ($needsAttention) { $brush.ConvertFromString('#FFE8E1') } else { [Windows.Media.Brushes]::Transparent }
+    $ui.StatusDetailBox.Background = if ($needsAttention) { $brush.ConvertFromString('#29FF6A4D') } else { [Windows.Media.Brushes]::Transparent }
     $ui.StatusDetailBox.Padding = if ($needsAttention) { [Windows.Thickness]::new(12) } else { [Windows.Thickness]::new(0) }
     $ui.StatusNoticeIcon.Visibility = if ($needsAttention) { 'Visible' } else { 'Collapsed' }
-    $ui.StatusDetail.Foreground = $brush.ConvertFromString($(if ($needsAttention) { '#AE3B2C' } else { '#5C6B7E' }))
+    $ui.StatusDetail.Foreground = $brush.ConvertFromString($(if ($needsAttention) { '#FFC9BD' } else { '#BDB7AD' }))
     $ui.HomeActivityNotice.Background = $brush.ConvertFromString($colors[1])
     $ui.HomeActivityStatus.Foreground = $brush.ConvertFromString($colors[0])
     $ui.ActivitySummary.Background = $brush.ConvertFromString($colors[1])
@@ -263,12 +264,16 @@ function Set-Failure([string]$Message) {
 }
 
 function Update-Log {
+    # Cada frase se traduce por separado: con el salto de línea dentro de la clave
+    # la búsqueda en locales/en.json fallaba y el inglés mostraba el español.
     if ($Preview) {
-        $ui.LogText.Text = "Vista previa del registro`r`n`r`nAquí aparecerán el progreso de la preparación y los mensajes de tu sesión."
+        $ui.LogText.Text = (Get-YouJPText 'Vista previa del registro') + "`r`n`r`n" +
+            (Get-YouJPText 'Aquí aparecerán el progreso de la preparación y los mensajes de tu sesión.')
         return
     }
     if (-not $script:logPath -or -not (Test-Path -LiteralPath $script:logPath)) {
-        $ui.LogText.Text = (Get-YouJPText "Todavía no hay actividad.`r`n`r`nInicia YouJP o prepara tu equipo para ver el progreso aquí.")
+        $ui.LogText.Text = (Get-YouJPText 'Todavía no hay actividad.') + "`r`n`r`n" +
+            (Get-YouJPText 'Inicia YouJP o prepara tu equipo para ver el progreso aquí.')
         $ui.CopyLogsButton.IsEnabled = $false
         return
     }
@@ -296,6 +301,20 @@ function Get-HistoryName($Session) {
     return (Get-YouJPText 'Página sin identificar')
 }
 
+function Get-SentenceCount([int]$Count) {
+    if ($Count -eq 1) { return (Get-YouJPText '1 frase') }
+    return (Get-YouJPText "$Count frases")
+}
+
+function New-HistoryLine([string]$Text, [double]$Size, [string]$Color) {
+    # Una línea que se recorta con «…»: las filas no deben partirse en dos.
+    $line = [Windows.Controls.TextBlock]::new()
+    $line.Text = $Text; $line.FontSize = $Size
+    $line.TextTrimming = 'CharacterEllipsis'; $line.TextWrapping = 'NoWrap'
+    if ($Color) { $line.Foreground = [Windows.Media.BrushConverter]::new().ConvertFromString($Color) }
+    return $line
+}
+
 function Update-Recent {
     # Las tres últimas páginas traducidas, como atajo al historial.
     $ui.RecentList.Children.Clear()
@@ -307,17 +326,14 @@ function Update-Recent {
         $button.BorderThickness = [Windows.Thickness]::new(0)
         $button.Padding = [Windows.Thickness]::new(0, 6, 0, 6)
         $button.MinHeight = 0
-        $button.HorizontalContentAlignment = 'Left'
+        $button.HorizontalContentAlignment = 'Stretch'
         $panel = [Windows.Controls.StackPanel]::new()
-        $title = [Windows.Controls.TextBlock]::new()
-        $title.Text = Get-HistoryName $session
-        $title.FontWeight = 'SemiBold'; $title.FontSize = 13; $title.TextTrimming = 'CharacterEllipsis'; $title.TextWrapping = 'NoWrap'
-        $detail = [Windows.Controls.TextBlock]::new()
+        $title = New-HistoryLine (Get-HistoryName $session) 13 ''
+        $title.FontWeight = 'SemiBold'
         $parts = @($session.Channel, $(if ($session.StartedAt -gt [DateTime]::MinValue) { $session.StartedAt.ToString('yyyy-MM-dd HH:mm') }),
-            (Get-YouJPText "$($session.Count) frases")) | Where-Object { $_ }
-        $detail.Text = $parts -join '  ·  '
-        $detail.FontSize = 11; $detail.Foreground = [Windows.Media.BrushConverter]::new().ConvertFromString('#5C6B7E')
-        $detail.TextTrimming = 'CharacterEllipsis'; $detail.TextWrapping = 'NoWrap'
+            (Get-SentenceCount $session.Count)) | Where-Object { $_ }
+        $detail = New-HistoryLine ($parts -join '  ·  ') 11.5 '#9A958C'
+        $detail.Margin = [Windows.Thickness]::new(0, 2, 0, 0)
         $null = $panel.Children.Add($title); $null = $panel.Children.Add($detail)
         $button.Content = $panel
         $button.Add_Click({ Show-Page 'history' })
@@ -335,15 +351,16 @@ function Update-History {
         $preview = if ($session.Preview.Length -gt 36) { $session.Preview.Substring(0, 36) + '…' } else { $session.Preview }
         $item = [Windows.Controls.ListBoxItem]::new()
         $item.Tag = $session
-        $item.Padding = [Windows.Thickness]::new(10, 8, 10, 8)
-        $text = [Windows.Controls.TextBlock]::new()
-        $text.TextWrapping = 'Wrap'
-        $title = [Windows.Documents.Run]::new($name); $title.FontWeight = 'SemiBold'
-        $text.Inlines.Add($title)
-        $detail = @($session.Channel, $when, (Get-YouJPText "$($session.Count) frases")) | Where-Object { $_ }
+        $text = [Windows.Controls.StackPanel]::new()
+        $title = New-HistoryLine $name 13.5 ''
+        $title.FontWeight = 'SemiBold'
+        $detail = @($session.Channel, $when, (Get-SentenceCount $session.Count)) | Where-Object { $_ }
         if ($session.Full) { $detail += (Get-YouJPText 'Vídeo completo') }
-        $text.Inlines.Add([Windows.Documents.Run]::new("`n" + ($detail -join '  ·  ')))
-        $text.Inlines.Add([Windows.Documents.Run]::new("`n$preview"))
+        $meta = New-HistoryLine ($detail -join '  ·  ') 11.5 '#9A958C'
+        $meta.Margin = [Windows.Thickness]::new(0, 3, 0, 0)
+        $snippet = New-HistoryLine $preview 12.5 '#BDB7AD'
+        $snippet.Margin = [Windows.Thickness]::new(0, 4, 0, 0)
+        $null = $text.Children.Add($title); $null = $text.Children.Add($meta); $null = $text.Children.Add($snippet)
         $item.Content = $text
         $null = $ui.HistoryList.Items.Add($item)
         if ($session.Path -eq $selectedPath) { $ui.HistoryList.SelectedItem = $item }
@@ -605,6 +622,8 @@ try {
         if ($ui.PageTitle.Text -ne 'Settings') { throw 'English settings page did not update.' }
         $script:previewKind = 'ready'; Update-Panel
         if ($ui.StatusLabel.Text -ne 'Ready') { throw 'English engine state did not update.' }
+        Update-Log
+        if (-not $script:logPath -and $ui.LogText.Text -notlike 'No activity yet.*') { throw 'English empty log did not update.' }
         Set-YouJPViewLanguage $window
         Show-Page 'settings'; Update-Panel
         if ($ui.UiLanguageChoice.SelectedIndex -ne 1 -or $ui.PageTitle.Text -ne 'Settings') { throw 'Refreshing labels reset the language selection.' }

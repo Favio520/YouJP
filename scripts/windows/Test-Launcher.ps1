@@ -134,6 +134,21 @@ try {
     Assert ($null -eq (Get-YouJPHardware).GPU) 'Unavailable GPU metrics must permit CPU fallback'
 }
 
+# Toda etiqueta fija del XAML necesita versión inglesa: si falta, la interfaz
+# en inglés la muestra en español sin que nada falle.
+$neutralLabels = @('You', 'JP', 'Español', 'English', 'GPU NVIDIA', 'CPU', '!', '01', '02', '03', '0',
+    '文', '字', '記', '調', '今日の日本語', 'Idioma / Language')
+$markup = [xml](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'YouJP.xaml') -Raw -Encoding UTF8)
+$script:UiLanguage = 'en'
+try {
+    foreach ($attribute in $markup.SelectNodes('//@*')) {
+        if ($attribute.LocalName -notin @('Text', 'Content', 'Header', 'ToolTip', 'AutomationProperties.Name')) { continue }
+        $label = $attribute.Value
+        if ($label.StartsWith('{') -or $label -in $neutralLabels) { continue }
+        Assert ((Get-YouJPText $label) -ne $label) "Falta la traducción inglesa de «$label» en locales/en.json"
+    }
+} finally { $script:UiLanguage = 'es' }
+
 $view = Get-YouJPPanelState -Installed $true -Checked $false
 Assert (-not $view.CanAct -and -not $view.CanSetup) 'First health check must finish before starting or installing'
 $view = Get-YouJPPanelState -Installed $false -Checked $true
